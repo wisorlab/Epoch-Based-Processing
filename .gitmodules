@@ -1,0 +1,3 @@
+[submodule "Timed_Intervals/export/matlab-utils"]
+	path = Timed_Intervals/export/matlab-utils
+	url = https://github.com/jonbrennecke/matlab-utils
