@@ -6,5 +6,5 @@ In the data analytics pipeline, 'Export' scripts act as an intermediary between 
 Export scripts may optionally process the data in some way that ought to be specific to their file name.
 
 ### Table of Contents
-- WhiskOpto.m
+- WhiskerOpto.m
   - The main analysis script for the 'Lactate Whisker/Opto Sleep Deprivation Experiment'
