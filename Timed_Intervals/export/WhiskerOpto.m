@@ -77,15 +77,15 @@ for i=1:length(files)
 		end
 	end
 
-    % the data in the sensor arrays now starts at 10:00 AM
-    % to select the 6hr block we determine the following:
+    % the data in the sensor arrays now starts at 10:00 AM.
+    % To select the 6hr block we determine the following:
     % 6 hours * 60 min / hr * 6 samples / min = 2160 samples
 	bio = bio(1:2160);
 	emg = emg(1:2160);
 	eeg1 = eeg1(1:2160);
 	eeg2 = eeg2(1:2160);
 
-	% divide the data into chunks of 30 samples
+	% divide the data into 5 min chunks (chunks of 30 samples)
 	% since 5 min * 6 samples/min = 30 samples
 	% then average each 5 min window to one sample
 	bio = mean( Utils.slice(bio,30), 2);
