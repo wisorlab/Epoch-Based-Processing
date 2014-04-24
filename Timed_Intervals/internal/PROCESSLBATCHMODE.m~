@@ -1,10 +1,16 @@
-function [Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
-% USAGE: [Taui,Taud]=ProcessLBatchMode(directory,signal)
-% the input, directory should also say the file extension, 
-% for instance, directory='../'  using single quotes
+function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
+% USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal)
+%
+%
 % signal can be one of three options: 'lactate', 'delta1' or 'delta2',
 % where delta1 means the delta power in EEG1 and delta2 is delta power in EEG2
-profile on
+% 
+% OUTPUTS:
+% signal_data: a cell array containing a vector of either delta power or lactate, one for each file in the directory
+% best_S:  a cell array containing the best fit curve S, one for each file in the directory
+% Taui:    a vector of the rise time time constant, one value for each file in the directory
+% Taud:    a vector of the fall time time constant, one value for each fiel in the directory
+
 
 directory_plus_extension=strcat(directory,'*.txt');
 
@@ -26,7 +32,7 @@ end  % the use of '{}' to signify array positions identifies this array as a cel
 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.   
   
-[data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
+  [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
   
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
@@ -51,7 +57,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
 
  		                                                   
  
- PhysioVars=zeros(size(data,1),4);
+  PhysioVars=zeros(size(data,1),4);
  
 
   missing_values=0;
@@ -67,55 +73,67 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     elseif isempty(textdata{i,2})==1
       missing_values=missing_values+1;
       PhysioVars(i,1)=0;  
-    % else   
-    %   PhysioVars(i,1)=0;
+				% else   
+				%   PhysioVars(i,1)=0;
     end
   end
-missing_values
+  missing_values
 
 
  
-if strcmp(signal,'lactate') 
-  PhysioVars(:,2)=LactateSmoothed(1:size(data,1));
-else PhysioVars(:,2)=data(:,1);
-end
-
-PhysioVars(:,3) = mean(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
-PhysioVars(:,4) = mean(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
-%[pctsm,delta1smoothed] = smooth2(PhysioVars,3,50,3,1);  % call the smoothing algorithm on the EEG data too.   
-%[pctsm,delta2smoothed] = smooth2(PhysioVars,4,50,3,1);
-%d1smoothed = fastsmooth(PhysioVars(:,3),5,3,1); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
-d1smoothed = medianfilter(PhysioVars(:,3),2); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
-d2smoothed = medianfilter(PhysioVars(:,4),2);
-
-dt=1/360;    
-t=0:dt:dt*(size(PhysioVars,1)-1); 
-figure
-plot(t,PhysioVars(:,3),'r',t,d1smoothed)
-
-
-figure
-plot(t,PhysioVars(:,4),'r',t,d2smoothed)
-
-
-
-PhysioVars(:,3) = d1smoothed;
-PhysioVars(:,4) = d2smoothed;
+  if strcmp(signal,'lactate') 
+    PhysioVars(:,2)=LactateSmoothed(1:size(data,1));
+  else PhysioVars(:,2)=data(:,1);
+  end
   
-size(PhysioVars)
-
-
-[Ti,Td,LA,UA,best_error,error_instant] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
-
-Taui(FileCounter) = Ti
-Taud(FileCounter) = Td
-%LowA(FileCounter,:)=LA;
-%UppA(FileCounter,:)=UA;
-Error(FileCounter)  = best_error;
-Error2(FileCounter) = error_instant;
-%delete(findall(0,'Type','figure')); %if you want to delete all figures before next run
+  PhysioVars(:,3) = mean(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
+  PhysioVars(:,4) = mean(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
+  %[pctsm,delta1smoothed] = smooth2(PhysioVars,3,50,3,1);  % call the smoothing algorithm on the EEG data too.   
+  %[pctsm,delta2smoothed] = smooth2(PhysioVars,4,50,3,1);
+  %d1smoothed = fastsmooth(PhysioVars(:,3),5,3,1); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
+  d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
+  d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
   
-end
+  dt=1/360;    
+  t=0:dt:dt*(size(PhysioVars,1)-1); 
+  figure
+  plot(t,PhysioVars(:,3),'r',t,d1smoothed)
+  
+  
+  figure
+  plot(t,PhysioVars(:,4),'r',t,d2smoothed)
+  
+  
+  
+  PhysioVars(:,3) = d1smoothed;
+  PhysioVars(:,4) = d2smoothed;
+  
+  if strcmp(signal,'lactate')
+    signal_data{FileCounter} = PhysioVars(:,2);
+  elseif strcmp(signal,'delta1')
+    signal_data{FileCounter} = PhysioVars(:,3);
+  elseif strcmp(signal,'delta2')
+    signal_data{FileCounter} = PhysioVars(:,4);
+  end
+
+
+
+  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
+
+  Taui(FileCounter) = Ti
+  Taud(FileCounter) = Td
+  %LowA(FileCounter,:)=LA;
+  %UppA(FileCounter,:)=UA;
+  Error(FileCounter)  = best_error;
+  Error2(FileCounter) = error_instant;
+  %delete(findall(0,'Type','figure')); %if you want to delete all figures before next run
+  
+  % populate cell array with S output
+  best_S{FileCounter} = S;
+
+
+
+end  %end of looping through files
     
 % make a bar graph showing the error in the model and the error using 
 % the instant model that follows the lactate upper and lower bounds and 
@@ -139,4 +157,3 @@ sound  (y)
 
 
 
-profile viewer

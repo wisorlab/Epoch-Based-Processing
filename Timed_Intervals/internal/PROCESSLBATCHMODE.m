@@ -10,7 +10,7 @@ function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 % best_S:  a cell array containing the best fit curve S, one for each file in the directory
 % Taui:    a vector of the rise time time constant, one value for each file in the directory
 % Taud:    a vector of the fall time time constant, one value for each fiel in the directory
-
+% new comment
 
 directory_plus_extension=strcat(directory,'*.txt');
 
