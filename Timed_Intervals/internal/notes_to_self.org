@@ -677,4 +677,21 @@ I should be able to just type git clone rempe_internal    and it should work)
 5) modify the code in the directories just created
 6) git status (tells me which files have changed)
 7) git commit -am 'status message' 
+8) git push origin mrempe   (this pushes it to the server)
+
+
+make_shaded_figure.m is running, but the output does not look good. 
+Looks like maybe I'm scaling S and/or data incorrectly as S does not 
+match data well at all (using delta)  Checking with BA.  Make plots 
+of scaled S and scaled delta for each animal to make sure they 
+look good since most of the animals have a decent model fit when 
+you just run PROCESSLBATCHMODE.m for BA. 
+
+It seems like I should be using the circles, not all of the delta1 data,
+since the circles are what I fitted to the model to.  I will now modify 
+compute_mean_time_course.m to use the circles not the raw data.  
+I think I implemented this, but the plot still looks quite bad.  Surprising since
+the individual plots look good for the most part.  
+Keep working on this. 
+
 

@@ -14,20 +14,20 @@ function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes
 %          is in the second column, average delta power in EEG1 is in the 
 %          third column, and averge delta power in EEG2 is in the 4th column.
 %
+%          if datafile has only 2 columns that means it has already been processed, 
+%          so just keep it.  It has sleep state in first column and delta or lactate in second
+
 % signal: 'lactate' or 'delta1' or 'delta2'
 %
 % OUTPUTS:
-% t_mdpt_SWS:  the times of the midpoints of the 5 minute episodes
+% t_mdpt_SWS:  the times (in hours) of the midpoints of the 5 minute episodes
 % in which SWA makes up at least 90% of data. 
 %
-% t_midpt_SWS:  the times corresponding to the midpoints of the SWS
-%               episodes
-% 
 % data_at_SWS_midpoints:  median delta power or lactate 
 %                         signal at the midpoints of SWS episodes
 %                         longer than 5 minutes
 %
-% t_mdpt_indices:  the indices of t (orignal time vector)
+% t_mdpt_indices:  the indices of t (original time vector)
 %                  corresponding to the midpoints of the SWS episodes.
 
 
@@ -37,13 +37,19 @@ t_hours=0:1/360:(1/360)*(size(datafile,1)-1);  %1/360 because 10 seconds
 
 
 % Pick off the correct data from datafile
-if strcmp(signal,'delta1')
-  data=datafile(:,3);
-elseif strcmp(signal,'delta2')
-  data=datafile(:,4);
-elseif strcmp(signal,'lactate')
-  data=datafile(:,2);
-end
+if size(datafile,2) > 2 
+  if strcmp(signal,'delta1')
+    data=datafile(:,3);
+  elseif strcmp(signal,'delta2')
+    data=datafile(:,4);
+  elseif strcmp(signal,'lactate')
+    data=datafile(:,2);
+  end
+else
+  data=datafile(:,2);  % in this case, the correct column has already been plucked off
+                       % second column has delta or lactate data, first column has sleep state.
+ end
+size(data)
 
 
 
@@ -56,7 +62,7 @@ starting_indices=0;
 
 % for each 5 min sliding window check to see if 90% or more is SWA
 for i=30:size(datafile,1)
-  if length(find(datafile(i-29:i)==1))>=27
+  if length(find(datafile(i-29:i,1)==1))>=27
     counter = counter+1;
     starting_indices(counter)=i-29;
     % t_mdpt_SWS(counter) = mean([t_hours(i-15),t_hours(i-14)]);

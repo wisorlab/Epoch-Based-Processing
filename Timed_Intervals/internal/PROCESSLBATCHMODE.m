@@ -1,4 +1,4 @@
-function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
+function [signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 % USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal)
 %
 %
@@ -6,7 +6,7 @@ function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 % where delta1 means the delta power in EEG1 and delta2 is delta power in EEG2
 % 
 % OUTPUTS:
-% signal_data: a cell array containing a vector of either delta power or lactate, one for each file in the directory
+% signal_data: a cell array containing vectors of either delta power or lactate, one for each file in the directory
 % best_S:  a cell array containing the best fit curve S, one for each file in the directory
 % Taui:    a vector of the rise time time constant, one value for each file in the directory
 % Taud:    a vector of the fall time time constant, one value for each fiel in the directory
@@ -16,8 +16,6 @@ function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 
 directory_plus_extension=strcat(directory,'*.txt');
 
-
-%clear  %clears all pre-existing variables from the workspace so they do not impact processing in this run.
 
 files = dir(directory_plus_extension);     % the dir function returns a cell array containing the name, date, bytes and date-as-number as a single array for each txt file in this directory.
 
@@ -110,6 +108,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   PhysioVars(:,3) = d1smoothed;
   PhysioVars(:,4) = d2smoothed;
   
+  state_data{FileCounter} = PhysioVars(:,1);
   if strcmp(signal,'lactate')
     signal_data{FileCounter} = PhysioVars(:,2);
   elseif strcmp(signal,'delta1')
@@ -117,7 +116,6 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   elseif strcmp(signal,'delta2')
     signal_data{FileCounter} = PhysioVars(:,4);
   end
-
 
 
   [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
