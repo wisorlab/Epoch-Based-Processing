@@ -1,4 +1,4 @@
-function [Ti,Td,LA,UA,best_error,error_instant]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
+function [Ti,Td,LA,UA,best_error,error_instant,best_S]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -73,12 +73,12 @@ Td=best_tau_d;
 
 % run one more time with best fit and plot it (add a plot with circles)
 if  strcmp(signal,'lactate')
-  S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,filename);
+  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,filename);
   error_instant=run_instant_model(datafile,LA,UA,window_length);
 
 end
 if strcmp(signal,'delta1') | strcmp(signal,'delta2')
- S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,filename);
+ best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,filename);
 end
 
 t=0:dt:dt*(size(datafile,1)-1);
@@ -93,7 +93,7 @@ if strcmp(signal,'delta1') | strcmp(signal,'delta2')
   %scatter(t(only_sleep_indices),sleep_eeg2,25,'r')
   plot(t_mdpt_SWS,data_at_SWS_midpoints,'go')
   hold on
-  plot(t,S)
+  plot(t,best_S)
   ylabel('Delta power')
   xlabel('Time (hours)')
   title(['Best fit of model to delta power data for file ' filename])
@@ -107,7 +107,7 @@ if strcmp(signal,'delta1') | strcmp(signal,'delta2')
     hold on
    %tS=t(361:end-360);
     tS=t((window_length/2)*360+1:end-(window_length/2)*360);
-    plot(tS,S)
+    plot(tS,best_S)
     plot(tS,LA,'k--')
     plot(tS,UA,'k--')
     ylabel('lactate')

@@ -662,4 +662,19 @@ Goals for today:
 3) Start draft of abstract for MAA?
 
 
+How to use GitHub:
+I've set up a branch  under the wisorlab github in Epoch-Based-Processing directory
+called mrempe.  In this branch I have the directory Timed_Intervlas/internal. 
+To use GitHub on a typical coding day: (use the posh command line. it has a blue icon that looks 
+like a play button)
+1) make a new directory anywhere in mrempe 
+and call it something like todayscode or something.  This can be deleted each day (if I push commits back
+to GitHub.  
+2) git clone https://github.com/wisorlab/Epoch-Based-Processing/ (I modified the .gitconfig file so 
+I should be able to just type git clone rempe_internal    and it should work)
+3) git branch (this lists the branches, you may not see mrempe)
+4) git checkout mrempe
+5) modify the code in the directories just created
+6) git status (tells me which files have changed)
+7) git commit -am 'status message' 
 

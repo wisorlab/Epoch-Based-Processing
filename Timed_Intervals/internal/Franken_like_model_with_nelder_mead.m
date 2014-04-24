@@ -74,7 +74,7 @@ Td=best_tau_d;
 % run one more time with best fit and plot it (add a plot with circles)
 if  strcmp(signal,'lactate')
   best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,filename);
-  error_instant=run_instant_model(datafile,LA,UA,window_length);
+  %error_instant=run_instant_model(datafile,LA,UA,window_length);
 
 end
 if strcmp(signal,'delta1') | strcmp(signal,'delta2')

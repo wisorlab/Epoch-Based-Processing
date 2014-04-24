@@ -12,6 +12,8 @@ function [signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 % Taud:    a vector of the fall time time constant, one value for each fiel in the directory
 % new comment
 
+%profile on
+
 directory_plus_extension=strcat(directory,'*.txt');
 
 
@@ -138,22 +140,23 @@ end  %end of looping through files
 % make a bar graph showing the error in the model and the error using 
 % the instant model that follows the lactate upper and lower bounds and 
 % switches in-between them if the sleep state changes
-if strcmp(signal,'lactate')
-  figure
-  bar([1,2],[mean(Error)/mean(Error) mean(Error2)/mean(Error)])
-  set(gca,'XTickLabel',{'Model fit','instant model'})
-  hold on
-  h=errorbar([1 2],[mean(Error)/mean(Error) mean(Error2)/mean(Error)],[std(Error)/sqrt(length(Error)) std(Error2)/sqrt(length(Error2))]); 
-  %set(h(2),'LineStyle','none','Marker','s','MarkerEdgeColor','k')
+% if strcmp(signal,'lactate')
+%   figure
+%   bar([1,2],[mean(Error)/mean(Error) mean(Error2)/mean(Error)])
+%   set(gca,'XTickLabel',{'Model fit','instant model'})
+%   hold on
+%   h=errorbar([1 2],[mean(Error)/mean(Error) mean(Error2)/mean(Error)],[std(Error)/sqrt(length(Error)) std(Error2)/sqrt(length(Error2))]); 
+%   %set(h(2),'LineStyle','none','Marker','s','MarkerEdgeColor','k')
   
-  d=daspect;
-  daspect([d(1)*2 d(2) d(3)])
+%   d=daspect;
+%   daspect([d(1)*2 d(2) d(3)])
   
-  title('Error between model fit and instant model that follows UA or LA')
-end
+%   title('Error between model fit and instant model that follows UA or LA')
+% end
 
 load chirp % this assigns chirp to the variable y
 sound  (y)
 
 
 
+%profile viewer
