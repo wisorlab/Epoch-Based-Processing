@@ -1,0 +1,665 @@
+MY NOTES TO SELF -*- mode: org -*-
+July 16 2013:
+
+Jonathan's code (copied into my directory) seems to run up to the point 
+where I get an error about matrix dimensions agreeing in run_S_model.m line
+32.  I think this is the same error there was when Jonathan first showed 
+me this code. 
+
+I made Physiovars average the delta power in ProcessLBatchMode.m so 
+I changed make_frequency_plot_JW to use delta1,delta2, or lactate 
+as the signal and use only 1 column of DataMatrix since that average has 
+already been done before this function is called.  
+
+To do next:  Right now ProcessLBatchMode is set to process all the text files
+in the same directory as ProcessLBatchMode.m.  I don't think this a good 
+way to go since you have to have all your .m files in the same directory 
+as your data files.  
+
+I have it set up now to read in the directory where the data files are stored. 
+So set up different directories for each of the genetic strains, then 
+run ProcessLBatchMode.m for each directory.  DONE
+Or, improve ProcessLBatchMode.m so it knows about the differnet file names 
+and computes all the correct Tau values and keeps them separated so you 
+can compare strains easily.  
+
+
+Thursday, July 17 2013: 
+For today, work on my own code, not Jonathan's.  Implement the stuff I worked on two days 
+ago to read in the excel files and batch process.  Also, set up different directories 
+for each genetic strain.  Make sure I'm getting output that matches what I got before 
+(on my linux machine).  
+
+Gender
+NOTE:  Jonathan uses the 5th and 95th percentiles for the lactate in make_frequency_plot.m
+(see lines 120 and 121) (LA(i-shift) and UA(i-shift) ) where I currently 
+use the 1st and 99th percentiles.  After I make sure this new version of the code 
+is working, I should change this to 5th and 95th to match what he's doing.  
+
+It would be great to put the datafile name on the figures that pop up.  That way if 
+one looks funny, I can know which data file it is.  This shouldn't be too hard 
+in ProcessLBatchMode, since I already have the file names in "files". Just read that into 
+the functions that make the plots. DONE
+ 
+Check to make sure the output is what I got before, using my desktop machine.  Both 
+with the nelder-mead and without.  I put a .mat file on Dropbox. CHECK 
+
+Tuesday, July 23 2013:
+The Td values for the BA mice match up between the ProcessLBatchMode.m code and the 
+code I ran on my desktop machine (up to round-off since the new version uses Nelder-Mead and is 
+more accurate). 
+
+Ti values for BA also match
+
+check smoothing algorithm.  It doesn't seem like it's doing a good job.  
+ 
+test different starting values for Nelder-Mead and tolerances to see if it changes the results 
+or not.  
+
+Wednesday, July 24 2013:
+I spent a lot of time today trying to make emacs work well with matlab.  When I do 
+"comment-region" it puts in hash marks not percent signs.  It looks like the file
+to change is Desktop/emacs/lisp/progmodes/octave-mod.elc  The line that needs changing
+has a defvar statement.  I don't know which number refers to the percent sign though. 
+I may open up word and check that way.  Apparantly you can have Word tell you the 
+Unicode for a character.  
+Another option is to re-do my _emacs file to try matlab one more time.  Since it was only using 
+octave-mod.elc and not octave-mod.el, I'm wondering if it only looks for .elc files, not .el 
+files. 
+
+SOLUTION:
+You can byte-compile any EmacsLisp source file using the command ¡®byte-compile-file¡¯. For 
+example with Emacs-Lisp you do:
+
+  (byte-compile-file "foo.el")
+EmacsLisp source files have extension `.el¡¯. Byte-compiled files have extension `.elc¡¯. If 
+both source and byte-compiled files are present for the same library at the same place in 
+your ¡®load-path¡¯, Emacs will load the byte-compiled file, not the source file.
+
+This can be a source of confusion. If you change a source file, but don¡¯t remember to 
+byte-compile it again, then Emacs might load the out-of-date byte-compiled file instead 
+of the newer source file. Emacs warns you about this, but you might miss the warning message.
+
+This is exactly what happened.  I re-compiled octave-mod.el and now it finally works. 
+I have comments in matlab.  
+
+
+Thursday, July 25 2013:
+I ran the code without nelder-mead and it worked and was giving me correct results,
+but much slower than w/o nelder-mead.  
+
+I changed the tolerance in Nelder-Mead to be 1e-5 instead of 1e-3 and it made a significant 
+difference in the output, so I will keep going until it doesn't change anymore.  
+1e-9 seems to do a good job (4 digits of accuracy as compared to 1e-7) and almost 
+no increase in computing time.  I think this is a good option. 
+
+One idea:  put the code in to either export the Taui and Taud to an excel file, or 
+go ahead and write a matlab script to call ProcessLBatchMode for two 
+different directories and compute the students t-test.  
+
+Tuesday, July 30, 2013
+I've worked on the last idea from last time.  I have a function called 
+compare_two_strains.m and it seems to work, but SmoothLactate.m is 
+hanging up on one of the AKR files so I'm investigating.  Trying 
+to use my own version of smoothlactate.m  
+
+The problem seems to be in reading in the file, not in SmoothLactate.m.  There is 
+a state variable missing on the first line, and I'm wondering if this is the 
+problem.  
+
+PROBLEM: If there is missing data (like the sleep state, as in the first line of
+AKR1610_04_25_2013.txt) importdata.m (which is called in importDSILactateFftfile.m)
+just stops at that line and gives no warning.  This could be a huge problem.  
+Build in checks to make sure this doesn't happen ever.  This needs to be 
+very robust.  It's the same issue I ran into before in linux with xlsread.m.
+
+I found that this may have been happening for several files.  Importdata.m 
+does not give any warnings if it finds a missing character, it just 
+stops importing the file.  I'm now using textscan.m which is more robust, 
+although trickier to use.  
+
+My new version of ProcessLBatchMode.m seems to be working with my new 
+importdata.m which uses textscan instead of importdata.  I have 
+ProcessLBatchMode.m keep track of how many missing data 
+points we have. I may want to update this to also tell me where
+those missing data points are.  
+
+This is a more robust method than importdata, which wouldn't 
+even tell me if it encountered a missing value, it would just
+quit right there.  Now we can decide what to do about those missing 
+data points and write it right into the code.  I was finding that the 
+first 3 data files in AKR had missing data.  Check all and make sure 
+it's missing sleep state, not something else.  
+
+Thursday, Aug. 1 2013
+  One thing I noticed in file AKR1608_04_23_2.txt was that there were some negative values for lactate. 
+I should check for negative values and just end the file before them if they are there.  
+I added a couple of lines of code to importdatafile.m to cut them out. DONE
+
+Now, something weird is happening: Several of the files have missing sleep state data, and 
+missing_values is nonzero.  However, the model runs just fine for all of the files 
+until file AKR1610_04_25_2.txt, when it complains that run_S_model.m found a sleep state
+value that was not 0,1, or 2.  It seems like all the files with missing data should 
+trigger this error since I set missing values to 5 in ProcessLBatchMode.m
+The issue might be the fact that I'm using a moving window.  If the missing data 
+occurs at the very beginning or the very end of the data file, my run_S_model
+isn't doing its thing there anyway, so it won't complain, but if there is 
+a missing value in the middle of the dataset (as was likely with the file that 
+had 23 missing values), then run_S_model will be trying to do its thing 
+and will complain.  
+
+Perhaps I should write in some code to handle the case of missing data.  Perhaps 
+I could check to see if there are several rows of W just before and just after. 
+In that case I may be able to assume that the missing data are W.  
+This doesn't seem promising.  For the file AKR1610_04_25_2.txt the missing data 
+were not always in a contiguous block of one letter.  I may need some help filling in this
+missing data.  
+Decide (talking with Jonathan and Will) what to do about the missing data. It 
+seems like Jonathan had it set up so if there wasn't a W, R, S, or P, set it to W. 
+Maybe this is what I should do too.  
+
+I ran into an issue with the smoothing algorithm for file DBA1621_04_24_2013.txt. 
+It complained about subscripted assignment dimensions mismatch on this 
+statement: PhsioVars(:,2)=LactateSmoothed(:,2);  I simplified SmootheLactate.m to 
+only read in a vector and only spit out a vector.  
+This seems to be working, but check it over by running ProcessLBatchMode on 
+the DBA strain just to make sure.  
+
+Monday, August 12, 2013
+TO DO:  Make a figure with 4 panels, left column has best lactate fit to data 
+for two data sets (6 or 8 hours).  Right panel uses SWA EEG2.  Choose two 
+good fits (or relatively good fits).  
+Don't use BALBC.  Look at Jonathan's figure and use the same strains. 
+First check to be sure to use 24 hour files (maybe make new directories), 
+then look at fit of SWA with EEG2.  Find some that look good.  
+
+Why are BL files that end in 24 hours smaller than regular BL files?  
+Open them up and look.  
+
+Something seems wrong: looking at the model fit with delta data, a circle
+(which represents the midpoint of a SWA episode longer than 5 minutes)
+sometimes is plotted when the graph of the model is going up meaning
+that the data there is Wake or REM.  Look at BL118640.txt around 8 hours. 
+The issue seems to be that there are lots of little awakenings happening,
+so what looks like a circle over a piece of graph going up is really 
+a circle above a teeny tiny portion of the graph that is going down 
+separated by very small portions that go up.  If you zoom in enough,
+ you see that this is a SWA episode of about 6 minutes and the data 
+point is situated right over the midpoint.  
+
+I wrote find_all_SWS_episodes2.m.  It seemed to work OK on BL files. 
+Check it with lactate on BL.  BL118540.txt looked decent with delta2. 
+
+
+Tuesday, August 13 2013
+I had a lot of trouble getting the SWA trigger to work and the model 
+to look decent.  find_all_SWA_episodes2.m find all SWS episodes over 
+5 minutes with at least 90% sleep.  Check this again.  There may be 
+another bug.  
+
+Jonathan requested that the figures with lactate as a signal have 
+the first two hours cut off.  I think it would look funny to have 
+the x-axis start at 2, so I changed run_S_model.m to plot against 
+t-2 rather than t.  Change this back.  
+
+9:11 PM using 80% with the sliding window isn't much better.  
+It looks like there are columns of data points and we should 
+be able to combine them much better.  Perhaps not using the moving 
+window will work eventually. 
+
+9:16 PM using 70% looks really noisy, but sort of OK for AKR1610_04_25_2.txt 
+keep this in mind if I really need it.  
+
+9:37 PM I'm trying the old way (find_all_SWS_episodes.m) using longer or 
+shorter consecutive runs of SWS.  This didn't help much.  There are a couple 
+that look OK, but super noisy.  Check to make sure I'm finding the SWS episodes 
+correctly? 
+
+11:38PM I tested find_all_SWS_episodes.m and it seems to be working perfectly, 
+t_mdpt_SWS, data_at_SWS_midpoints and t_mdpt_indices seem to be correct.  
+
+
+Friday, August 23, 2013
+Notes from talk with Jonathan: 
+- We'll make a figure like Franken Fig. 1 with lactate and delta power.
+
+- I should assume BA and BL data files are final
+
+- replicate slide 6 in Jonathan's strain study talk
+
+- Franken Figure 2 is normalized, figure out how he normalizes.  I should
+make a similar figure. 
+
+- Since the lactate sensors are not rated for more than 60 hours 
+if I'm using lactate as a signal, I need to cut off the simulation at
+60 hours.  I don't have to do this for delta power. 
+
+- Also, try cutting off the simulations even earlier if lactate is used: 
+36,48,60 hours to see if this improves the fit. 
+
+- Also try window lengths of 4,6,8 hours to see which works best. 
+
+
+Thursday, Sept. 5, 2013
+One idea to test whether the fit of the lactate model 
+is only because of the thresholds or not:  
+set up a really stupid model that is always either on the upper threshold 
+lower threshold and instantly changes from one to the other if there is a 
+change in sleep state.  i.e. if awake or REM, it is at the upper limit (moving
+average), if asleep it is at the lower limit.  Then compute the error with 
+this stupid method vs. the error with the exponential model.  Perhaps this 
+could help us understand the relative contributions of the moving averages 
+vs. the exponential model.  
+
+I implemented this idea and it makes a plot of this new stupid model. 
+The computed error is always lower with the exponential model, and 
+usually a lot lower.  
+
+I implemented the cut-off of 60 hours as well. (This is done in ProcessLBatchMode.m)   I 
+haven't check error yet.  I haven't tried different windows lengths yet either. 
+
+I haven't tried different window lengths or the new long datasets yet either. 
+
+
+Thursday, Sept. 19, 2013
+Cutting off the simulatons earlier if lactate is used isn't the problem.  For the most 
+part the lactate simulations look quite good (for AKR,BA,BL,DBA).  The fit is nice.  It's the 
+delta simulations that still look bad.  
+
+I could make a plot of error in lactate model vs. the stupid model (where it goes immediately 
+to the upper or lower limit if the state changes).  One idea would be to normalize the error
+using the error in the real model, and show that the error using the stupid model is 30% 
+higher or whatever it may be.  So compute the average error using my model (averaged over 
+datasets for one strain) and the average error using stupid model (averaged over datasets 
+for one strain) and set the error in my model to be 100% and show the other error relative 
+to that.  
+
+My model is having a really hard time with file BL-118540.txt Since the best fit means that 
+the signal doesn't change much for a long time, the taui value is huge.  This completely 
+throws off the comparison between strains.  The problem is that even though the animal 
+is awake for a long stretch, the lactate signal is going down (hours 24-28).  My model 
+really can't handle that very well, because it assumes that if the animal is awake lactate 
+is going up. The DBA data has one file with the same problem: DBA1626_05_06_2013.txt 
+has a huge Ti. Same problem with AKR1673_05_13_2013.txt BA doesn't have this problem. CHECK THIS
+
+Modify Method to do Nelder-Mead 3 times with a random starting point each time.  This should 
+avoid getting caught in local minimums.  
+UPDATE: I changed the code to do lactate NM twice.  Keep in mind that NM starts with 3 guesses
+anyway and triangulates from there.  This doesn't seem as bad as starting with only one guess
+in terms of getting stuck in a local minimum. The second time I ran NM with random starting points 
+and the error between the best values found in each AKR case
+was usually small (10^-5), except for AKR1673_05_13_2013.txt which was problematic anyway.
+All of them were great for the BA files. 
+All of BL files are OK except BL-118540.txt
+All of DBA files are OK except DBA1626_05_06_2013.txt
+
+Thursday, Oct. 3, 2013
+Keep working on ProcessLBatchMode.m to make a nice bar graph at the end.  It is not looking
+good right now.  I want to add error bars.  
+
+Also, write some code to make a nice figure like Jonathan has on the last slide of his talk, 
+comparing our results to Franken 2001. 
+
+Thursday, Oct. 10, 2013
+Concatenation of data files:  Use a MATLAB script to produce a uniform dataset.  Will 
+sees the data filtered when he looks at it, but the .txt files I get are not filtered. 
+Will can filter the data and build new .txt files.  The original data is sampled at 500 Hz.
+Several data files appear to be mis-scored.  (filtering has already happened).
+To do for Will: with these data files, sort by power in delta range and give him the 
+top 10% and bottom 10%.  (look for values that stand out).  This will be a guide for him 
+to go back through and re-score some sections.  
+For example AKR1608_04_23_2013b 12:35:00 PM epochs miscored as slow wave should be REM.
+
+Thursday, Oct. 17, 2013
+Files to sort: first two,3,4,5,6,7,8,9terrible,11 (all of them)
+
+I added two columns 1 for average (across 1-2,2-3,3-4 Hz) for EEG1 and the same
+for EEG2.  These two columns are labeled and are H and AW
+Will can sort by column H or AW (right now they are sorted by EEG2, which is AW)
+
+NEW IDEA:  I need to pull out only SWS episodes that are longer than 5 minutes first
+ and then find the outliers.  What I'm doing now is for all the data, not just SWS 
+episodes longer than 5 minutes.  I can do this in MATLAB, but how do I keep the time 
+info, since that is what Will needs? 
+I bet textdata{i,1} contains the time stamp.  That is what I need to get at with MATLAB. 
+Spit out to an excel file the following columns: timestamp, avg. delta EEG1, avg. 
+delta EEG2.  This should be sorted by delta EEG2. Spit out a separate .xls file for 
+each file read in with the name of the original file in the name of the output file.  
+
+Thursday, Nov. 14, 2013
+I started a file called FindTroubleSpots.m to locate the SWS episodes that are longer
+than 5 minutes and also much higher or much lower EEG power.  
+
+I'm not sure this is worth it.  I'm making progress on FindTroubleSpots.m, but it will 
+give about the same info as the files I already made last time. 
+I guess it would be good to have an automated way of doing this in case I need to do
+it again. 
+
+FindTroubleSpots.m is almost working (it may be now). It looks like it is actually
+working.  Keep going on that a little 
+bit to make nice excel files containing only SWS episodes longer than 5 minutes
+sorted by power in EEG1. 
+
+Monday, January 13, 2014
+I changed SmoothLacate.m to just smooth.m so I can modify it and use 
+it for smoothing EEG signals too.  It now has more arguments so I can 
+use the same code, but tune it for EEG.  I checked smooth.m vs 
+SmoothLactate.m and SmootheLactate.m and the results are identical. 
+
+Playing with the parameters in smooth.m doesn't seem to make any 
+difference.  The plots of the raw data vs. smoothed data seem 
+to change a bit, but the SWS episodes of >5 min look exactly 
+the same.  
+
+Should the smoothing algorithm use the past 10 smoothed points 
+instead of unsmoothed points to check if a point too extreme? 
+I think this is keeping some smoothing from happening.  
+
+Maybe filter by making sure the absolute variation between two 
+successive data points isn't too large?  some files looked smooth
+for most of the file except one little section with large deviations. 
+
+Wednesday, January 15, 2014
+I changed smooth.m to use the past 10 smoothed points instead 
+of unsmoothed points, but if the signal is relatively constant 
+for a few steps and then jumps up suddenly the smoothed signal 
+will remain constant and stay constant for the rest of the experiment. 
+
+Need to think of a better way to smooth successive extreme values.  
+Increasing window size to 50 didn't seem to help. 
+Changing window size to 5 helped smooth out signal a bit but 
+did not change the plot of 5 min SWA episodes
+Changing 10 SDs to 5 helped smooth things out even more, but 
+didn't change the plot of 5 min SWA episodes. It may be 
+
+It seems like the problem is one of state scoring, not 
+filtering of the EEG signal.  Some region has been scored 
+as SWA when it really wasn't.  
+
+For file AKR1610_04_25-26_2013.txt it seems like the most 
+extreme value of delta1 power (around 56 hours) occurs because there 
+were two sucessive extreme values in the EEG signal.  The current 
+smoothing algorithm can't handle this kind of event. 
+
+Maybe do something like compute a moving average over 3 points or 
+something.  If that moving average is greater than 10 SDs away from 
+the average of the previous 10 points (30) then set all 3 of those 
+points to the average of previous 10 (or 30).  
+
+Transients? Can I just cut them off?  
+
+
+Why does the smoothing algorithm seem to work so well for lactate
+ but not EEG?  For lactate the artifacts are just one data point.  
+If they are more than one data point they don't get filtered.  In the 
+EEG signal the artifacts are frequently more than one data point.  
+I need a good way to take care of them.  
+
+I'm not convinced the smooth2.m function is working properly.  
+
+Thursday, January 16, 2014
+Jonathan said to leave the lactate filtering as it is.  It's not 
+perfect, but it does a good job. 
+
+I found a really nice library of smoothing functions on the web and 
+talked to Jonathan about using them. 
+One option is a Gaussian smoothing (3 passes of a rectangular 
+sliding-average smoothing) and one option is a median filter. 
+The documentation says that the median filter is good at removing spikes.
+
+Applying the Gaussian smoothing with a 5-point window does a great 
+job of making the data look better, but the plot of SWA episodes looks 
+about the same.  
+
+Trying with the median filter.  It didn't seem to make any difference to the 
+plot of 5-min SWA episodes.  The raw data look much smoother, but the SWA episodes
+don't change much.  I like the median filter on the EEG data.  It looks like 
+it's doing exactly what you would want a filter to do.  Why are 5-min 
+SWA episodes still looking so noisy?  
+
+Try the median filter on the lactate data too... Our current filter really 
+is missing quite a few of the artifacts. The median filter with width 
+of 1 or 2 looks perfect.  I think we should use this on lactate rather than 
+what we had before.   
+
+Investigating the outlier in plot for AKR1610_04_25_26_2013.txt:  Even with the filtering
+there is a bump in the data where it goes up to about 3000 for just a little bit. 
+It must be that there was a SWA episode longer than 5 minutes happening right during 
+this bump.  That's why that point is still there.  It may be an artifact, but it won't go 
+away with more filtering.  
+
+AKR still has a lot of really bad files even with the new filtering. (using delta1) 
+AKR1672_05_09_2013.txt looks like the first 4 hours or so should be cut off.  There is 
+a huge transient that is ruining the curve fit.  Many of the files contain data 
+that look pretty random.  No model will give a good fit except a random algorithm.
+
+BA files in BA/BA_long look pretty good using delta1 or delta2 except for BA-120440.txt
+BL looks pretty decent using delta1 or delta2. (files in BL/only_24hr_files)
+ 
+DBA using delta 1 is a mixed bag.  Some files look quite good and some are terrible. 
+DBA1622_04_29_2013.txt looks very bad. DBA1626_05_06_2013.txt is bad too. 
+with delta2: DBA1683_05_20_2013.txt is bad too.   DBA1681_05_16_2013.txt is bad.
+DBA1671_05_09_2013.txt is bad too.
+There is a fundamental difference between the good EEG data files and the bad ones.  
+In the good ones you can see definite trends on the order of 1 hour and 
+significant rises and falls. In a bad file the signal looks more like just white noise.  
+
+
+some files seem to have a significant transient at the beginning.  Can I cut that off? 
+
+Tuesday, January 21, 2014
+Trying to reproduce the panels of Figure 1 from Franken.  First choose the best 
+delta output.  The histogram plots look worse if I filter using the median filter 
+and 10 points.  Keep trying median filter with fewer points.  Using 2 looks OK.  
+Make sure all the other outputs including lactate look OK with this.  Lactate usese 1  
+
+Use BL-118540-24Hrs.txt as the file to make Franken Figure 1.  Copy this file into 
+his own directory and write a script to make all panels of Figure 1.  
+
+Jonathan and I copied over some new files for AKR.  They are in 
+data_files/AKR/long_files/concat
+
+However, I can't read them since importdatafile.m breaks for these new 
+files, even when there is only 1 as in concat2.  
+importdatafile.m works just fine for the data_files/AKR/long_files/new_files
+
+Play with textscan (even from the command line) and try to figure out why it's 
+breaking.  
+
+shadedErrorBar is the matlab file I want from matlab central. 
+
+Thursday, January 23, 2014
+
+I found a workaround for the importdatafile.m issue.  I opened all the 
+.txt files in Excel and resaved them as tab-delimited text rather than Unicode 
+text.  This makes my code work.  I tried for quite a while to find a way to 
+program in a workaround so my code is more robust, but I couldn't make it work,
+so this will have to do.  
+
+BAD LIST:
+Using the files in AKR/long_files/concat 3 of them are OK, but 
+AKR1608_04_23_2013_and_AKR1608_04_24_2013.txt is bad deltas
+AKR1611_04_29_2013 and AKR1611_04_30_2013.txt is bad deltas (lactate OK)
+DBA1621_04_23_2.txt is bad if delta2 is used
+DBA1626_05_06_2013.txt is bad (40hrs) 
+DBA1681_05_16_2013.txt
+DBA1683_05_20_2013.txt is bad delta1
+BA-120440.txt (35 hrs scattered) delta1
+(BLs look good in long_files)
+
+
+Jonathan said to try using overlapping windows for SWA episodes.  It turns out 
+that my code was already doing this.  This is what find_all_SWA_episodes2.m does. 
+find_all_SWA_episodes.m does not count overlapping SWA episodes.  If there is 
+SWA for 8 minutes straight it counts that as one episode (it sounds like this is 
+what Franken is doing).  
+
+Using non-overlapping windows to find SWA episodes (like I think Franken did), 
+makes for much worse data for the AKR concatenated files.  In this case, 
+every file looks bad.  
+
+Keep using sliding windows.  
+
+I may need to fake it for panel a.  My way isn't looking very good because of 
+really short REM episodes.  This works and looks good.  
+
+Tuesday, January 28 2014
+Now put all the figures that the Figure1_script.m makes as subfigures
+into one big figure  (this is almost done.  I used line.m to make the lines in panels
+a and c rather than squares since using squares made it look like sleep states 
+overlapped)
+
+Next: re-make the same panels using lactate as the signal not delta
+make the last panel bigger.  play with something like subplot(2,3,[5:6])
+
+Thursday, January 30, 2014
+Keep working on the Figure1_script.m for the lactate case.  For the current data 
+file, BL118540 the lactate signal isn't too good so one Tau value is huge.  I think 
+this is close to working.  choose another data file that looks good for lactate and 
+for delta and use it instead.  
+
+Thursday,Feb. 6, 2014
+The BL11850 file doesn't even look all that good for the delta fit. Find a better file.
+Candidates: 
+BL-119240 delta1 has good histogram (try lactate) not quite 48 hours (it is a 48hr file, just no
+SWS episodes of >5min in last 3 hours. 
+BL-119240 isn't great, but maybe the lactate figure and delta figure don't have to use the 
+same dataset.  
+BL-119240 looks much better in the Figure1 with all the panels.  Use that one instead. 
+lactate doesn't work yet for this script. Also verify that the tau values we get from 
+brute force match those from nelder-mead. 
+
+Thursday, Feb. 20, 2014
+Looking for a good candidate for the lactate figure.  BL-119240 doesn't look great,
+but I don't know if the lactate figure should be the same dataset as the EEG figure. 
+Or, just do a zoomed-in version of the lactate and model overlay? 
+BL-118140 looks much better for a lactate model fit.  Check its EEG. Maybe I could 
+use that file for both.
+BL-118140 looks good for both EEG2 and lactate.  Use this for both figures. 
+Modify Figure1_script to work with lactate.  Better yet make a new function 
+since this figure will be pretty different.  Cut all the lactate stuff out of 
+Figure1_script.m
+
+Make a new function that is Figure2_script.m that makes a 4 panel figure:
+A: histogram of all data (SWS,REM,WAKE) showing LA and UA initially. 
+B: lacate data and the moving upper and lower asymptotes
+C: contour plot of error like previous figure but with several NM guesses on it. 
+D: Best fit of model to data with colored data points like in 
+
+Making progress on this, but panel A has same figure as panel D. FIXED
+
+Looking pretty good, but I'd like to add insets of the histogram to the 
+panel that shows the changes in UA and LA. 
+
+Sometimes it's tricky to get a panel to look right if I add something 
+to it like a legend or an inset. 
+Try making those plots directly in the subplot rather than making them 
+and copying them in.  All but panel D seem to be created in Figure2_script
+rather than in another function. So make a figure and just make those 
+3 panels using the subplot command.  The only trick will be to put the 
+figure for panel D into its place.  
+
+* Thursday, March 6 2014
+
+
+
++this should be strikethrough+
+TODO: 
+1) add points of simplex method guesses to the contour plot in the figures? ADDED TO FIGURE 2
+2) +rotate histogram in lactate plot so bars go horizontally (same for inset histograms)+
+3) +Put all the data files on the D drive.+  
+4) +clean up my directory with code so that it contains only those functions I actually use+
+5) +Copy (and improve?) Jonathan's lacate smoothing code so my code uses it.+ 
+6) rename my main function from ProcessLBatchMode.m to something more useful. 
+7) +Remove the trace of the model from top right panel in Figure 2+
+8) Keep improving medianfiltervectorized to remove for loop and share with lab.
+9) +Add legend to bottom right panel on Figure2+
+10) +Think about doing all the coding for the bottom right panel in the Figure2_script.m.+
+It is getting to be kind of a pain to get the legend right and I have to modify run_S_model.m 
+which I don't really want to do. 
+
+* Thursday, March 13 2014
+I moved all of my data files to the D drive under the mrempe folder.  
+Now every time I call one of my functions in mrempe/EpochBasedProcessing/Timed/Internal
+I will need to set the path as a variable (like this: >> path='D:/mrempe/') 
+then call the function like this: >> [fh,error]=Figure2_script(path);
+
+My vectorized version of median smoothing gives the exact same output as my nonvectorized
+and it is much faster (a factor of 100).  It is called medianfiltervectorized.m
+
+I'm working on making the code faster.  make_frequency_plot.m seems to be bottleneck. 
+Matlab tells me to avoid using find.m and just just logical indexing. Keep working on this. 
+Work on making the loops in run_S_model faster.  Use this link:
+http://stackoverflow.com/questions/10194122/vectorization-for-and-if
+
+* Thursday, April 3, 2014
+ Data files are now in D:\mrempe\strain_study_data\BL\fig1_file  
+How to make my code see them: 
+[fh,error]=Figure2_script('D:\mrempe\strain_study_data\BL\fig1_file\') worked.
+Now make the directory a string variable so I don't have to type it each time. 
+data_directory='D:\mrempe\strain_study_data\BL\fig1_file\'  this works
+
+Put together a rough draft of the paper, along with figure placeholders and an 
+outline and send it to Jonathan with instructions on what I want him to fill in
+(methods, part of discussion, etc.)  
+
+* Thursday, April 10, 2014
+
+Plan for today:
+Send Jonathan a rough draft letting him know where I'd like him to write POSTPONED
+Read background papers and fill in outline of our paper
+Determine which traces still look bad and where to cut off all traces
+Back up my stuff to GitHub
+Start code for shaded figure
+
+Send Jonathan a reasonable draft when I get it to that point.  I can 
+leave whole sections for him to write.  Turn each bullet point in 
+discussion into a short paragraph.  
+
+Jonathan said for the figure that looks like Franken's figure 2, I can 
+cut off the traces that don't have sleep deprivation.  He justified 
+this by saying that the lactate dynamics are on such a different 
+time scale...?
+
+BIG QUESTION: Do we want to make Franken's figure 2 using EEG like he 
+does or just make it using lactate (or both)?  I'm going to try to write 
+the code so it's easy to make both (call the same function just with a different
+signal)
+
+I've decided to modify ProcessLBatchMode.m to return more than it currently 
+does.  It will now return a cell array containing either delta power data
+or lactate for all animals in that strain and another cell array containing the
+best fit S variables for each animal in that strain.  This way I can use that 
+data in other functions.  I decided not to do those calculations inside of 
+ProcessLBatchMode.m because I don't want to change the fundamental purpose 
+of that script: to find the best fit of the model for each animal in the 
+group and compute the tau_i and tau_d values for each animal.  
+
+
+I started mean_time_course.m, but it just has comments in it.  
+ProcessLBatchMode.m is updated and working.  Keep working on compute_mean_time_course
+
+
+* Thursday, April 17, 2014
+Talked with Jonathan: Only the BA and BL strains had sleep deprivation 
+for us.  Sleep deprivation was 6 hours at the same time as Franken.
+
+Baseline goes from 0 until 24 hours, so the last 4 hours of baseline 
+would be from 20 hours until 24 hours.  
+Try different approaches for this:  6 hours ending at 24 hours, shift 
+2 hours one way or another.  
+
+Our experiments followed the light/dark schedule of Franken.  
+
+I worked on compute_mean_time_course.m today and it may be ready to go.  Keep 
+checking it over and try running the script to make shaded figure.  
+
+* Thursday, April 24, 2014
+
+Goals for today:
+1) GitHub
+2) make a draft of figure(s) like Franken Figure 2
+3) Start draft of abstract for MAA?
+
+
+

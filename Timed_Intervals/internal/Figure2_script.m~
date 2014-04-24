@@ -1,0 +1,195 @@
+function [Fig_handle,error]=Figure2_script(directory)
+%usage: [Fig_handle,error]=Figure2_script(directory)
+%
+% directory: directory where the data file is located ('data_files/BL/fig1_file')
+% This function creates a figure demonstrating the lactate 
+% model fitting the data. The figure has the following 4 panels:
+%A: histogram of all data (SWS,REM,WAKE) showing LA and UA initially. 
+%B: lacate data and the moving upper and lower asymptotes
+%C: contour plot of error like previous figure but with several NM guesses on it. 
+%D: Best fit of model to data with colored data points like in 
+
+
+
+  %directory = 'data_files/BL/fig1_file/';
+  file = dir(strcat(directory,'*.txt'));
+
+  window_length = 4;
+
+  [data,textdata]=importdatafile(file(1).name,directory);
+
+  PhysioVars=zeros(size(data,1),4);
+  for i = 1: size(data,1)  
+    if textdata{i,2}=='W' 
+      PhysioVars(i,1)=0;
+    elseif textdata{i,2}=='S'
+      PhysioVars(i,1)=1;
+    elseif textdata{i,2}=='P'
+      PhysioVars(i,1)=2;
+    elseif textdata{i,2}=='R'
+      PhysioVars(i,1)=2;
+    elseif isempty(textdata{i,2})==1
+      PhysioVars(i,1)=0;  
+    end
+  end
+
+  LactateSmoothed=medianfilter(data(:,1),1);
+
+  PhysioVars(:,2)=LactateSmoothed(1:size(data,1));
+  PhysioVars(:,3) = mean(data(:,3:5),2); 
+  PhysioVars(:,4) = mean(data(:,43:45),2);
+  
+  PhysioVars(:,3) = medianfilter(PhysioVars(:,3),2);
+  PhysioVars(:,4) = medianfilter(PhysioVars(:,4),2);
+
+% make the frequency histogram for initial lactate data
+  [LA,UA,hist_handle]=make_frequency_plot(PhysioVars,window_length,'lactate',0);
+  F=figure; 
+  subplot(2,3,1)
+  xbins=linspace(0,max(PhysioVars(1:(window_length)*360+1,2)),30);
+  [nall,xall]=hist(PhysioVars(1:(window_length)*360+1,2),xbins);
+  h=bar(xall,nall);
+  axis([0 19.5 0 500])
+  xlabel('LACTATE SIGNAL [nA]')  
+  ylabel('FREQUENCY ')
+  hold on
+  l1=line([LA(1) LA(1)],[0 max(nall)],'LineStyle','--');
+  l2=line([UA(1) UA(1)],[0 max(nall)],'LineStyle','--');
+  hold off
+  ahand=gca;
+
+  mask=(window_length/2)*360+1:size(PhysioVars,1)-(window_length/2)*360;
+
+
+  dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
+ 
+
+% COMPUTING LOOP
+% use the nelder_mead algorithm to find the global minimum error
+  guesses=[0.5 1;1.5 1;1 2]; % three starting guesses
+  [best_tau_i,best_tau_d,best_error]=nelder_mead_for_lactate(guesses,1,1000,1e-9,0,PhysioVars,dt,LA,UA,window_length,mask);
+  [best_tau_i2,best_tau_d2,best_error2]=nelder_mead_for_lactate(5*rand(3,2),1,1000,1e-9,0,PhysioVars,dt,LA,UA,window_length,mask);
+  ti_diff=abs(best_tau_i2-best_tau_i)
+  td_diff=abs(best_tau_d2-best_tau_d)
+  
+  Ti=best_tau_i;    %output the best taus
+  Td=best_tau_d;
+
+% run one more time with best fit and plot it (add a plot with circles)
+  S=run_S_model(PhysioVars,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,file(1).name);
+  dhand=gca;
+  figure(F)  % change back to the subplot figure
+
+  t=0:dt:dt*(size(PhysioVars,1)-1);
+  %figure
+  subplot(2,3,2:3)  
+  plot(t,PhysioVars(:,2),'o','MarkerFaceColor',[0.5 0.5 0.5],'MarkerEdgeColor',[0.5 0.5 0.5])
+  hold on
+  tS=t((window_length/2)*360+1:end-(window_length/2)*360);
+  plot(tS,S,'k')
+  plot(tS,LA,'k--')
+  plot(tS,UA,'k--')
+  ylabel('lactate')
+  xlabel('Time (hours)')
+  title('Best fit of model to lactate data')
+  axes('Position',[.78 .78 .1 .1],'Box','off')
+  plot(tS(1:10),LA(1:10))
+  hold off
+  bhand=gca;  
+ % end of moving limits panel
+
+
+% ----------------------------------------------------
+% add a contour plot like panel d and add it to Figure
+
+tau_i=0.01:0.005:Ti+0.6*Ti;
+tau_d=0.01:0.005:Td+0.6*Td;
+
+error=zeros(length(tau_i),length(tau_d));
+
+
+
+% COMPUTING LOOP
+% run the model and compute error for all combinations of tau_i and tau_d
+for i=1:length(tau_i)
+  for j=1:length(tau_d)
+    S=run_S_model(PhysioVars,dt,(LA(1)+UA(1))/2,LA,UA,tau_i(i),tau_d(j),window_length,0,''); % run model
+   
+    % compute error 
+      error(i,j)=sqrt((sum((S'-PhysioVars([mask],2)).^2))/(size(PhysioVars,1)-720)); %RMSE
+    
+      
+    % display progress only at intervals of .25*total 
+    display_progress(length(tau_d)*(i-1)+j,length(tau_i)*length(tau_d));
+
+  end
+end
+
+best_error=min(min(error));
+[r,c]=find(error==min(min(error)));
+
+disp(['best tau_i found using brute force: ' num2str(tau_i(r))]);
+disp(['best tau_d found using brute force: ' num2str(tau_d(c))]);
+
+%figure
+subplot(2,3,4)
+[X,Y]=meshgrid(tau_d,tau_i);
+contour(X,Y,error,50,'LineColor',[0 0 0]);
+hold on
+line([tau_d(c) tau_d(c)],[0 tau_i(r)],'LineStyle','--','Color',[0 0 0])
+line([0 tau_d(c)],[tau_i(r) tau_i(r)],'LineStyle','--','Color',[0 0 0])
+plot(tau_d(c),tau_i(r),'.','MarkerSize',5)
+hold off
+xlabel('Td [h]')
+ylabel('Ti [h]')
+chand=gca;
+% -- End of contour plot code --
+
+% add the 4th panel to the subplot:
+P4=subplot(2,3,5:6);
+P4_pos=get(P4,'position'); %get its position
+delete(P4)
+P = copyobj(dhand,F);
+set(P,'position',P4_pos)
+C = {'xlim','ylim','color'};
+set(P,C,get(dhand,C))
+
+
+
+
+% % --------------------------------------------
+% % combine all the figures into one as subplots
+% % in a new figure
+%  F=figure;
+%  P1=subplot(2,3,1);
+%  P1_pos=get(P1,'position'); %get its position
+%  delete(P1)
+%  P2=subplot(2,3,2:3);
+%  P2_pos=get(P2,'position');
+%  delete(P2)
+%  P3=subplot(2,3,4);
+%  P3_pos=get(P3,'position');
+%  delete(P3)
+%  P4=subplot(2,3,5:6);
+%  P4_pos=get(P4,'position'); %get its position
+%  delete(P4)
+ 
+
+%  P = copyobj(ahand,F);
+%  set(P,'position',P1_pos)
+%  C = {'xlim','ylim','color'};
+%  set(P,C,get(ahand,C))
+%  P=copyobj(bhand,F);
+%  set(P,'position',P2_pos)
+%  C = {'xlim','ylim','color'};
+%  set(P,C,get(bhand,C))
+%  P=copyobj(chand,F);
+%  set(P,'position',P3_pos)
+%  C = {'xlim','ylim','color'};
+%  set(P,C,get(chand,C))
+%  P = copyobj(dhand,F);
+%  set(P,'position',P4_pos)
+%  C = {'xlim','ylim','color'};
+%  set(P,C,get(dhand,C))
+
+Fig_handle = gcf;

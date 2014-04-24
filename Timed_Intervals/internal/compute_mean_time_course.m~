@@ -1,0 +1,53 @@
+function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)
+%USAGE:  [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)
+%
+%
+% This function is used by shaded_figure_script.m. It does some of the un-sexy
+% computing of things like normalizing the data, averaging over all animals in a strain,
+% and computing the SEM.
+% 
+% Including more substantial and useful comments here. 
+
+
+
+
+% First call PROCESSLBATCHMODE.m  so we can get the raw data (either lactate or delta),
+% as well as the best fit of the model S to the data. 
+[signal_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(path,signal);
+N=length(signal_data);  % # of data files
+
+% best_S{1,1} will give you the first element in the cell array, which
+% is the first S trace (a vector)
+
+% Then, normalize each delta power trace to the individual mean delta power
+% in SWS over the last 4 hours of the baseline light period. (for each animal)
+
+for i=1:N
+mean = mean(signal_data{i});
+normalized{i} = (signal_data{i}/mean)*100;  %100 is so plot is in percent
+
+
+
+% Average delta power over consecutive 45 minute intervals (for each animal)
+
+
+% Now average over all animals in this strain
+
+
+% Compute the SEM over all animals in this strain
+
+
+
+% Repeat everything above for S:
+%  Normalize each S to individual mean delta power in SWS over last 4 hr of baseline
+
+
+% Average 15 minute mean values of Process S for each animal
+
+% average over all animals in this strain
+
+% Compute the SEM over all animals in this strain
+
+% Set up t_S vector for this group?  (shortest of files in group?)
+
+
