@@ -6,7 +6,7 @@ function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(pa
 % computing of things like normalizing the data, averaging over all animals in a strain,
 % and computing the SEM.
 % 
-% Including more substantial and useful comments here. 
+% Include more substantial and useful comments here. 
 
 
 
@@ -23,7 +23,7 @@ baseline_start_hours = 20;
 baseline_end_hours = 24;
 ind_start = baseline_start_hours*360;
 ind_end = baseline_end_hours*360;
-figure
+
 for i=1:N
 % call find_all_SWS_episodes2.m on signal_data{i} 
 % mn is the same
@@ -33,7 +33,8 @@ for i=1:N
     mn = mean(signal_data{i}(ind_start:ind_end)); 
     %normalized{i} = (signal_data{i}/mn)*100;  %100 is so plot is in percent
     normalized{i} = (data_at_SWS_midpoints/mn)*100;  
-   
+    normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
+
   
     % Average delta power over consecutive 45 minute intervals (for each animal)
     intervals = floor(length(signal_data{i})/270);
@@ -61,7 +62,7 @@ end
 
  
 % Now average over all animals in this strain 
-[maxsize,maxind]=max(cellfun('length',Average_delta)) % compute the size of longest dataset (in epochs)
+[maxsize,maxind]=max(cellfun('length',Average_delta)); % compute the size of longest dataset (in epochs)
 
 for i=1:N   
   for j=1:maxsize
@@ -85,14 +86,14 @@ tdata=.75:.75:maxsize*.75; % time in hours at which we have data (.75 hours=45 m
 % ----------------------------------------------------------------------------------
 % Repeat everything above for S:
 %  Normalize each S to individual mean delta power in SWS over last 4 hr of baseline
-figure
-for i=1:N
-  if(length(best_S{i})>ind_end) %exclude files that are too short
-    mn = mean(best_S{i}(ind_start:ind_end)); 
-    normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
+
+% for i=1:N
+%   if(length(best_S{i})>ind_end) %exclude files that are too short
+%     mn = mean(best_S{i}(ind_start:ind_end)); 
+%     normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
  
-  end
-end
+%   end
+% end
 
 % Average 15 MINUTE mean values of Process S for each animal
 for i=1:N

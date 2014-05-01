@@ -49,7 +49,6 @@ else
   data=datafile(:,2);  % in this case, the correct column has already been plucked off
                        % second column has delta or lactate data, first column has sleep state.
  end
-size(data)
 
 
 
@@ -72,7 +71,7 @@ for i=30:size(datafile,1)
   end
 end
 
-disp(['5 min windows with 90 percent SWA: ' num2str(counter)])
+%disp(['5 min windows with 90 percent SWA: ' num2str(counter)])
 
 % now combine overlapping 5 minute windows
 first_index_of_streak=1;

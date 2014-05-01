@@ -28,6 +28,7 @@ errorbar_tick(h,0)
 hold on
 fill_between_lines(tS_AKR,meanS_AKR+SEM_S_AKR,meanS_AKR-SEM_S_AKR,[0.5 0.5 0.5])
 hold off
+ylabel('AKR')
 
 subplot(4,1,2)  %BA
 h=errorbar(t_deltaBA,deltapower_meanBA,SEM_deltaBA,'k.')
@@ -35,6 +36,7 @@ errorbar_tick(h,0)
 hold on
 fill_between_lines(tS_BA,meanS_BA+SEM_S_BA,meanS_BA-SEM_S_BA,[0.5 0.5 0.5])
 hold off
+ylabel('BA')
 
 subplot(4,1,3)  %BL
 h=errorbar(t_deltaBL,deltapower_meanBL,SEM_deltaBL,'k.')
@@ -42,6 +44,7 @@ errorbar_tick(h,0)
 hold on
 fill_between_lines(tS_BL,meanS_BL+SEM_S_BL,meanS_BL-SEM_S_BL,[0.5 0.5 0.5])
 hold off
+ylabel('BL')
 
 subplot(4,1,4)  %DBA
 h=errorbar(t_deltaDBA,deltapower_meanDBA,SEM_deltaDBA,'k.')
@@ -49,6 +52,7 @@ errorbar_tick(h,0)
 hold on
 fill_between_lines(tS_DBA,meanS_DBA+SEM_S_DBA,meanS_DBA-SEM_S_DBA,[0.5 0.5 0.5])
 hold off
+ylabel('DBA')
 
 
 
