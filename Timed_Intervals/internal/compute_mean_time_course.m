@@ -1,4 +1,4 @@
-function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)%,signal_data,state_data,best_S)
+function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal,signal_data,state_data,best_S)
 %USAGE:  [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)
 %
 %
@@ -13,7 +13,7 @@ function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(pa
 
 % First call PROCESSLBATCHMODE.m  so we can get the raw data (either lactate or delta),
 % as well as the best fit of the model S to the data. 
-[signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(path,signal);
+%[signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(path,signal);
 N=length(signal_data);  % # of data files
 
 
@@ -23,6 +23,8 @@ baseline_start_hours = 20;
 baseline_end_hours = 24;
 ind_start = baseline_start_hours*360;
 ind_end = baseline_end_hours*360;
+
+figure
 
 for i=1:N
 % call find_all_SWS_episodes2.m on signal_data{i} 
@@ -35,7 +37,11 @@ for i=1:N
     normalized{i} = (data_at_SWS_midpoints/mn)*100;  
     normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
 
-  
+    % plot(t_mdpt_SWS,normalized{i},'k.')
+    % hold on    
+    % plot(1/360:1/360:(1/360)*length(normalizedS{i}),normalizedS{i})
+    % hold off
+    % pause  
     % Average delta power over consecutive 45 minute intervals (for each animal)
     intervals = floor(length(signal_data{i})/270);
     for j=1:intervals
@@ -48,6 +54,10 @@ for i=1:N
 
     end
   end
+
+
+
+
 end
 
 

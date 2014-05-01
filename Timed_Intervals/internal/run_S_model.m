@@ -45,6 +45,7 @@ end
 exp_rise=exp(-dt/ti);  %compute these once to save time
 exp_fall=exp(-dt/td);
 
+
 % CASE 1: using delta power histogram to choose upper and lower
 % assymptotes for the model
 if length(LA)==1
@@ -61,7 +62,7 @@ if length(LA)==1
   end
   
   for i=1:iters-1                 % 8640 10-second intervals=24 hours
-    if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
+     if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
       S(i+1)=UA-(UA-S(i))*exp_rise;
     elseif(dataset(i,1)==1) %sleep
       S(i+1)=LA+(S(i)-LA)*exp_fall;
@@ -128,15 +129,15 @@ elseif length(LA) ~=1
 S(1)=dataset((window_length/2)*360,2); 
   
   %for i=1:size(dataset,1)-721
-  for i=1:size(dataset,1)-(window_length*360+1)
-       if dataset(i+(window_length/2)*360,1)==0 || dataset(i+(window_length/2)*360,1)==2 %wake or REM
-      S(i+1)=UA(i)-(UA(i)-S(i))*exp(-dt/ti);
-    elseif(dataset(i+(window_length/2)*360,1)==1) %sleep
-      S(i+1)=LA(i)+(S(i)-LA(i))*exp(-dt/td);
-    else
-      error('I found a sleepstate value that was not 0,1, or 2')
-    end
+for i=1:size(dataset,1)-(window_length*360+1)
+  if dataset(i+(window_length/2)*360,1)==0 || dataset(i+(window_length/2)*360,1)==2 %wake or REM
+    S(i+1)=UA(i)-(UA(i)-S(i))*exp(-dt/ti);
+  elseif(dataset(i+(window_length/2)*360,1)==1) %sleep
+    S(i+1)=LA(i)+(S(i)-LA(i))*exp(-dt/td);
+  else
+    error('I found a sleepstate value that was not 0,1, or 2')
   end
+end
   
 end %cases: delta power or lactate used for asymptotes
 

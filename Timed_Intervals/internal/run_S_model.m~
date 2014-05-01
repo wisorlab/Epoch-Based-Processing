@@ -186,6 +186,8 @@ if makeplot==1
   title(['best fit for file ' filename])
     xlabel('TIME [h]')
     legend('wake','sleep','rem','best fit model')
+    legend BOXOFF
+    
     hold off
   end
 
