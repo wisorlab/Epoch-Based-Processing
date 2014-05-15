@@ -695,3 +695,36 @@ the individual plots look good for the most part.
 Keep working on this. 
 
 
+* Thursday, May 1, 2014
+Jon wrote a script for me to set up git each time I start a new day. 
+From the powershell (play button symbol) type C:\Users\wisorlab\profiles\wisorlab_profile.ps1 
+from a new directory that I create.  This will set up all the git stuff.  
+
+New git procedure:
+1) Make a new directory in mrempe and cd to this directory.
+2) type C:\Users\wisorlab\profiles\wisorlab_profile.ps1 
+3) modify the code in the directories just created (cd down to Epoch-based/Timed/internal)
+4) git status (tells me which files have changed)
+5) git commit -am 'status message'
+6) git push origin mrempe (this pushes it to the server)
+
+
+My shaded figure seems to be working now.  I was normalizing the S output to something 
+different than what I was using to normalize the data.  Fixing this bug makes the plots
+look OK, the fits are still not great, but just OK.  Play with altering them in a way to 
+make them better (lengths of moving averages, etc.) 
+
+I'm still not convinced that the S curves are being normalized correctly. 
+Check one file S curve and data normalized to make sure they match up.  Choose a
+file that the model fits well.  
+
+One idea: make another directory where I remove the bad files and make the shaded 
+figure.  Are the bad datasets making the shaded figure bad, or is it something else?
+This did not improve the fit at all.  Look at individual traces after normalizing S 
+and the data.  
+
+individual data sets with traces of S look good when they are both normalized. 
+Check the averaging or something.  I don't know why individual fits look so good, but 
+the gray areas look so bad.  
+
+Tried speeding up run_S_model.m without success, so I changed it back. 

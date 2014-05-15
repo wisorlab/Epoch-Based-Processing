@@ -728,3 +728,30 @@ Check the averaging or something.  I don't know why individual fits look so good
 the gray areas look so bad.  
 
 Tried speeding up run_S_model.m without success, so I changed it back. 
+
+* Thursday, May 15, 2014
+I'm working on making the shaded figure like Franken figure 2.  My plots for 
+delta don't look great, and I tried lactate too.  The lactate figures look OK,
+but also not great.  It seems like with lactate when I normalize and take only 
+average across 45 minute intervals that actually makes the fit worse than just the 
+raw lactate data and the model fit.  For lactate perhaps I shouldn't average like 
+that and I shouldn't just do SWA episodes.  Just do lactate all the time, like I do in 
+the figures with the circles and best fit of the model. 
+
+Change compute_mean_time_course.m for lactate to use all the data, not just SWA episodes 
+longer than 45 minutes or whateever. 
+
+Working on this, but now my plot of normalized model fit and normalized 
+lactate data don't line up even though they look great in colored circles.  
+I'm comparing model fit and data for lactate for file BA-120440.txt
+Aah: The model fit for lactate starts after 2 hours since we are using a moving 
+window.  Take this into account.  I fixed this so the tS variable coming out 
+of compute_mean_time_course.m is correct for S.  
+
+NOTE: For lactate I don't average process S over 15 minute intervals and 
+I don't average the lactate data over consecutive 45 minute intervals either. 
+
+make sure it still runs with delta too.  I made a couple of small changes.
+Good news: now the data and model fit really well for lactate, but the problem is 
+that it's too much data.  Plot only every 10 point or something.  Code this up in a 
+general way so I can easily change it. (Or average over every nth point)

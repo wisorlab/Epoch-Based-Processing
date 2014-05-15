@@ -39,18 +39,9 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
     lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*6;
     
-    %[PctSmooth(FileCounter),LactateSmoothed]=smooth(data,1,10,10,1); %This smoothing algorithm recodes any data point that deviates by more than 10 SD from the 
-                                %mean of the previous 10 data points as the mean of those data points.
     LactateSmoothed=medianfiltervectorized(data(:,1),1);
 
-    figure
-    plot(data(:,1),'r')
-    hold on
-    plot(LactateSmoothed)
-    hold off
-    
-
-    if size(data,1) > lactate_cutoff_time_rows
+   if size(data,1) > lactate_cutoff_time_rows
       data=data(1:lactate_cutoff_time_rows,:);
     end
   end
@@ -88,22 +79,9 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   
   PhysioVars(:,3) = mean(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
   PhysioVars(:,4) = mean(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
-  %[pctsm,delta1smoothed] = smooth2(PhysioVars,3,50,3,1);  % call the smoothing algorithm on the EEG data too.   
-  %[pctsm,delta2smoothed] = smooth2(PhysioVars,4,50,3,1);
-  %d1smoothed = fastsmooth(PhysioVars(:,3),5,3,1); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
+  
   d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
-  
-  dt=1/360;    
-  t=0:dt:dt*(size(PhysioVars,1)-1); 
-  figure
-  plot(t,PhysioVars(:,3),'r',t,d1smoothed)
-  
-  
-  figure
-  plot(t,PhysioVars(:,4),'r',t,d2smoothed)
-  
-  
   
   PhysioVars(:,3) = d1smoothed;
   PhysioVars(:,4) = d2smoothed;
