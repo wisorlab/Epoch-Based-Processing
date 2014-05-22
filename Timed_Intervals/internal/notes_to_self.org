@@ -701,7 +701,8 @@ From the powershell (play button symbol) type C:\Users\wisorlab\profiles\wisorla
 from a new directory that I create.  This will set up all the git stuff.  
 
 New git procedure:
-1) Make a new directory in mrempe and cd to this directory.
+1) Double click on the Git Shell icon on the desktop
+1a) Make a new directory in mrempe and cd to this directory.
 2) type C:\Users\wisorlab\profiles\wisorlab_profile.ps1 
 3) modify the code in the directories just created (cd down to Epoch-based/Timed/internal)
 4) git status (tells me which files have changed)

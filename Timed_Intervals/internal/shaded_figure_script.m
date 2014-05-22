@@ -1,7 +1,7 @@
 % This script makes a figure analogous to Figure 2 in Franken et al 2001. 
 
 % signal: 'lactate', 'delta1', or 'delta2'
-signal = 'lactate';
+signal = 'delta1';
 
 
 %These are the paths where the data are stored:

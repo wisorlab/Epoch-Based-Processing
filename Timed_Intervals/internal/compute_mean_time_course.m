@@ -1,4 +1,4 @@
-function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal,signal_data,state_data,best_S)
+function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)%,signal_data,state_data,best_S)
 %USAGE:  [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(path,signal)
 %
 %
@@ -13,7 +13,7 @@ function [signal_mean,SEM_data,tdata,meanS,SEM_S,tS]=compute_mean_time_course(pa
 
 % First call PROCESSLBATCHMODE.m  so we can get the raw data (either lactate or delta),
 % as well as the best fit of the model S to the data. 
-%[signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(path,signal);
+[signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(path,signal);
 N=length(signal_data);  % # of data files
 
 
@@ -67,10 +67,11 @@ for i=1:N
     else   %lactate
       tlactate=1/360:1/360:(1/360)*length(normalized{i});
       %for j=1:length(normalized{i})
-	for j=1:intervals
-	  mask = find(tlactate >= (j-1)*.75 & tlactate < j*.75);
-	  Average_signal{i}(j) = mean(normalized{i}(mask));
-	end      
+	%for j=1:intervals
+	  %mask = find(tlactate >= (j-1)*.75 & tlactate < j*.75);
+	  %Average_signal{i}(j) = mean(normalized{i}(mask));
+	Average_signal{i} = normalized{i};
+	%end      
       %end
     end
   end  
@@ -134,9 +135,14 @@ SEM_data = nansem(temp);
     r = reshape(normalizedS{i}(1:90*intervals),90,intervals);
     if strcmp(signal,'delta1') | strcmp(signal,'delta2')
       Average_S{i} = mean(r',2);  %fast way to compute average
+      tS{i} = (7.5/60):.25:(intervals*.25)-(7.5/60);
     else
       Average_S{i} = normalizedS{i}; % for lactate don't average over 15 minute intervals 
+      tS{i} = 2:(1/360):(1/360)*(size(normalizedS{i},1)-1)+2;
     end
+
+size(Average_S{i})
+pause
 end
 
 % average over all animals in this strain
@@ -153,11 +159,18 @@ for i=1:N
 end
 
 meanS = nanmean(tempS,1);
+size(meanS)
 
 % Compute the SEM over all animals in this strain
 SEM_S = nansem(tempS);
 
-% Set up t_S vector for this group?  (shortest of files in group?)
-%tS=2:.25:maxsizeS*.25; % averaging over 15 minute intervals
-tS=2:1/360:(1/360)*(maxsizeS-1)+2;
+% Set up tS vector for this group?  (longest of files in group?)
+tS=tS{maxindS};
 
+%tS=2:.25:maxsizeS*.25; % averaging over 15 minute intervals
+% if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+% tS = 
+% else %lactate
+% tS=2:1/360:(1/360)*(maxsizeS-1)+2;
+% end
+% size(tS)
