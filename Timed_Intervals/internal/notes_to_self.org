@@ -770,18 +770,33 @@ much data so I'm changing the shaded_figure_script.m to plot lactate data every
 I fixed these issues and made decent verions of the figure with delta1 and with lactate.
 
 NOTES from meeting with Jonathan:
-What am I using to normalize the lactate signal?  The data in the delta figure 
-should go to 100 during baseline (last 4 hours of light phase) since that is what 
-I'm using to normalize it. Check this. 
+What am I using to normalize the lactate signal? I'M USING THE AVERAGE VALUE OF THE LACTATE 
+SIGNAL FROM T=20 TO T=24.  This normalization seems to be working. The lactate figure has 
+data around 100 for 20<t<24 or so.   
+
+The data in the delta figure should go to 100 during baseline (last 4 hours of light phase) since that is what 
+I'm using to normalize it. Check this. LACTATE LOOKS OK FOR THIS.  WHAT COULD BE HAPPENING 
+FOR DELTA? One issue: I'm currently normalizing to the mean delta power 
+during the last 4 hours of the baseline light period.  *I should be normalizing to 
+the mean delta power in SWS over the last 4 hours of baseline light. (not just long 
+SWS episodes, all of SWS). So, first find all the epochs labeled as SWS during the 
+last 4 hours of baseline.  Then compute the mean delta power over these epochs. Normalize
+to this.* I made this change and it helped quite a bit.  The values of the data (dots)
+are much closer to 100 between 20 and 24 now and the range of the data has been reduced 
+quite a bit.  AKR still looks a little funny, but the others are quite a bit better. 
+Perhaps the exclusion idea or leaving our data points with fewer than 4 animals will 
+clean that one up.    
 
 For lactate simulation cut off the start of the simulation until 6pm of the first day.  
-Check the Excel files to make sure they all start at the same time. 
+Check the Excel files to make sure they all start at the same time. The AKR files do 
+not all start at the same time.  12:28, 16:10,14:36,15:47,16:23.  Check the other strains too.
+
 
 For the bad files, come up with an EXCLUSION Criteria:  One option would 
 be to use the 7 animals with widest dynamic range in delta power.  To compute 
 the dynamic range: 1) compute the 10th percentile for SWA. 2) Compute the 90th percentile 
 for SWA. 3) Subtract the 10th percentile from the 90th percentile and that is the dynamic 
-range.   
+range.   *Could we use the frequency histogram to throw out files?*
 
 Leave out data points from this figure that do not have at least 4 animals contributing to the 
 mean.   
