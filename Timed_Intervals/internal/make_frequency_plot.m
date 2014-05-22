@@ -6,7 +6,7 @@ function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,newfig)
 % signal is 'lactate' or 'delta'
 %
 % optional 4th argument is 1 if you want a new figure, 0 if you don't
-if nargin==3 newfig=1; end
+if nargin==3 newfig=0; end
 %
 % window_length is the length (in hours) of the moving window used
 % in the calculation of UA and LA.

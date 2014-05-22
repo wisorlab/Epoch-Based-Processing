@@ -486,7 +486,7 @@ DBA1681_05_16_2013.txt
 DBA1683_05_20_2013.txt is bad delta1
 BA-120440.txt (35 hrs scattered) delta1
 (BLs look good in long_files)
-
+Several of the lactate files could benefit from cutting off the first 
 
 Jonathan said to try using overlapping windows for SWA episodes.  It turns out 
 that my code was already doing this.  This is what find_all_SWA_episodes2.m does. 
@@ -756,3 +756,32 @@ make sure it still runs with delta too.  I made a couple of small changes.
 Good news: now the data and model fit really well for lactate, but the problem is 
 that it's too much data.  Plot only every 10 point or something.  Code this up in a 
 general way so I can easily change it. (Or average over every nth point)
+
+
+* Thursday, May 22, 2014
+I fixed several bugs in compute_mean_time_course.m that were keeping me 
+from using shaded_figure_script.m.  Most of them had to do with setting up the 
+correct versions of tdata,tS, etc. to make the plots.  
+
+The plots seem to work for both lactate and delta, but for lactate it's way too 
+much data so I'm changing the shaded_figure_script.m to plot lactate data every 
+45 minutes instead of every epoch.  
+
+I fixed these issues and made decent verions of the figure with delta1 and with lactate.
+
+NOTES from meeting with Jonathan:
+What am I using to normalize the lactate signal?  The data in the delta figure 
+should go to 100 during baseline (last 4 hours of light phase) since that is what 
+I'm using to normalize it. Check this. 
+
+For lactate simulation cut off the start of the simulation until 6pm of the first day.  
+Check the Excel files to make sure they all start at the same time. 
+
+For the bad files, come up with an EXCLUSION Criteria:  One option would 
+be to use the 7 animals with widest dynamic range in delta power.  To compute 
+the dynamic range: 1) compute the 10th percentile for SWA. 2) Compute the 90th percentile 
+for SWA. 3) Subtract the 10th percentile from the 90th percentile and that is the dynamic 
+range.   
+
+Leave out data points from this figure that do not have at least 4 animals contributing to the 
+mean.   

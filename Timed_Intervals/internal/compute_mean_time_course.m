@@ -64,14 +64,16 @@ for i=1:N
 	  Average_signal{i}(j) = mean(normalized{i}(mask));
 	end
       end
+      tdata{i} = (3/8):.75:(intervals*.75)-(3/8);    
     else   %lactate
-      tlactate=1/360:1/360:(1/360)*length(normalized{i});
+      %tlactate=1/360:1/360:(1/360)*length(normalized{i});
       %for j=1:length(normalized{i})
 	%for j=1:intervals
 	  %mask = find(tlactate >= (j-1)*.75 & tlactate < j*.75);
 	  %Average_signal{i}(j) = mean(normalized{i}(mask));
 	Average_signal{i} = normalized{i};
-	%end      
+	tdata{i} = 1/360:1/360:(1/360)*length(normalized{i});	
+%end      
       %end
     end
   end  
@@ -111,12 +113,16 @@ SEM_data = nansem(temp);
 % tdata is just the time points where we have data
   %if strcmp(signal,'delta1') | strcmp(signal,'delta2')
     %tdata=.75:.75:maxsize*.75; % time in hours at which we have data (.75 hours=45 minutes)
-    tdata = (3/8):.75:maxsize*.75-(3/8);  
-   %else
-    if strcmp(signal,'lactate')     
-      tdata=tdata(4:end-4);
-    end
+% tdata = (3/8):.75:maxsize*.75-(3/8);  
+%    %else
+% if strcmp(signal,'lactate')     
+%   tdata=tdata(4:end-4);1/360:1/360:(1/360)*length(normalized{i});
+%   signal_mean = signal_mean(4:end-4);
+%   SEM_data = SEM_data(4:end-4);    
+% end
     
+tdata=tdata{maxind};
+
 % ----------------------------------------------------------------------------------
 % Repeat everything above for S:
 %  Normalize each S to individual mean delta power in SWS over last 4 hr of baseline
@@ -138,11 +144,10 @@ SEM_data = nansem(temp);
       tS{i} = (7.5/60):.25:(intervals*.25)-(7.5/60);
     else
       Average_S{i} = normalizedS{i}; % for lactate don't average over 15 minute intervals 
-      tS{i} = 2:(1/360):(1/360)*(size(normalizedS{i},1)-1)+2;
+      tS{i} = 2:(1/360):(1/360)*(length(normalizedS{i})-1)+2;
     end
 
-size(Average_S{i})
-pause
+
 end
 
 % average over all animals in this strain
@@ -174,3 +179,7 @@ tS=tS{maxindS};
 % tS=2:1/360:(1/360)*(maxsizeS-1)+2;
 % end
 % size(tS)
+
+size(tS)
+size(meanS)
+size(SEM_S)

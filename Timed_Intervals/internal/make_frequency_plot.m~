@@ -34,22 +34,24 @@ animation=0;
 
 
 
-if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   % If using delta power like Franken 2001 does, 
   % to find LA (lower assymptote), the intersection of the REM
   % histogram and SWS histogram
 
   % Find all the rows where sleep state is SWS (denoted by a 1)
-  rowsleep=find(datafile(:,1)==1);
-  sleepdata=data(rowsleep);
+  %rowsleep=find(datafile(:,1)==1);
+  sleepdata=data(datafile(:,1)==1);
   
+
+
   % Find all the rows where sleep state is REM (denoted by a 2)
-  rowrem=find(datafile(:,1)==2);
-  remdata=data(rowrem);
+  %rowrem=find(datafile(:,1)==2);
+  remdata=data(datafile(:,1)==2);
   
   % Find all the rows where sleep state is wake (denoted by 0)
-  rowwake=find(datafile(:,1)==0);
-  wakedata=data(rowwake);
+  %rowwake=find(datafile(:,1)==0);
+  wakedata=data(datafile(:,1)==0);
 
 % size(datafile)
 % size(sleepdata)
@@ -114,7 +116,7 @@ if strcmp(signal,'lactate')
     figure 
     xbins=linspace(0,max(data(1:(window_length)*360+1)),30);
     [nall,xall]=hist(data(1:(window_length)*360+1),xbins);
-    h=bar(xall,nall)
+    h=bar(xall,nall);
     axis([0 19.5 0 500])
   end
 
