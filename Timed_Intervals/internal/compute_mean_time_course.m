@@ -31,7 +31,9 @@ for i=1:N
 % normalized{i} = (data_at_SWS_midpoints/mn)*100  
   if(length(signal_data{i})>ind_end) % exclude files that are too short
     [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices] = find_all_SWS_episodes2([state_data{i} signal_data{i}],signal);  
-    mn = mean(signal_data{i}(ind_start:ind_end)); 
+    locs = find(state_data{i}(ind_start:ind_end)==1);
+    mn = mean(signal_data{i}(locs+ind_start-1));
+    %mn = mean(signal_data{i}(ind_start:ind_end)); 
     %normalized{i} = (signal_data{i}/mn)*100;  %100 is so plot is in percent
     if strcmp(signal,'delta1') | strcmp(signal,'delta2')
       normalized{i} = (data_at_SWS_midpoints/mn)*100;  
@@ -151,7 +153,7 @@ tdata=tdata{maxind};
 end
 
 % average over all animals in this strain
-[maxsizeS,maxindS]=max(cellfun('length',Average_S)) % compute the size of longest dataset (in epochs)
+[maxsizeS,maxindS]=max(cellfun('length',Average_S)); % compute the size of longest dataset (in epochs)
 for i=1:N   
   for j=1:maxsizeS
     if length(Average_S{i})<j
@@ -164,7 +166,7 @@ for i=1:N
 end
 
 meanS = nanmean(tempS,1);
-size(meanS)
+
 
 % Compute the SEM over all animals in this strain
 SEM_S = nansem(tempS);
@@ -172,14 +174,6 @@ SEM_S = nansem(tempS);
 % Set up tS vector for this group?  (longest of files in group?)
 tS=tS{maxindS};
 
-%tS=2:.25:maxsizeS*.25; % averaging over 15 minute intervals
-% if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-% tS = 
-% else %lactate
-% tS=2:1/360:(1/360)*(maxsizeS-1)+2;
-% end
-% size(tS)
 
-size(tS)
-size(meanS)
-size(SEM_S)
+
+

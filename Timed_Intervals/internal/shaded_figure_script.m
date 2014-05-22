@@ -2,7 +2,7 @@
 
 % -- Parameters --
 % signal: 'lactate', 'delta1', or 'delta2'
-signal = 'lactate';
+signal = 'delta1';
 
 % gap is used for plotting data in the lactate case since you don't want to plot all of it
 gap = 45;  %in minutes
