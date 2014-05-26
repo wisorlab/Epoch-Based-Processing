@@ -21,15 +21,22 @@ files = dir(directory_plus_extension);     % the dir function returns a cell arr
 
 HowManyFiles = length(files) % Need to know the number of files to process.  This number is encoded as the variable "HowManyFiles". 
 
-for FileCounter = 1:length(files)   %Runs the following set of commands for each file meeting criterion within the current directory.
+% for FileCounter = 1:length(files)   %Runs the following set of commands for each file meeting criterion within the current directory.
   
-  InputFileList {FileCounter,1} = files (FileCounter).name;  %InputFileList is a Cell Array of Strings, meaning an array of strings that are not necessarily uniform in number of characters.
-  InputFileList {FileCounter,2} = FileCounter; %Each row in InputFileList contains the name of one *.txt file followed by the row number associated with that file in InputFileList. 
-end  % the use of '{}' to signify array positions identifies this array as a cell array of strings
+%   InputFileList {FileCounter,1} = files (FileCounter).name;  %InputFileList is a Cell Array of Strings, meaning an array of strings that are not necessarily uniform in number of characters.
+%   InputFileList {FileCounter,2} = FileCounter; %Each row in InputFileList contains the name of one *.txt file followed by the row number associated with that file in InputFileList. 
+% end 
+				% the use of '{}' to signify array positions identifies this array as a cell array of strings
 %Here, InputFileList receives the names associated with each file in the directory that meets inclusion criteria.  (FileCounter,1) identifies a cell within InputFileList.  
 % '.name' indicates that we need to add the name to InputFileList at element (FileCounter,1).  So now we have a cell array of Strings, in which all input files are listed. 
 % For more information on batch processing, see: http://blogs.mathworks.com/steve/2006/06/06/batch-processing/#1
 
+
+% ---
+% LOADING LOOP
+% First loop through the files, load all the data and decide if 
+% I will use each data set or not
+% --- 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.   
   
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
@@ -97,7 +104,29 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
 
 				% Compute the dynamic range for each data file
   dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1)
-  
+end % end of looping through files to load data and decide which files to exclude
+
+% ------
+% Exclusion criteria:
+% Compute the dynamic range for each dataset and 
+% include only the datasets with the 7 largest
+% dynamic ranges.
+%------
+% [sorteddata,sortIndex]=sort(dynamic_range,'descend');
+% Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
+
+% reset signal_data and state_data cell arrays to only include files that haven't been excluded 
+% by our exclusion rule
+% state_data = state_data{Indices_of_largest};
+% signal_data = signal_data{Indices_of_largest};
+
+
+
+%---
+% COMPUTING LOOP
+%---
+% Now that I've loaded all the data and determined which datasets to keep (and simulate)
+for FileCounter=1:length(signal_data)
   
   [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
 
@@ -111,7 +140,6 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   
   % populate cell array with S output
   best_S{FileCounter} = S;
-
 
 
 end  %end of looping through files

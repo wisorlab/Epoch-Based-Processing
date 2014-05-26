@@ -813,3 +813,8 @@ BA and BL look pretty good in the shaded plot, AKR and DBA are not as nice.
 I made an excel file of the starting times, ending times, and duration of all the data files. 
 There is quite a bit of variation, particularly with AKR and DBA.  This may explain why some of them
 look so bad.  Talk to Jonathan and Will about this.  
+
+For the exclusion stuff, keep working on PROCESSLBATchmode.m.  I saved a copy of the previous
+version to Github.  The new version has commented out code.  Two for loops instead of one. 
+Leave out files that don't meet some criteria. 
+
