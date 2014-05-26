@@ -486,7 +486,7 @@ DBA1681_05_16_2013.txt
 DBA1683_05_20_2013.txt is bad delta1
 BA-120440.txt (35 hrs scattered) delta1
 (BLs look good in long_files)
-
+Several of the lactate files could benefit from cutting off the first 
 
 Jonathan said to try using overlapping windows for SWA episodes.  It turns out 
 that my code was already doing this.  This is what find_all_SWA_episodes2.m does. 
@@ -701,7 +701,8 @@ From the powershell (play button symbol) type C:\Users\wisorlab\profiles\wisorla
 from a new directory that I create.  This will set up all the git stuff.  
 
 New git procedure:
-1) Make a new directory in mrempe and cd to this directory.
+1) Double click on the Git Shell icon on the desktop
+1a) Make a new directory in mrempe and cd to this directory.
 2) type C:\Users\wisorlab\profiles\wisorlab_profile.ps1 
 3) modify the code in the directories just created (cd down to Epoch-based/Timed/internal)
 4) git status (tells me which files have changed)
@@ -755,3 +756,47 @@ make sure it still runs with delta too.  I made a couple of small changes.
 Good news: now the data and model fit really well for lactate, but the problem is 
 that it's too much data.  Plot only every 10 point or something.  Code this up in a 
 general way so I can easily change it. (Or average over every nth point)
+
+
+* Thursday, May 22, 2014
+I fixed several bugs in compute_mean_time_course.m that were keeping me 
+from using shaded_figure_script.m.  Most of them had to do with setting up the 
+correct versions of tdata,tS, etc. to make the plots.  
+
+The plots seem to work for both lactate and delta, but for lactate it's way too 
+much data so I'm changing the shaded_figure_script.m to plot lactate data every 
+45 minutes instead of every epoch.  
+
+I fixed these issues and made decent verions of the figure with delta1 and with lactate.
+
+NOTES from meeting with Jonathan:
+What am I using to normalize the lactate signal? I'M USING THE AVERAGE VALUE OF THE LACTATE 
+SIGNAL FROM T=20 TO T=24.  This normalization seems to be working. The lactate figure has 
+data around 100 for 20<t<24 or so.   
+
+The data in the delta figure should go to 100 during baseline (last 4 hours of light phase) since that is what 
+I'm using to normalize it. Check this. LACTATE LOOKS OK FOR THIS.  WHAT COULD BE HAPPENING 
+FOR DELTA? One issue: I'm currently normalizing to the mean delta power 
+during the last 4 hours of the baseline light period.  *I should be normalizing to 
+the mean delta power in SWS over the last 4 hours of baseline light. (not just long 
+SWS episodes, all of SWS). So, first find all the epochs labeled as SWS during the 
+last 4 hours of baseline.  Then compute the mean delta power over these epochs. Normalize
+to this.* I made this change and it helped quite a bit.  The values of the data (dots)
+are much closer to 100 between 20 and 24 now and the range of the data has been reduced 
+quite a bit.  AKR still looks a little funny, but the others are quite a bit better. 
+Perhaps the exclusion idea or leaving our data points with fewer than 4 animals will 
+clean that one up.    
+
+For lactate simulation cut off the start of the simulation until 6pm of the first day.  
+Check the Excel files to make sure they all start at the same time. The AKR files do 
+not all start at the same time.  12:28, 16:10,14:36,15:47,16:23.  Check the other strains too.
+
+
+For the bad files, come up with an EXCLUSION Criteria:  One option would 
+be to use the 7 animals with widest dynamic range in delta power.  To compute 
+the dynamic range: 1) compute the 10th percentile for SWA. 2) Compute the 90th percentile 
+for SWA. 3) Subtract the 10th percentile from the 90th percentile and that is the dynamic 
+range.   *Could we use the frequency histogram to throw out files?*
+
+Leave out data points from this figure that do not have at least 4 animals contributing to the 
+mean.   

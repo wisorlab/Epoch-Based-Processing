@@ -784,7 +784,7 @@ last 4 hours of baseline.  Then compute the mean delta power over these epochs. 
 to this.* I made this change and it helped quite a bit.  The values of the data (dots)
 are much closer to 100 between 20 and 24 now and the range of the data has been reduced 
 quite a bit.  AKR still looks a little funny, but the others are quite a bit better. 
-Perhaps the exclusion idea or leaving our data points with fewer than 4 animals will 
+Perhaps the exclusion idea or leaving out data points with fewer than 4 animals will 
 clean that one up.    
 
 For lactate simulation cut off the start of the simulation until 6pm of the first day.  

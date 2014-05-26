@@ -107,6 +107,15 @@ for i=1:N
 end
 
 signal_mean = nanmean(temp,1); % modify so I don't compute mean if <4 animals contribute in a certain 45min bin?
+contributing = N-sum(isnan(temp));  % the number of animals contributing data to each 45 minute interval
+
+% only count the signal_mean if more than 4 animals contribute to the mean for that epoch, 
+for j=1:length(signal_mean)
+  if(contributing(j)<4)
+    signal_mean(j) = NaN;
+  end
+end
+
 
 
 % Compute the SEM over all animals in this strain
