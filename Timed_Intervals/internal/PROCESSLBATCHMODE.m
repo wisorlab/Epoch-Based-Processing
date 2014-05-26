@@ -80,7 +80,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   PhysioVars(:,3) = mean(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
   PhysioVars(:,4) = mean(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
   
-  d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); % smoothing function from MATLAB Central fastsmooth(Y,width,type,ends) type=3 is pseudo-Gaussian
+  d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); 
   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
   
   PhysioVars(:,3) = d1smoothed;
@@ -95,7 +95,10 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     signal_data{FileCounter} = PhysioVars(:,4);
   end
 
-
+				% Compute the dynamic range for each data file
+  dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1)
+  
+  
   [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
 
   Taui(FileCounter) = Ti
