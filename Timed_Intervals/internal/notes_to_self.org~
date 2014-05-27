@@ -483,7 +483,7 @@ AKR1611_04_29_2013 and AKR1611_04_30_2013.txt is bad deltas (lactate OK)
 DBA1621_04_23_2.txt is bad if delta2 is used
 DBA1626_05_06_2013.txt is bad (40hrs) 
 DBA1681_05_16_2013.txt
-DBA1683_05_20_2013.txt is bad delta1
+DBA1683_05_20_2013.txt is bad delta1 (only 25 hours)
 BA-120440.txt (35 hrs scattered) delta1
 (BLs look good in long_files)
 Several of the lactate files could benefit from cutting off the first 
@@ -784,13 +784,13 @@ last 4 hours of baseline.  Then compute the mean delta power over these epochs. 
 to this.* I made this change and it helped quite a bit.  The values of the data (dots)
 are much closer to 100 between 20 and 24 now and the range of the data has been reduced 
 quite a bit.  AKR still looks a little funny, but the others are quite a bit better. 
-Perhaps the exclusion idea or leaving our data points with fewer than 4 animals will 
+Perhaps the exclusion idea or leaving out data points with fewer than 4 animals will 
 clean that one up.    
 
 For lactate simulation cut off the start of the simulation until 6pm of the first day.  
 Check the Excel files to make sure they all start at the same time. The AKR files do 
 not all start at the same time.  12:28, 16:10,14:36,15:47,16:23.  Check the other strains too.
-
+Can't do this until we sort out the start times.  
 
 For the bad files, come up with an EXCLUSION Criteria:  One option would 
 be to use the 7 animals with widest dynamic range in delta power.  To compute 
@@ -799,4 +799,22 @@ for SWA. 3) Subtract the 10th percentile from the 90th percentile and that is th
 range.   *Could we use the frequency histogram to throw out files?*
 
 Leave out data points from this figure that do not have at least 4 animals contributing to the 
-mean.   
+mean.   DONE!  May 26
+
+* Thursday, May 26, 2014
+
+Excluding 45-minute intervals where fewer than 4 animals contributed a SWA episode of more than 
+5 minutes made the fits of model to data look a bit better, although AKR and DBA are missing 
+quite a bit of data.  Re-try it excluding intervals where fewer than 3 animals contributed. 
+This helped a bit, but not much. 
+
+BA and BL look pretty good in the shaded plot, AKR and DBA are not as nice.  
+
+I made an excel file of the starting times, ending times, and duration of all the data files. 
+There is quite a bit of variation, particularly with AKR and DBA.  This may explain why some of them
+look so bad.  Talk to Jonathan and Will about this.  
+
+For the exclusion stuff, keep working on PROCESSLBATchmode.m.  I saved a copy of the previous
+version to Github.  The new version has commented out code.  Two for loops instead of one. 
+Leave out files that don't meet some criteria. 
+

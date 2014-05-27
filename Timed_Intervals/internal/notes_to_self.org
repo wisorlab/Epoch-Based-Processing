@@ -801,7 +801,7 @@ range.   *Could we use the frequency histogram to throw out files?*
 Leave out data points from this figure that do not have at least 4 animals contributing to the 
 mean.   DONE!  May 26
 
-* Thursday, May 26, 2014
+* Monday, May 26, 2014
 
 Excluding 45-minute intervals where fewer than 4 animals contributed a SWA episode of more than 
 5 minutes made the fits of model to data look a bit better, although AKR and DBA are missing 
@@ -817,4 +817,25 @@ look so bad.  Talk to Jonathan and Will about this.
 For the exclusion stuff, keep working on PROCESSLBATchmode.m.  I saved a copy of the previous
 version to Github.  The new version has commented out code.  Two for loops instead of one. 
 Leave out files that don't meet some criteria. 
+
+* Tuesday, May 27, 2014
+Things to think about today:
+- Look at Jonathan's and Jon's code to do summary statistics of the data in excel files. 
+I'll modify this to work with lactate rather than delta power. 
+- Jonathan has a script that imports data from an excel spreadsheet, much like my 
+ProcessLBatchmode.m.  Check it out and see if we can combine and condense.
+
+- Work on setting a start time for the data files that I read in so the cell array 
+contains data that all starts at the same time (same ending time too?). Also, 
+beware of daylight savings time.  Perhaps code this in: correct in winter, modify in 
+summer? 
+
+Problem: ProcessLBatchmode.m now just processes one file 7 times instead of processing 
+the 7 with the largest dynamic range.  Broken for strains with fewer than 7 files and those
+with more than 7 files.  files(FileCounter).name seems to work, since the figure titles 
+are correct, it's just that the same data is getting loaded each time. 
+FIXED: Franken_like_model was using PhysioVars in it's call instead of signal_data 
+cell array.  I had to modify several .m files so Franken_like_model can read in 
+just the sleep state and signal data (lactate or delta) and nothing else. 
+It seems to be working. 
 

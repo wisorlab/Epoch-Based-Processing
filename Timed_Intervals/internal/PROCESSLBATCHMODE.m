@@ -103,7 +103,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   end
 
 				% Compute the dynamic range for each data file
-  dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1)
+  dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1);
 end % end of looping through files to load data and decide which files to exclude
 
 % ------
@@ -112,23 +112,26 @@ end % end of looping through files to load data and decide which files to exclud
 % include only the datasets with the 7 largest
 % dynamic ranges.
 %------
-% [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-% Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
+[sorteddata,sortIndex]=sort(dynamic_range,'descend');
+Indices_of_largest = sortIndex(1:7)  % 7 largest dynamic ranges
 
 % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
 % by our exclusion rule
-% state_data = state_data{Indices_of_largest};
-% signal_data = signal_data{Indices_of_largest};
+state_data  = state_data(Indices_of_largest);
+signal_data = signal_data(Indices_of_largest);
+files       = files(Indices_of_largest);
 
+size(files)
+pause
 
 
 %---
 % COMPUTING LOOP
 %---
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
-for FileCounter=1:length(signal_data)
+for FileCounter=1:length(files)
   
-  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
+  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
 
   Taui(FileCounter) = Ti
   Taud(FileCounter) = Td

@@ -2,8 +2,7 @@ function [Ti,Td,LA,UA,best_error,error_instant,best_S]=Franken_like_model_with_n
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
-%           state is in the first column, lactate in the second column and
-%           EEG data in the columns after that.  
+%           state is in the first column, lactate or EEG data in the second column 
 %
 % signal: either 'delta' or 'lactate' 
 %
@@ -30,7 +29,7 @@ window_length=4;  % size of moving window (in hours) used to compute
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
 if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,signal);
+  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
 end
 
 % if using a moving window for the upper and lower assymptotes, S

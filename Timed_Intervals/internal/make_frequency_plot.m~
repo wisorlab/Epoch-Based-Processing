@@ -1,12 +1,13 @@
-function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,newfig)
+function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,makefig,newfig)
 % USAGE: [LA,UA]=make_frequency_plot(datafile,signal)
 %
 % this function reads in a sleep data file like those
 % given to me by J. Wisor 2011. 
 % signal is 'lactate' or 'delta'
 %
-% optional 4th argument is 1 if you want a new figure, 0 if you don't
-if nargin==3 newfig=1; end
+% optional 4th argument is 1 if make the frequency histogram at all, newfig is if you
+% want the histogram in a new figure, if not, use the current figure. a new figure
+if nargin==3 makefig=0; newfig=0; end
 %
 % window_length is the length (in hours) of the moving window used
 % in the calculation of UA and LA.
@@ -56,28 +57,11 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 % size(datafile)
 % size(sleepdata)
 % max(sleepdata)  
-xbins=linspace(0,max(sleepdata),30);
+  xbins=linspace(0,max(sleepdata),30);
   
-  % make the histograms
-  if newfig==1 
-    figure 
-  end
+  % compute the histograms
   [ns,xs]=hist(sleepdata,xbins);  %sleep data
-  bar(xs,ns)
-  h = findobj(gca,'Type','patch');
-  set(h,'FaceColor',[0.5 0.5 0.5],'EdgeColor','k')
-  hold on
-  
-  [nr,xr]=hist(remdata,xbins);   %REM data
-  bar(xr,nr)
-  %h = findobj(gca,'Type','patch');
-  %set(h,'FaceColor',[0 0.5 0.5],'EdgeColor','w')
-  
-  %[nw,xw]=hist(wakedata,xbins)  % wake data
-  % h = findobj(gca,'Type','patch');
-  % set(h,'FaceColor',[0 1 0],'EdgeColor','w')
-  
-  
+  [nr,xr]=hist(remdata,xbins);   %REM data 
   difference=ns-nr;  % need to find where this is 0
   id=find(diff(difference >= 0)); % finds crossings of the difference
                                   % vector, (keep only last one)
@@ -89,15 +73,30 @@ xbins=linspace(0,max(sleepdata),30);
     id=id(end);
     LA = xs(id)-(difference(id)*(xs(id+1)-xs(id))/(difference(id+1)-difference(id)));
   end
-  plot(LA,0:max(ns)) % plot vertical line at LA
-  
-  % UA (upper assymptote)
+% UA (upper assymptote)
   UA=quantile(sleepdata,.9);
-  plot(UA,0:max(ns))
-  hold off
-  xlabel('DELTA POWER [\mu V^2]')
-  ylabel('FREQUENCY')
 
+% plot the histograms
+  if newfig==1 
+    figure
+    bar(xs,ns) 
+    h = findobj(gca,'Type','patch');
+    set(h,'FaceColor',[0.5 0.5 0.5],'EdgeColor','k')
+    hold on
+    bar(xr,nr)
+  %h = findobj(gca,'Type','patch');
+  %set(h,'FaceColor',[0 0.5 0.5],'EdgeColor','w')
+  
+  %[nw,xw]=hist(wakedata,xbins)  % wake data
+  % h = findobj(gca,'Type','patch');
+  % set(h,'FaceColor',[0 1 0],'EdgeColor','w')
+    plot(LA,0:max(ns)) % plot vertical line at LA
+    plot(UA,0:max(ns))
+    hold off
+    xlabel('DELTA POWER [\mu V^2]')
+    ylabel('FREQUENCY')
+    
+  end
 end
 
 

@@ -1,7 +1,7 @@
 function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,makefig,newfig)
 % USAGE: [LA,UA]=make_frequency_plot(datafile,signal)
 %
-% this function reads in a sleep data file like those
+% this function reads in a sleep data file with two columns: sleep state, signal (delta or lactate)
 % given to me by J. Wisor 2011. 
 % signal is 'lactate' or 'delta'
 %
@@ -12,19 +12,8 @@ if nargin==3 makefig=0; newfig=0; end
 % window_length is the length (in hours) of the moving window used
 % in the calculation of UA and LA.
 % 
-% uses 1-4 Hz as delta, but this could easily be changed by
-% changing the line data=mean(datafile(:,4:6),2) 
-% to data=mean(datafile(:,3:6),2)
 
-%UPDATE: Now the average is computed in the batch file, ProcessLBatchMode.m, 
-% so datafile has only 4 columns, sleepstate,lactate,delta from EEG1 and delta from EEG2
-if strcmp(signal,'delta1')
-  data=datafile(:,3);
-elseif strcmp(signal,'delta2')
-  data=datafile(:,4);
-elseif strcmp(signal,'lactate')
-  data=datafile(:,2);
-end
+data=datafile(:,2);
 
 
 % flag for plotting, if 1 you get a plot of the histogram for the

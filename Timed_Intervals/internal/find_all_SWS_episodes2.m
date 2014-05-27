@@ -1,6 +1,6 @@
-function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,signal)
+function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile)
 %USAGE:
-% [t_mdpt_SWS,t_midpt_indices,data_at_SWS_midpoints]=find_all_SWS_episodes2(datafile,signal)
+% [t_mdpt_SWS,t_midpt_indices,data_at_SWS_midpoints]=find_all_SWS_episodes2(datafile)
 % 
 % This function finds all the episodes of length 5 minutes
 % in which SWA makes up at least 90% of the activity in those 5 minutes
@@ -9,15 +9,11 @@ function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes
 % Figure 1.  
 %
 % INPUTS: 
-% datafile:    This is a data file containing 4 columns, where
-%          sleep state is in the first column (0=wake,1=SWS,2=REM), lactate
-%          is in the second column, average delta power in EEG1 is in the 
-%          third column, and averge delta power in EEG2 is in the 4th column.
+% datafile:  This is a data file containing 2 columns, where
+%            sleep state is in the first column (0=wake,1=SWS,2=REM), lactate
+%            or delta power is in the second colum
 %
-%          if datafile has only 2 columns that means it has already been processed, 
-%          so just keep it.  It has sleep state in first column and delta or lactate in second
 
-% signal: 'lactate' or 'delta1' or 'delta2'
 %
 % OUTPUTS:
 % t_mdpt_SWS:  the times (in hours) of the midpoints of the 5 minute episodes
@@ -36,21 +32,8 @@ t_hours=0:1/360:(1/360)*(size(datafile,1)-1);  %1/360 because 10 seconds
                                         %is 1/360 of an hour. 
 
 
-% Pick off the correct data from datafile
-if size(datafile,2) > 2 
-  if strcmp(signal,'delta1')
-    data=datafile(:,3);
-  elseif strcmp(signal,'delta2')
-    data=datafile(:,4);
-  elseif strcmp(signal,'lactate')
-    data=datafile(:,2);
-  end
-else
-  data=datafile(:,2);  % in this case, the correct column has already been plucked off
-                       % second column has delta or lactate data, first column has sleep state.
- end
-
-
+data=datafile(:,2);
+ 
 
 % initialize
 t_mdpt_SWS=0;
