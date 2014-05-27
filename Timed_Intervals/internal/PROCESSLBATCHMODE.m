@@ -121,8 +121,7 @@ state_data  = state_data(Indices_of_largest);
 signal_data = signal_data(Indices_of_largest);
 files       = files(Indices_of_largest);
 
-size(files)
-pause
+
 
 
 %---

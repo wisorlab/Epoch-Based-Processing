@@ -837,5 +837,15 @@ are correct, it's just that the same data is getting loaded each time.
 FIXED: Franken_like_model was using PhysioVars in it's call instead of signal_data 
 cell array.  I had to modify several .m files so Franken_like_model can read in 
 just the sleep state and signal data (lactate or delta) and nothing else. 
-It seems to be working. 
+It seems to be working. This cleaned up several .m files.
+
+I played around with SigmaPlot a little and it looks like it may be a good way to go to make the 
+bar graphs comparing tau values for lactate and delta and process S.  It can output eps files too. 
+The format seems to be the following: in one column have the averages for each strain. In the next column
+put the standard errors (or standard deviation).  Or just write a MATLaB function.  Matlab has the 
+benefit that if I get new data I can just re-run it.  Sigmaplot would require me to go through the gui each 
+time.  But it does look nice.  
+
+Work on matlab script to make bar graphs for taui and taud.  
+
 
