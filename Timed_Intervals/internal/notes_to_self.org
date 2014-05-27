@@ -846,6 +846,14 @@ put the standard errors (or standard deviation).  Or just write a MATLaB functio
 benefit that if I get new data I can just re-run it.  Sigmaplot would require me to go through the gui each 
 time.  But it does look nice.  
 
-Work on matlab script to make bar graphs for taui and taud.  
+Work on matlab script to make bar graphs for taui and taud. A DRAFT is completed (make_bar_graph_figure.m)
+TEST THIS
+
+Continue working on using sscanf or substring.m to get at the time stamp data so we can leave off
+data if we need to in order to make all experiments start at the same time. 
+
+
+
+  
 
 

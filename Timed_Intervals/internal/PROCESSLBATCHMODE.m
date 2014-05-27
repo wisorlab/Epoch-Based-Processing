@@ -42,6 +42,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
   
+
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
     lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*6;
