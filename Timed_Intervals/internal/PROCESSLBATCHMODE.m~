@@ -42,6 +42,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
   
+
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
     lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*6;
@@ -102,8 +103,25 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     signal_data{FileCounter} = PhysioVars(:,4);
   end
 
-				% Compute the dynamic range for each data file
-  dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1)
+% Compute the dynamic range for each data file
+  dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1);
+
+% Cut off all data before 8:00PM 
+  
+for i=1:length(textdata)
+    i
+      if textdata{1,1}(1)=='"'
+       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
+    else
+       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
+    end  
+  end
+  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0);
+  size(state_data{FileCounter})
+  state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);
+  signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
+size(state_data{FileCounter})
+pause
 end % end of looping through files to load data and decide which files to exclude
 
 % ------
@@ -112,13 +130,15 @@ end % end of looping through files to load data and decide which files to exclud
 % include only the datasets with the 7 largest
 % dynamic ranges.
 %------
-% [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-% Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
+[sorteddata,sortIndex]=sort(dynamic_range,'descend');
+Indices_of_largest = sortIndex(1:7)  % 7 largest dynamic ranges
 
 % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
 % by our exclusion rule
-% state_data = state_data{Indices_of_largest};
-% signal_data = signal_data{Indices_of_largest};
+state_data  = state_data(Indices_of_largest);
+signal_data = signal_data(Indices_of_largest);
+files       = files(Indices_of_largest);
+
 
 
 
@@ -126,9 +146,9 @@ end % end of looping through files to load data and decide which files to exclud
 % COMPUTING LOOP
 %---
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
-for FileCounter=1:length(signal_data)
+for FileCounter=1:length(files)
   
-  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead(PhysioVars,signal,files(FileCounter).name);
+  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
 
   Taui(FileCounter) = Ti
   Taud(FileCounter) = Td

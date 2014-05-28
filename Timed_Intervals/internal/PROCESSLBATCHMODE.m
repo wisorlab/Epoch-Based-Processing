@@ -103,8 +103,26 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     signal_data{FileCounter} = PhysioVars(:,4);
   end
 
-				% Compute the dynamic range for each data file
+% Compute the dynamic range for each data file
   dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1);
+
+% Cut off all data before 8:00PM 
+  length(textdata)
+pause
+for i=1:length(textdata)
+    i
+      if textdata{i,1}(1)=='"'
+       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
+    else
+       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
+    end  
+  end
+  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0);
+  size(state_data{FileCounter})
+  state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);
+  signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
+size(state_data{FileCounter})
+pause
 end % end of looping through files to load data and decide which files to exclude
 
 % ------

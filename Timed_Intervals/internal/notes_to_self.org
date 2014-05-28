@@ -852,6 +852,25 @@ TEST THIS
 Continue working on using sscanf or substring.m to get at the time stamp data so we can leave off
 data if we need to in order to make all experiments start at the same time. 
 
+* Wednesday, May 28, 2014
+I'm implementing code today to read in the time stamps in the input data and only use data starting at 
+a specified starting point.  
+File AKR1608_04_23_2013_and_AKR1608_04_24_2013.txt has a section where all EEG data are 0 and lactate data 
+is constant (lines 7224-7248)  Ask Will and Jonathan about this.  Do I just cut this section out? 
+It has a long wake bout just after this where lactate is decreasing for the entire wake bout. Ask about 
+this too. 
+AKR1611_04_29_2013_and_AKR1611_04_30_2013.txt ends with a row of zeros. I should delete this row too.
+
+Maybe think of a better way for my model to handle missing data. Should I skip that part and just start 
+again when the data starts again?   For the delta model it probably doesn't matter since there are 
+no SWA episodes in those regions so I won't have a data point to match to (assuming X gets turned into wake)
+
+But it may matter for the lactate model.  Perhaps I could have S stay the same if sleep state is listed 
+as X?  Or just leave that section out of the model and have process S start over again after the break
+at the next value of lactate?  
+
+
+
 
 
   
