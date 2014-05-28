@@ -19,67 +19,66 @@ N=length(signal_data);  % # of data files
 
 % Normalize each delta power trace to the individual mean delta power
 % in SWS over the last 4 hours of the baseline light period. (for each animal)
-baseline_start_hours = 20;
-baseline_end_hours = 24;
+% Since recordings start at 8:00PM, and lights are on from 5:00AM until 5:00PM,
+% the last 4 hours of baseline light period is 17 to 21 hours into the recording. 
+baseline_start_hours = 17;
+baseline_end_hours = 21;
 ind_start = baseline_start_hours*360;
 ind_end = baseline_end_hours*360;
 
 
 for i=1:N
-% call find_all_SWS_episodes2.m on signal_data{i} 
-% mn is the same
-% normalized{i} = (data_at_SWS_midpoints/mn)*100  
-  if(length(signal_data{i})>ind_end) % exclude files that are too short
-    [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices] = find_all_SWS_episodes2([state_data{i} signal_data{i}],signal);  
+ 
+  if(length(signal_data{i})>=ind_end) % exclude files that are too short
+    [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices] = find_all_SWS_episodes2([state_data{i} signal_data{i}]);  
     locs = find(state_data{i}(ind_start:ind_end)==1);
     mn = mean(signal_data{i}(locs+ind_start-1));
-    %mn = mean(signal_data{i}(ind_start:ind_end)); 
-    %normalized{i} = (signal_data{i}/mn)*100;  %100 is so plot is in percent
-    if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-      normalized{i} = (data_at_SWS_midpoints/mn)*100;  
-    else
-      normalized{i} = (signal_data{i}/mn)*100; %lactate uses all data, not just SWS midpoints
-    end    
-    normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
+  else
+    mn = mean(signal_data{i}(end-4*360:end));   
+  end 
+  %mn = mean(signal_data{i}(ind_start:ind_end)); 
+  if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+    normalized{i} = (data_at_SWS_midpoints/mn)*100;  
+  else
+    normalized{i} = (signal_data{i}/mn)*100; %lactate uses all data, not just SWS midpoints
+  end    
+  normalizedS{i} = (best_S{i}/mn)*100;  %100 is so plot is in percent
 
-    % if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-    %   plot(t_mdpt_SWS,normalized{i},'k.')
-    % else
-    %   plot(1/360:1/360:(1/360)*length(normalized{i}),normalized{i},'k.')
+  % if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+  %   plot(t_mdpt_SWS,normalized{i},'k.')
+  % else
+  %   plot(1/360:1/360:(1/360)*length(normalized{i}),normalized{i},'k.')
       
-    % end
+  % end
   
-    % hold on    
-    % plot(2:1/360:(1/360)*(length(normalizedS{i})-1)+2,normalizedS{i})    
+  % hold on    
+  % plot(2:1/360:(1/360)*(length(normalizedS{i})-1)+2,normalizedS{i})    
 
-    % hold off
-    % pause  
+  % hold off
+  % pause  
 
-    % If using delta power as the signal, average delta power over consecutive 45 minute intervals (for each animal)
-    intervals = floor(length(signal_data{i})/270);
-    if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-      for j=1:intervals
-	mask = find(t_mdpt_SWS >= (j-1)*.75 & t_mdpt_SWS < j*.75); %find all SWS episodes in this 45 minute interval
-	if isempty(mask)
-	  Average_signal{i}(j) = NaN;
-	else
-	  Average_signal{i}(j) = mean(normalized{i}(mask));
-	end
+  % If using delta power as the signal, average delta power over consecutive 45 minute intervals (for each animal)
+  intervals = floor(length(signal_data{i})/270);
+  if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+    for j=1:intervals
+      mask = find(t_mdpt_SWS >= (j-1)*.75 & t_mdpt_SWS < j*.75); %find all SWS episodes in this 45 minute interval
+      if isempty(mask)
+	Average_signal{i}(j) = NaN;
+      else
+	Average_signal{i}(j) = mean(normalized{i}(mask));
       end
-      tdata{i} = (3/8):.75:(intervals*.75)-(3/8);    
-    else   %lactate
-      %tlactate=1/360:1/360:(1/360)*length(normalized{i});
-      %for j=1:length(normalized{i})
-	%for j=1:intervals
-	  %mask = find(tlactate >= (j-1)*.75 & tlactate < j*.75);
-	  %Average_signal{i}(j) = mean(normalized{i}(mask));
-	Average_signal{i} = normalized{i};
-	tdata{i} = 1/360:1/360:(1/360)*length(normalized{i});	
-%end      
-      %end
     end
-  end  
-end  %looping over animals in this strain
+    tdata{i} = (3/8):.75:(intervals*.75)-(3/8);    
+  else   %lactate
+  %tlactate=1/360:1/360:(1/360)*length(normalized{i});
+  %for j=1:length(normalized{i})
+  %for j=1:intervals
+  %mask = find(tlactate >= (j-1)*.75 & tlactate < j*.75);
+  %Average_signal{i}(j) = mean(normalized{i}(mask));
+    Average_signal{i} = normalized{i};
+    tdata{i} = 1/360:1/360:(1/360)*length(normalized{i});	
+  end %if statement if delta is signal
+ end  %looping over animals in this strain
 
 
 
@@ -93,10 +92,15 @@ end  %looping over animals in this strain
 
  
 % Now average over all animals in this strain 
+
 [maxsize,maxind]=max(cellfun('length',Average_signal)); % compute the size of longest dataset (in epochs)
 
+
 for i=1:N   
+  i
   for j=1:maxsize
+    j
+    length(Average_signal{i})
     if length(Average_signal{i})<j
       temp(i,j) = NaN;
     else
@@ -107,7 +111,7 @@ for i=1:N
 end
 
 signal_mean = nanmean(temp,1); % modify so I don't compute mean if <4 animals contribute in a certain 45min bin?
-contributing = N-sum(isnan(temp))  % the number of animals contributing data to each 45 minute interval
+contributing = N-sum(isnan(temp));  % the number of animals contributing data to each 45 minute interval
 
 
 

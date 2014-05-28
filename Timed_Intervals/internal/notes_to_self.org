@@ -869,8 +869,17 @@ But it may matter for the lactate model.  Perhaps I could have S stay the same i
 as X?  Or just leave that section out of the model and have process S start over again after the break
 at the next value of lactate?  
 
++IMPORTANT: After we decide where all datasets should begin, decide when the baseline dark period is and CHANGE THE+ 
++CORRESPONDING CODE IN compute_mean_time_course.m+  
 
-
+NOTES FROM TALK WITH JONATHAN AND WILL:
+1) +Cut off all time before 20:00:00+ and cut off simulations at 43 or 44 hours? Ask Jonathan. 
+2) +Lights off at 17:00, Lights on at 5:00, baseline is 13:00-17:00 which is 17 hours-21 hours into recording+ DONE in compute_mean_time_course.m
+3) For now use only BA, BL, and DBA.  Will has 2 more genetic strains for me.
+4) It would be good to make my code more general to include an arbitrary number of genetic strains
+5) +Eliminate file BA-120440.txt.  It does not start at the right time.  +
+6) +For file AKR1608... just cut out all the 0 entries and the row above and copy and+ 
++paste line 7222 (except the time stamp).+
 
 
   

@@ -107,22 +107,27 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
   dynamic_range(FileCounter) = quantile(signal_data{FileCounter},.9)-quantile(signal_data{FileCounter},.1);
 
 % Cut off all data before 8:00PM 
-  length(textdata)
-pause
-for i=1:length(textdata)
-    i
-      if textdata{i,1}(1)=='"'
-       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
-    else
-       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
-    end  
-  end
-  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0);
+  % first read in all the timestamp data into a matrix
+  for i=1:length(textdata)
+   try
+      TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
+    catch exception1
+      try 
+	TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
+      catch exception2 
+        try   
+          TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f %f:%f:%f');  
+        catch exception3
+        end  
+      end
+    end
+end
+
+  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %the twenty is for 20:00, 8:00PM
   size(state_data{FileCounter})
-  state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);
+  state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
   signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
-size(state_data{FileCounter})
-pause
+ 
 end % end of looping through files to load data and decide which files to exclude
 
 % ------
@@ -132,8 +137,11 @@ end % end of looping through files to load data and decide which files to exclud
 % dynamic ranges.
 %------
 [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-Indices_of_largest = sortIndex(1:7)  % 7 largest dynamic ranges
-
+if size(dynamic_range) >= 7
+Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
+else
+Indices_of_largest = sortIndex;
+end
 % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
 % by our exclusion rule
 state_data  = state_data(Indices_of_largest);
