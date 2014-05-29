@@ -126,21 +126,21 @@ clear TimeStampMatrix
     end
    end
 
-  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0) %the twenty is for 20:00, 8:00PM
+  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %the twenty is for 20:00, 8:00PM
  
   state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
   signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
 
 
   % compute the length of the datafile in hours 
-  start_time = TimeStampMatrix(:,locs_of_start_times(1))
-  end_time = TimeStampMatrix(:,end)
+  start_time = TimeStampMatrix(:,locs_of_start_times(1));
+  end_time = TimeStampMatrix(:,end);
 
 start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
 end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
 length_of_recording = etime(end_time',start_time');
-length_of_recording = length_of_recording/60/60 % convert from seconds to hours
-pause
+length_of_recording = length_of_recording/60/60; % convert from seconds to hours
+
 end % end of looping through files to load data and decide which files to exclude
 
 % ------

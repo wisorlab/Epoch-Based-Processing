@@ -35,12 +35,16 @@ average_taud_lactate = [mean(TdBA) mean(TdAKR) mean(TdBL) mean(TdDBA)];
 average_taud_delta   = [mean(TdBAd) mean(TdAKRd) mean(TdBLd) mean(TdDBAd)];
 
 % compute SEM for taui values
-SEM_taui_lactate = [nansem(TiBA) nansem(TiAKR) nansem(TiBL) nansem(TiDBA)];
-SEM_taui_delta   = [nansem(TiBAd) nansem(TiAKRd) nansem(TiBLd) nansem(TiDBAd)];
+SEM_taui_lactate = [std(TiBA)/sqrt(length(TiBA)) std(TiAKR)/sqrt(length(TiAKR)) ...
+		    std(TiBL)/sqrt(length(TiBL)) std(TiDBA)/sqrt(length(TiDBA))];
+SEM_taui_delta   = [std(TiBAd)/sqrt(length(TiBAd)) std(TiAKRd)/sqrt(length(TiAKRd)) ...
+		    std(TiBLd)/sqrt(length(TiBLd)) std(TiDBAd)/sqrt(length(TiDBAd))];
 
 % compute SEM for taud values
-SEM_taud_lactate = [nansem(TdBA) nansem(TdAKR) nansem(TdBL) nansem(TdDBA)];
-SEM_taud_delta   = [nansem(TdBAd) nansem(TdAKRd) nansem(TdBLd) nansem(TdDBAd)];
+SEM_taud_lactate = [std(TdBA)/sqrt(length(TdBA)) std(TdAKR)/sqrt(length(TdAKR))...
+		    std(TdBL)/sqrt(length(TdBL)) std(TdDBA)/sqrt(length(TdDBA))];
+SEM_taud_delta   = [std(TdBAd)/sqrt(length(TdBAd)) std(TdAKRd)/sqrt(length(TdAKRd)) ...
+		    std(TdBLd)/sqrt(length(TdBLd)) std(TdDBAd)/sqrt(length(TdDBAd))];
 
 
 % Franken data (to plot and compare to)
@@ -56,6 +60,7 @@ subplot(5,3,[1:3:10])
 bar(1:4,average_taui_lactate)
 hold on
 h=errorbar(1:4,average_taui_lactate,SEM_taui_lactate)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 hold off
 ylabel('\tau_i (hrs)')
@@ -64,6 +69,7 @@ subplot(5,3,[2:3:11])
 bar(1:4,average_taui_delta)
 hold on
 h=errorbar(1:4,average_taui_delta,SEM_taui_delta)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 hold off
 
@@ -71,6 +77,7 @@ subplot(5,3,[3:3:12])
 bar(1:4,Franken_taui)
 hold on
 h=errorbar(1:4,Franken_taui,Franken_SEM_taui)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 hold off
 
@@ -78,6 +85,7 @@ subplot(5,3,13)
 bar(1:4,average_taud_lactate)
 hold on
 h=errorbar(1:4,average_taud_lactate,SEM_taud_lactate)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 ylabel('\tau_d (hrs)')
 hold off
@@ -86,6 +94,7 @@ subplot(5,3,14)
 bar(1:4,average_taud_delta)
 hold on
 h=errorbar(1:4,average_taud_delta,SEM_taud_delta)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 hold off
 
@@ -93,6 +102,7 @@ subplot(5,3,15)
 bar(1:4,Franken_taud)
 hold on
 h=errorbar(1:4,Franken_taud,Franken_SEM_taud)
+set(h,'LineStyle','none')
 errorbar_tick(h,0)
 hold off
 
