@@ -12,7 +12,7 @@ function [signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,s
 % Taud:    a vector of the fall time time constant, one value for each fiel in the directory
 % new comment
 
-%profile on
+profile on
 
 directory_plus_extension=strcat(directory,'*.txt');
 
@@ -172,8 +172,8 @@ for FileCounter=1:length(files)
   
   [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
 
-  Taui(FileCounter) = Ti
-  Taud(FileCounter) = Td
+  Taui(FileCounter) = Ti;
+  Taud(FileCounter) = Td;
   %LowA(FileCounter,:)=LA;
   %UppA(FileCounter,:)=UA;
   Error(FileCounter)  = best_error;
@@ -208,4 +208,4 @@ sound  (y)
 
 
 
-%profile viewer
+profile viewer

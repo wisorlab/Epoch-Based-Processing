@@ -38,7 +38,10 @@ HowManyFiles = length(files) % Need to know the number of files to process.  Thi
 % I will use each data set or not
 % --- 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.   
-  
+clear PhysioVars
+clear dynamic_range
+clear TimeStampMatrix   
+
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
   
@@ -109,7 +112,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
 % Cut off all data before 8:00PM 
   % first read in all the timestamp data into a matrix
   for i=1:length(textdata)
-   try
+    try
       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
     catch exception1
       try 
@@ -121,7 +124,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end  
       end
     end
-end
+   end
 
   locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %the twenty is for 20:00, 8:00PM
  
@@ -136,7 +139,8 @@ end
 start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
 end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
 length_of_recording = etime(end_time',start_time');
-length_of_recording = length_of_recording/60/60 % convert from seconds to hours
+length_of_recording = length_of_recording/60/60; % convert from seconds to hours
+
 end % end of looping through files to load data and decide which files to exclude
 
 % ------

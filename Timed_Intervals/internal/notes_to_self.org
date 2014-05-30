@@ -910,6 +910,17 @@ runs of NM give you a different minimum.
 Change my code to use matlabs fminsearch.m and make sure it gives the same minima.  
 It looks like fminsearch.m is working.  Compare to current implementation in terms 
 of speed and accuracy.  They match well for all of the BL files. 
+fminsearch:from 2.99  to 4.23 seconds for BL
+my code from Mathews: 3.19 to 5.23 seconds for BL
 
 Speed up the first loop in ProcessSBatchMode.m where the files are read in and checked. It 
 seems like it shouldn't be so slow.  Maybe run profiler just on that loop?
+Nothing seemed promising here.  I could try re-writing it to use multiple other 
+matlab functions and it may be a bit faster, but it may not be as robust.  
+
+I also looked at speeding up the update of S using ode45.  You can't tell 
+ode45 where to evaluate the function.  You can, but it will also evaluate it in-between 
+these points.  This won't work for me because it doesn't make sense to update S in-between 
+places where you know the sleep state.  It doesn' tmake sense to interpolate sleep state. 
+
+I tried to think of other ways to vectorize the update of S, but nothing seemed promising. 

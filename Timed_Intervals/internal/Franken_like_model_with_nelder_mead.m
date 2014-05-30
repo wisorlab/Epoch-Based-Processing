@@ -58,20 +58,18 @@ initial_guess = [1 1];     % one starting guess
 
 if strcmp(signal,'delta1') | strcmp(signal,'delta2')
   [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,t_mdpt_indices,data_at_SWS_midpoints, ...
-								datafile,dt,LA,UA,window_length,mask,p), [0.5 1]);
-  best_tau_i = bestparams(1);
-  best_tau_d = bestparams(2);
+								datafile,dt,LA,UA,window_length,mask,p), [0.5 1])
 end
 
 if strcmp(signal,'lactate')
-  [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA,
+  [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA, ...
 								window_length,mask,p), [0.5 1]);
 end
 best_tau_i=bestparams(1);
 best_tau_d=bestparams(2);
 
-Ti=best_tau_i    %output the best taus
-Td=best_tau_d
+Ti=best_tau_i;    %output the best taus
+Td=best_tau_d;
 
 
 % run one more time with best fit and plot it (add a plot with circles)
