@@ -882,6 +882,8 @@ NOTES FROM TALK WITH JONATHAN AND WILL:
 +paste line 7222 (except the time stamp).+
 
 
-  
+* Thursday, May 29, 2014
+Working on code to compute time elapsed given year, month, day, hour, minute, and second. 
 
-
+ 
+BI was able to load matlab mode in emacs. just type M-x matlab-mode and it kind of works.

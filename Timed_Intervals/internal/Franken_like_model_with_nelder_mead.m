@@ -52,23 +52,26 @@ dt=1/360;  % assuming data points are every 10 seconds and t is in hours
 % error=zeros(length(tau_i),length(tau_d));
 
 % COMPUTING LOOP
-% use the nelder_mead algorithm to find the global 
-% minimum error
-guesses=[0.5 1;1.5 1;1 2]; % three starting guesses
+% use the nelder_mead algorithm to find the global minimum error
+% fminsearch uses Nelder-Mead
+initial_guess = [1 1];     % one starting guess
+
 if strcmp(signal,'delta1') | strcmp(signal,'delta2')
-  [best_tau_i,best_tau_d,best_error]=nelder_mead_for_delta(guesses,1,1000,1e-9,0,datafile,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints);
+  [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,t_mdpt_indices,data_at_SWS_midpoints, ...
+								datafile,dt,LA,UA,window_length,mask,p), [0.5 1]);
+  best_tau_i = bestparams(1);
+  best_tau_d = bestparams(2);
 end
 
 if strcmp(signal,'lactate')
-  [best_tau_i,best_tau_d,best_error]=nelder_mead_for_lactate(guesses,1,1000,1e-9,0,datafile,dt,LA,UA,window_length,mask);
-best_error
-  [best_tau_i2,best_tau_d2,best_error2]=nelder_mead_for_lactate(5*rand(3,2),1,1000,1e-9,0,datafile,dt,LA,UA,window_length,mask);
-ti_diff=abs(best_tau_i2-best_tau_i)
-td_diff=abs(best_tau_d2-best_tau_d)
+  [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA,
+								window_length,mask,p), [0.5 1]);
 end
+best_tau_i=bestparams(1);
+best_tau_d=bestparams(2);
 
-Ti=best_tau_i;    %output the best taus
-Td=best_tau_d;
+Ti=best_tau_i    %output the best taus
+Td=best_tau_d
 
 
 % run one more time with best fit and plot it (add a plot with circles)

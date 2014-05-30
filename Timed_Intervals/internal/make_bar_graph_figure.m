@@ -14,16 +14,16 @@ DBA_path = 'D:/mrempe/strain_study_data/DBA/long_files/';
 
 % Call ProcessLBatchMode.m for each strain for lactate and delta
 % first delta
-[signaAKRd,stateAKRd,SAKRd,TiAKRd,TdAKRd]=PROCESSLBATCHMODE(AKR_path,'delta1');
-[signaBAd,stateBAd,SBAd,TiBAd,TdBAd]=PROCESSLBATCHMODE(BA_path,'delta1');
-[signaBLd,stateBLd,SBLd,TiBLd,TdBLd]=PROCESSLBATCHMODE(BL_path,'delta1');
-[signaDBAd,stateDBAd,SDBAd,TiDBAd,TdDBAd]=PROCESSLBATCHMODE(DBA_path,'delta1');
+[signalAKRd,stateAKRd,SAKRd,TiAKRd,TdAKRd]=PROCESSLBATCHMODE(AKR_path,'delta1');
+[signalBAd,stateBAd,SBAd,TiBAd,TdBAd]=PROCESSLBATCHMODE(BA_path,'delta1');
+[signalBLd,stateBLd,SBLd,TiBLd,TdBLd]=PROCESSLBATCHMODE(BL_path,'delta1');
+[signalDBAd,stateDBAd,SDBAd,TiDBAd,TdDBAd]=PROCESSLBATCHMODE(DBA_path,'delta1');
 
 % then lactate
-[signaAKR,stateAKR,SAKR,TiAKR,TdAKR]=PROCESSLBATCHMODE(AKR_path,'lactate');
-[signaBA,stateBA,SBA,TiBA,TdBA]=PROCESSLBATCHMODE(BA_path,'lactate');
-[signaBL,stateBL,SBL,TiBL,TdBL]=PROCESSLBATCHMODE(BL_path,'lactate');
-[signaDBA,stateDBA,SDBA,TiDBA,TdDBA]=PROCESSLBATCHMODE(DBA_path,'lactate');
+[signalAKR,stateAKR,SAKR,TiAKR,TdAKR]=PROCESSLBATCHMODE(AKR_path,'lactate');
+[signalBA,stateBA,SBA,TiBA,TdBA]=PROCESSLBATCHMODE(BA_path,'lactate');
+[signalBL,stateBL,SBL,TiBL,TdBL]=PROCESSLBATCHMODE(BL_path,'lactate');
+[signalDBA,stateDBA,SDBA,TiDBA,TdDBA]=PROCESSLBATCHMODE(DBA_path,'lactate');
 
 
 % Now compute averages for the taui values
