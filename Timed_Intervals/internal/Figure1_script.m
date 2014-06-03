@@ -8,6 +8,17 @@ function [Fig_handle,error]=Figure1_script(directory,signal)
 % This script recreates Figure 1 from Franken et al 2001
 % using our data and using EEG as the signal.  
   
+% Update June 3, 2014: Now this script makes a figure with 6 panels:
+% sideways frequency plot           plot of data and UA and LA dashed lines
+% color contour plot brute force    best fit using brute force
+% NM simplex plot with triangles    best fit using simplex method
+% 
+% For now this function does not work with lactate as the input 
+% signal.  Update it so it can be run to make the same figure
+% for either delta or lactate.  
+
+
+
   if ~(strcmp(signal,'delta1') | strcmp(signal,'delta2'))
     error('input must be delta1 or delta2')
   end
@@ -48,8 +59,8 @@ function [Fig_handle,error]=Figure1_script(directory,signal)
   PhysioVars(:,4) = medianfiltervectorized(PhysioVars(:,4),2);
 
 % make the frequency histogram
-  [LA,UA,hist_handle]=make_frequency_plot(PhysioVars,window_length,signal);
-  bhand=gca;
+  [LA,UA,hist_handle]=make_frequency_plot_horizontal(PhysioVars,window_length,signal);
+  ahand=gca;
 
 
   if(strcmp(signal,'delta1') | strcmp(signal,'delta2'))
@@ -188,7 +199,7 @@ hold off
 xlabel('t [10s-epochs]')
 set(gca,'ytick',[])
 set(gca,'yticklabel',[])
-ahand=gca;
+%ahand=gca;
 
 % add a contour plot like panel d and add it to Figure
 mask=(window_length/2)*360+1:size(PhysioVars,1)-(window_length/2)*360;

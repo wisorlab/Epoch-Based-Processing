@@ -938,3 +938,50 @@ I got some new data files from Will for the BA strain.  They mostly look good.
 fminsearch is not working with lactate as the signal.  S is not being set to the correct length.
 So the errorout calculation isn't working.  complains about dimension agreement.  It's working 
 again.  I had preallocated space for S.  That was the problem.  
+
+* Tuesday, June 3, 2014
+ Will sent me an Excel file listing the strain data files and categorizing them. 
+I agree with his assessment for the AKR strain.  Keep going through all of the 
+strains.  
+
+Perhaps change the exclusion criteria: instead of keeping best 7 files, just throw 
+out a file if it's dynamic range is more than 2 SDs away from the average or something. 
+If we have more than 7 good files we should use them all.  
+
+Notes to self on talk with Jonathan: 
+1) We will work on two papers this summer.  The first paper, sent to Neuroscience Letters 
+or J Neuroscience Methods will use only one genetic strain and make only two real points:
+a) lactate as homeostat
+b) Nelder-Mead (simplex) vs. brute force in optimizing values for tau's
+
+2) The second paper will have the transition figure and all the genetic strains.  More
+similar to Franken paper, except with all the genetic strains and lactate
+
+3) For the first paper, make a table like Franken table 1 except mine has only two rows: 
+B6-NM and B6-iterative method.  columns are mean and SEM for 
+Taui, Taud,UA,LA,S0,running time (other columns from Franken? One table for lactate 
+and one for delta? I probably don't need UA or LA or S0 in here since they 
+are chosen the same way for brute force or NM.  
+
+4) For figure 1, modify my delta Franken fig 1 to not look quite so much like Franken's. 
+perhaps split into separate figures?  Add a panel showing NM iterations and a panel 
+showing best fit with NM optimum value. 
+
+5) For figure 2, keep my top two rows for lactate figure, but remove NM guesses from contour 
+plot and add a row of panels that shows NM guesses with triangles and the best fit using 
+NM.    
+
+6) Add triangles to NM iterations plots.  
+
+7) could label lines on contour plot to show how much larger the error measure was 
+at the line compared to the minimum error (i.e. at the smallest contour the error 
+was 1.25 times the minimum error, 2.5 times the minimum error, all the way up to 
+80 times the minimum error in Franken Figure 1 panel d). 
+
+Make two figures (one for delta, one for lactate), each with 6 panels: 
+freq plot sideways            dashed line plot like lactate figure top right panel
+color contour brute force     best fit of model using brute force approach
+NM triangles                  best fit of model using NM
+
+Best option may be to modify Figure2_script.m to work for both lactate and delta and 
+include the extra panels.  

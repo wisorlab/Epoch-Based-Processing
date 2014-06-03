@@ -150,8 +150,8 @@ end % end of looping through files to load data and decide which files to exclud
 % dynamic ranges.
 %------
 [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-if length(dynamic_range) >= 7
-Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
+if length(dynamic_range) >= 10
+Indices_of_largest = sortIndex(1:10);  % 7 largest dynamic ranges
 else
 Indices_of_largest = sortIndex;
 end
@@ -173,6 +173,7 @@ files       = files(Indices_of_largest);
 for FileCounter=1:length(files)
   
   [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
+  %[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
 
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;

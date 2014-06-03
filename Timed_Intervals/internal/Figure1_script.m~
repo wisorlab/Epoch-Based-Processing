@@ -185,6 +185,9 @@ for i=1:length(tpanela)
 plot(tpanela,UAa*ones(size(tpanela)),'k--')
 plot(tpanela,LAa*ones(size(tpanela)),'k--')
 hold off
+xlabel('t [10s-epochs]')
+set(gca,'ytick',[])
+set(gca,'yticklabel',[])
 ahand=gca;
 
 % add a contour plot like panel d and add it to Figure

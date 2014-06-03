@@ -894,7 +894,7 @@ Yesterday afternoon I made a bar plot figure comparing tau values for all strain
 taui value looked too high.  Check into this.  
 
 Also, Will told me that more datasets are available on glitch (or glitchy?) More AKR, and the other strains. 
-Look for them.  
+Look for them.  They aren't ready yet.  They haven't been scored.  
 
 Notes from morning meeting: Jonathan wants me to just focus on the BA and BL strains right now and 
 publish introducing the simplex method to the sleep research community.  Compare the time it takes to find the 
@@ -907,7 +907,7 @@ I'm working on a robust procedure to make sure we are truly finding the minimum.
 I have now is sufficient, but I may need to include something for the case when the two 
 runs of NM give you a different minimum. 
 
-Change my code to use matlabs fminsearch.m and make sure it gives the same minima.  
+Change my code to use matlab's fminsearch.m and make sure it gives the same minima.  
 It looks like fminsearch.m is working.  Compare to current implementation in terms 
 of speed and accuracy.  They match well for all of the BL files. 
 fminsearch:from 2.99  to 4.23 seconds for BL
@@ -924,3 +924,17 @@ these points.  This won't work for me because it doesn't make sense to update S 
 places where you know the sleep state.  It doesn' tmake sense to interpolate sleep state. 
 
 I tried to think of other ways to vectorize the update of S, but nothing seemed promising. 
+
+* Monday, June 2, 2014
+EEG1 signal on BL-118040.txt is garbage.  Use EEG2 for this file. Maybe use EEG2 
+in general.  Compare the two for each animal.  They all look very similar for 
+EEG1 and EEG2, but use EEG2 anyway.  Making the model fit plots short and wide
+helps show how well the model fits the data.  For the BL strain using delta2 the
+fit is quite good for every file.  
+Look at BA EEG2.  make the plots short and wide.  These look decent too.  
+
+I got some new data files from Will for the BA strain.  They mostly look good.  
+
+fminsearch is not working with lactate as the signal.  S is not being set to the correct length.
+So the errorout calculation isn't working.  complains about dimension agreement.  It's working 
+again.  I had preallocated space for S.  That was the problem.  
