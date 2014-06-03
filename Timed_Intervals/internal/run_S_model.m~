@@ -46,12 +46,16 @@ exp_rise=exp(-dt/ti);  %compute these once to save time
 exp_fall=exp(-dt/td);
 
 
+% preallocate for speed
+S=zeros(1,size(dataset,1));
+
 % CASE 1: using delta power histogram to choose upper and lower
 % assymptotes for the model
 if length(LA)==1
 
  S(1)=0;
   
+
   % first run it for 24 hours, and use the ending value as the
   % starting value (like Franken et al 2000 Fig 1c)
   if size(dataset,1) >= 8640 
@@ -73,18 +77,23 @@ if length(LA)==1
   
   % Now start the simulation over, using the last value out of S to be the new 
   % starting value of S
-  S(1)=S(end);
- 
+  %S(1)=S(end);
+  start_value = S(end);
+
+  % Testing: use MATLAB's ode45 for updating S
+  tspan=0:dt:dt*(size(dataset,1)-1);
+  issleep=(dataset(:,1)==1);
+  [T,S]=ode45(@(t,S) homeostatode(t,S,issleep,ti,td,LA,UA),tspan,start_value); 
   
-  for i=1:size(dataset,1)-1
-    if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
-      S(i+1)=UA-(UA-S(i))*exp_rise;
-    elseif(dataset(i,1)==1) %sleep
-      S(i+1)=LA+(S(i)-LA)*exp_fall;
-    else
-      error('I found a sleepstate value that was not 0,1, or 2')
-    end
-  end
+  % for i=1:size(dataset,1)-1
+  %   if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
+  %     S(i+1)=UA-(UA-S(i))*exp_rise;
+  %   elseif(dataset(i,1)==1) %sleep
+  %     S(i+1)=LA+(S(i)-LA)*exp_fall;
+  %   else
+  %     error('I found a sleepstate value that was not 0,1, or 2')
+  %   end
+  % end
   
 
 

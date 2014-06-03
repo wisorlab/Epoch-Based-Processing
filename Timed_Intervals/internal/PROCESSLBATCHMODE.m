@@ -12,7 +12,7 @@ function [signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,s
 % Taud:    a vector of the fall time time constant, one value for each fiel in the directory
 % new comment
 
-profile on
+%profile -memory on
 
 directory_plus_extension=strcat(directory,'*.txt');
 
@@ -39,7 +39,7 @@ HowManyFiles = length(files) % Need to know the number of files to process.  Thi
 % --- 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.   
 clear PhysioVars
-clear dynamic_range
+%clear dynamic_range
 clear TimeStampMatrix   
 
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
@@ -150,11 +150,13 @@ end % end of looping through files to load data and decide which files to exclud
 % dynamic ranges.
 %------
 [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-if size(dynamic_range) >= 7
+if length(dynamic_range) >= 7
 Indices_of_largest = sortIndex(1:7);  % 7 largest dynamic ranges
 else
 Indices_of_largest = sortIndex;
 end
+Indices_of_largest
+dynamic_range
 % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
 % by our exclusion rule
 state_data  = state_data(Indices_of_largest);
@@ -208,4 +210,4 @@ sound  (y)
 
 
 
-profile viewer
+%profile viewer

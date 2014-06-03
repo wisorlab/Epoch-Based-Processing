@@ -883,7 +883,44 @@ NOTES FROM TALK WITH JONATHAN AND WILL:
 
 
 * Thursday, May 29, 2014
-Working on code to compute time elapsed given year, month, day, hour, minute, and second. 
++Working on code to compute time elapsed given year, month, day, hour, minute, and second.+ 
 
  
-BI was able to load matlab mode in emacs. just type M-x matlab-mode and it kind of works.
+I was able to load matlab mode in emacs. just type M-x matlab-mode and it kind of works.
+It only worked for about 30 seconds.  Now it doesn't work anymore. 
+
+* Friday, May 30, 2014
+Yesterday afternoon I made a bar plot figure comparing tau values for all strains and the BL 
+taui value looked too high.  Check into this.  
+
+Also, Will told me that more datasets are available on glitch (or glitchy?) More AKR, and the other strains. 
+Look for them.  
+
+Notes from morning meeting: Jonathan wants me to just focus on the BA and BL strains right now and 
+publish introducing the simplex method to the sleep research community.  Compare the time it takes to find the 
+optimal tau values using brute force and simplex method since Paul Franken told Jonathan that they 
+would run simulations overnight.  The idea is that once we validate the simplex method for these 
+homeostatic models, (by comparing it to the brute force method), we can use it for every 
+other publication where we use the homeostatic model.  
+
+I'm working on a robust procedure to make sure we are truly finding the minimum. Perhaps what 
+I have now is sufficient, but I may need to include something for the case when the two 
+runs of NM give you a different minimum. 
+
+Change my code to use matlabs fminsearch.m and make sure it gives the same minima.  
+It looks like fminsearch.m is working.  Compare to current implementation in terms 
+of speed and accuracy.  They match well for all of the BL files. 
+fminsearch:from 2.99  to 4.23 seconds for BL
+my code from Mathews: 3.19 to 5.23 seconds for BL
+
+Speed up the first loop in ProcessSBatchMode.m where the files are read in and checked. It 
+seems like it shouldn't be so slow.  Maybe run profiler just on that loop?
+Nothing seemed promising here.  I could try re-writing it to use multiple other 
+matlab functions and it may be a bit faster, but it may not be as robust.  
+
+I also looked at speeding up the update of S using ode45.  You can't tell 
+ode45 where to evaluate the function.  You can, but it will also evaluate it in-between 
+these points.  This won't work for me because it doesn't make sense to update S in-between 
+places where you know the sleep state.  It doesn' tmake sense to interpolate sleep state. 
+
+I tried to think of other ways to vectorize the update of S, but nothing seemed promising. 

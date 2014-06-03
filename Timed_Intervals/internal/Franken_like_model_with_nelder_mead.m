@@ -28,7 +28,7 @@ window_length=4;  % size of moving window (in hours) used to compute
 % if using delta power as a signal, prepare the data we will compare 
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
-if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
 end
 
@@ -56,14 +56,16 @@ dt=1/360;  % assuming data points are every 10 seconds and t is in hours
 % fminsearch uses Nelder-Mead
 initial_guess = [1 1];     % one starting guess
 
-if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,t_mdpt_indices,data_at_SWS_midpoints, ...
-								datafile,dt,LA,UA,window_length,mask,p), [0.5 1])
+								datafile,dt,LA,UA,window_length,mask,p),initial_guess,optimset('TolX',1e-3));
 end
 
 if strcmp(signal,'lactate')
-  [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA, ...
-								window_length,mask,p), [0.5 1]);
+size(LA)
+size(UA)  
+[bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA, ...
+								window_length,mask,p),initial_guess,optimset('TolX',1e-3));
 end
 best_tau_i=bestparams(1);
 best_tau_d=bestparams(2);
@@ -78,7 +80,7 @@ if  strcmp(signal,'lactate')
   %error_instant=run_instant_model(datafile,LA,UA,window_length);
 error_instant = 0;
 end
-if strcmp(signal,'delta1') | strcmp(signal,'delta2')
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,filename);
 end
 
@@ -86,7 +88,7 @@ end
 t=0:dt:dt*(size(datafile,1)-1);
 
 
-if strcmp(signal,'delta1') | strcmp(signal,'delta2') 
+if strcmp(signal,'delta1') || strcmp(signal,'delta2') 
   error_instant=0;  % this won't get set if signal is delta, but the function returns it
   figure
   %only_sleep_indices=find(datafile(:,1)==1);  
