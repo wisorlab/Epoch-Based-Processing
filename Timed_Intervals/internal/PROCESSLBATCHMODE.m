@@ -1,4 +1,4 @@
-function [signal_data,state_data,best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
+function [signal_data,state_data,best_S,UppA,LowA,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
 % USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal)
 %
 %
@@ -172,13 +172,13 @@ files       = files(Indices_of_largest);
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
 for FileCounter=1:length(files)
   
-  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
-  %[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
+  %[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
+  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
 
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;
-  %LowA(FileCounter,:)=LA;
-  %UppA(FileCounter,:)=UA;
+  LowA{FileCounter} = LA;
+  UppA{FileCounter} = UA;
   Error(FileCounter)  = best_error;
   Error2(FileCounter) = error_instant;
   %delete(findall(0,'Type','figure')); %if you want to delete all figures before next run

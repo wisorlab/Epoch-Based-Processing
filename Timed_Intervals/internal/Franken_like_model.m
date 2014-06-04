@@ -22,6 +22,12 @@ window_length=4;
 % bounds for the model (like Franken et al. 2001 Figure 1)
 [LA,UA]=make_frequency_plot(datafile,window_length,signal);
 
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
+  LA
+  UA
+end
+
+
 % if using lactate as a signal, prepare the data we will compare 
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
@@ -41,8 +47,14 @@ mask=(window_length/2)*360+1:size(datafile,1)-(window_length/2)*360;
 
 
 dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 tau_i=0.05:.1:5;  %1:.12:25
 tau_d=0.05:0.025:5; %0.1:.025:5
+elseif strcmp(signal,'lactate')
+tau_i=linspace(0.01,2,50); %0.01:.005:2;  %1:.12:25  % make sure these vectors have the same length as tau_i and tau_d for delta
+tau_d=linspace(0.01,2,199); %0.01:0.005:2; %0.1:.025:5
+end
+
 error=zeros(length(tau_i),length(tau_d));
 
 % COMPUTING LOOP
