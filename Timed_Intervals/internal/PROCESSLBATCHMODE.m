@@ -1,4 +1,4 @@
-function [signal_data,state_data,best_S,UppA,LowA,Taui,Taud]=PROCESSLBATCHMODE(directory,signal,algorithm)
+function [signal_data,state_data,best_S,UppA,LowA,Timer,Taui,Taud]=PROCESSLBATCHMODE(directory,signal,algorithm)
 % USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal,algorithm)
 %
 % INPUTS:
@@ -179,17 +179,18 @@ files       = files(Indices_of_largest);
 for FileCounter=1:length(files)
   
   if strcmp(algorithm,'NelderMead')  
-	[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
   end
   if strcmp(algorithm,'BruteForce')
-	[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
   end
 
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;
   LowA{FileCounter} = LA;  %normalized LA
   UppA{FileCounter} = UA;  %normalized UA
-  Error(FileCounter)  = best_error;
+  Timer(FileCounter) = ElapsedTime;
+  Error(FileCounter) = best_error;
   Error2(FileCounter) = error_instant;
   %delete(findall(0,'Type','figure')); %if you want to delete all figures before next run
   

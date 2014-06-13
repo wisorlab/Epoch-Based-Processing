@@ -1,4 +1,4 @@
-function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S]=Franken_like_model(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model(datafile,signal,filename)
 % USAGE:  [Ti,Td,error]=Franken_like_model(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -131,7 +131,7 @@ end
 xlabel('Time (hours)')
 hold off
 
-toc
+ElapsedTime=toc
 
 % hold on
 

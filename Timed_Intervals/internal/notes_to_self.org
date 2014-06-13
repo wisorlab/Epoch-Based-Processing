@@ -68,15 +68,15 @@ octave-mod.elc and not octave-mod.el, I'm wondering if it only looks for .elc fi
 files. 
 
 SOLUTION:
-You can byte-compile any EmacsLisp source file using the command ¡®byte-compile-file¡¯. For 
+You can byte-compile any EmacsLisp source file using the command Â¡Â®byte-compile-fileÂ¡Â¯. For 
 example with Emacs-Lisp you do:
 
   (byte-compile-file "foo.el")
-EmacsLisp source files have extension `.el¡¯. Byte-compiled files have extension `.elc¡¯. If 
+EmacsLisp source files have extension `.elÂ¡Â¯. Byte-compiled files have extension `.elcÂ¡Â¯. If 
 both source and byte-compiled files are present for the same library at the same place in 
-your ¡®load-path¡¯, Emacs will load the byte-compiled file, not the source file.
+your Â¡Â®load-pathÂ¡Â¯, Emacs will load the byte-compiled file, not the source file.
 
-This can be a source of confusion. If you change a source file, but don¡¯t remember to 
+This can be a source of confusion. If you change a source file, but donÂ¡Â¯t remember to 
 byte-compile it again, then Emacs might load the out-of-date byte-compiled file instead 
 of the newer source file. Emacs warns you about this, but you might miss the warning message.
 
@@ -1022,4 +1022,21 @@ We could perhaps vary this as well and see which one best fits the data.
 See the photo I took on June 13 2014.  Once a cut-off is chosen I would need to 
 fill in the state column of the data file with the state score (S or W) made 
 from looking at the algorithm and run the simulation (and optimize taui and taud) using 
-that cut-off
+that cut-off.
+
+For the brute force calculations, use the same number of total iterations and 
+ranges and increments as Franken did.  Franken says: "ti (1â€“25 hr, step-size 0.12 hr) 
+and td (0.1â€“5 hr, step-size 0.025 hr) values, i.e., the simulation was run for 40,000 
+different combinations of time constants for each mouse.  Make sure I use this range 
+when doing the brute force calculations.  DONE in Franken_like_model.m.  I left the 
+Figure2 script alone because the contour plot looks good as it is.  
+
+Write a script to make the table for me: call ProcessLbatchmode.m on the BL strain 
+and then compute mean and SEM for the tau values and mean and running time average and 
+SEM.  I have to change PROCESSLBATCHMODE.m to use Franken_like_model_with_nelder_mead.m
+instead of Franken_like_model.m I suppose I could put this in as an argument to PROCESSLBATCHMODE.m
+then I could make one big script to make the entire table.  
+
+TEST make_freq_plot.m by changing the number of bins used.  Does that affect the calculation of 
+UA?  Perhaps this is the problem and why some SWA episodes of 5 minutes are above UA. 
+

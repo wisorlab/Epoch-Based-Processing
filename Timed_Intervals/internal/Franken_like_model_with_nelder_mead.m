@@ -1,4 +1,4 @@
-function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -145,7 +145,7 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
     
   end
 
-  toc
+  ElapsedTime=toc
 
 % hold on
 
