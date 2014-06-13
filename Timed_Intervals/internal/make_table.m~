@@ -21,8 +21,12 @@ data_dir = 'D:\mrempe\strain_study_data\BL\long_files\';
 % call  PROCESSLBATCHMODE.m using NM and lactate
 [signal,state,bestS,UANMlactate,LANMlactate,timerNMlactate,tiNMlactate,tdNMlactate]=PROCESSLBATCHMODE(data_dir,'lactate','NelderMead');
 
+
+save table_values.mat   %save it all into a matlab workspace (after all calls to PROCESSLBATCHMODE.m before post-processing)
+
 % now compute averages and SEMs
-meantiNMdelta = mean(tiNMdelta);
+% tau values
+meantiNMdelta = mean(tiNMdelta);                     % tau values
 meantdNMdelta = mean(tdNMdelta);
 SEMtiNMdelta  = std(tiNMdelta)/length(tiNMdelta);
 SEMtdNMdelta  = std(tdNMdelta)/length(tdNMdelta);
@@ -42,15 +46,53 @@ meantdNMlactate = mean(tdNMlactate);
 SEMtiNMlactate  = std(tiNMlactate)/length(tiNMlactate);
 SEMtdNMlactate  = std(tdNMlactate)/length(tdNMlactate);
 
+% UA and LA
+meanUANMdelta = mean(UANMdelta);    
+meanLANMdelta = mean(LANMdelta);
+SEMUANMdelta  = std(UANMdelta)/length(UANMdelta);
+SEMLANMdelta  = std(LANMdelta)/length(LANMdelta);
+
+meanUABFdelta = mean(UABFdelta);
+meanLABFdelta = mean(LABFdelta);
+SEMUABFdelta  = std(UABFdelta)/length(UABFdelta);
+SEMLABFdelta  = std(LABFdelta)/length(LABFdelta);
+
+% computing times
+meantimeNMdelta = mean(timerNMdelta);  %delta
+SEMtimeNMdelta  = std(timerNMdelta)/length(timerNMdelta);
+
+meantimeBFdelta = mean(timerBFdelta);
+SEMtimeBFdelta = std(timerBFdelta)/length(timerBFdelta);
+
+meantimeNMlactate = mean(timerNMlactate);  %lactate
+SEMtimeNMlactate  = std(timerNMlactate)/length(timerNMlactate);
+
+meantimeBFlactate = mean(timerBFlactate);
+SEMtimeBFlactate = std(timerBFlactate)/length(timerBFlactate);
 
 
+% Finally, put it all into a matrix 
 
-
-[num2str(mean_ti) '(' num2str(SEM_ti) ')' ...
-
-
-
-
+Table = [num2str(meantiNMdelta) '(' num2str(SEMtiNMdelta) ')  ' ... %ti
+	 num2str(meantdNMdelta) '(' num2str(SEMtdNMdelta) ')  ' ... %td
+	 num2str(meanUANMdelta) '(' num2str(SEMUANMdelta) ')  ' ... %UA
+	 num2str(meanLANMdelta) '(' num2str(SEMLANMdelta) ')  ' ... %LA
+	 num2str(meantimeNMdelta) '(' num2str(SEMtimeNMdelta) ')  '; ...  %running time
+	 num2str(meantiBFdelta) '(' num2str(SEMtiBFdelta) ')  ' ... %ti
+	 num2str(meantdBFdelta) '(' num2str(SEMtdBFdelta) ')  ' ... %td
+	 num2str(meanUABFdelta) '(' num2str(SEMUABFdelta) ')  ' ... %UA
+	 num2str(meanLABFdelta) '(' num2str(SEMLABFdelta) ')  ' ... %LA
+	 num2str(meantimeBFdelta) '(' num2str(SEMtimeBFdelta) ')  '; ...  %running time
+	 num2str(meantiNMdelta) '(' num2str(SEMtiNMdelta) ')  ' ... %ti LACTATE
+	 num2str(meantdNMdelta) '(' num2str(SEMtdNMdelta) ')  ' ... %td
+	 num2str(meanUANMdelta) '(' num2str(SEMUANMdelta) ')  ' ... %UA
+	 num2str(meanLANMdelta) '(' num2str(SEMLANMdelta) ')  ' ... %LA
+	 num2str(meantimeNMdelta) '(' num2str(SEMtimeNMdelta) ')  '; ...  %running time
+	 num2str(meantiBFdelta) '(' num2str(SEMtiBFdelta) ')  ' ... %ti
+	 num2str(meantdBFdelta) '(' num2str(SEMtdBFdelta) ')  ' ... %td
+	 num2str(meanUABFdelta) '(' num2str(SEMUABFdelta) ')  ' ... %UA
+	 num2str(meanLABFdelta) '(' num2str(SEMLABFdelta) ')  ' ... %LA
+	 num2str(meantimeBFdelta) '(' num2str(SEMtimeBFdelta) ')  '; ...  %running time
 
 
 save table_values.mat   %save it all into a matlab workspace

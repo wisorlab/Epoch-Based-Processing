@@ -68,15 +68,15 @@ octave-mod.elc and not octave-mod.el, I'm wondering if it only looks for .elc fi
 files. 
 
 SOLUTION:
-You can byte-compile any EmacsLisp source file using the command ¡®byte-compile-file¡¯. For 
+You can byte-compile any EmacsLisp source file using the command Â¡Â®byte-compile-fileÂ¡Â¯. For 
 example with Emacs-Lisp you do:
 
   (byte-compile-file "foo.el")
-EmacsLisp source files have extension `.el¡¯. Byte-compiled files have extension `.elc¡¯. If 
+EmacsLisp source files have extension `.elÂ¡Â¯. Byte-compiled files have extension `.elcÂ¡Â¯. If 
 both source and byte-compiled files are present for the same library at the same place in 
-your ¡®load-path¡¯, Emacs will load the byte-compiled file, not the source file.
+your Â¡Â®load-pathÂ¡Â¯, Emacs will load the byte-compiled file, not the source file.
 
-This can be a source of confusion. If you change a source file, but don¡¯t remember to 
+This can be a source of confusion. If you change a source file, but donÂ¡Â¯t remember to 
 byte-compile it again, then Emacs might load the out-of-date byte-compiled file instead 
 of the newer source file. Emacs warns you about this, but you might miss the warning message.
 
@@ -999,3 +999,44 @@ Compare 10 iterations of NM with random starting guesses to 1 NM run with
 my initial triangle and compare both to brute force.  
 
 Send Jonathan a draft today before I leave!
+
+* Friday, June 13, 2014
+Change Franken_like_model.m and Franken_like_model_with_nelder_mead.m to 
+return UA and LA normalized as a percentage of mean SWS delta power in last 
+4 hours of the baseline light period.  
+
+NOtes from talk with Jonathan: in the discussion of this paper (and in the
+next paper) use NM to optimize at least one more thing: Make a histogram
+of number of 10 second epochs on the vertical axis and Slow Wave Activity 
+on the horizontal axis.  YOu should see two humps: one representing 
+Wake and one for sleep.  Since the scoring of each epoch is something done 
+by hand, (and prone to error), we'd like to get away from the human 
+error element in that scoring and let the optimization algorithm 
+choose the cut-off point between sleep and wake (or REM) and label all of 
+epochs to the right of the cut-off as sleep and all epochs to the left of 
+the cut-off as W(or R).  This would replace the human scoring of each 
+epoch and it is something that Franken could not have done because computing 
+power with brute force would have been prohibitive.  Also, later we could 
+vary what exactly we mean by Slow Wave.  Is it 1-4 Hz or 0.5-5 Hz? or 1-9 Hz? 
+We could perhaps vary this as well and see which one best fits the data. 
+See the photo I took on June 13 2014.  Once a cut-off is chosen I would need to 
+fill in the state column of the data file with the state score (S or W) made 
+from looking at the algorithm and run the simulation (and optimize taui and taud) using 
+that cut-off.
+
+For the brute force calculations, use the same number of total iterations and 
+ranges and increments as Franken did.  Franken says: "ti (1â€“25 hr, step-size 0.12 hr) 
+and td (0.1â€“5 hr, step-size 0.025 hr) values, i.e., the simulation was run for 40,000 
+different combinations of time constants for each mouse.  Make sure I use this range 
+when doing the brute force calculations.  DONE in Franken_like_model.m.  I left the 
+Figure2 script alone because the contour plot looks good as it is.  
+
+Write a script to make the table for me: call ProcessLbatchmode.m on the BL strain 
+and then compute mean and SEM for the tau values and mean and running time average and 
+SEM.  I have to change PROCESSLBATCHMODE.m to use Franken_like_model_with_nelder_mead.m
+instead of Franken_like_model.m I suppose I could put this in as an argument to PROCESSLBATCHMODE.m
+then I could make one big script to make the entire table.  
+
+TEST make_freq_plot.m by changing the number of bins used.  Does that affect the calculation of 
+UA?  Perhaps this is the problem and why some SWA episodes of 5 minutes are above UA. 
+

@@ -64,8 +64,8 @@ mask=(window_length/2)*360+1:size(datafile,1)-(window_length/2)*360;
 
 dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-tau_i=1:.12:25 %following Franken (was 0.05:.1:5)
-tau_d=0.1:.025:5 %following Franken (was 0.05:0.025:5)
+tau_i=1:.12:25; %following Franken (was 0.05:.1:5)
+tau_d=0.1:.025:5; %following Franken (was 0.05:0.025:5)
 elseif strcmp(signal,'lactate')
 tau_i=linspace(0.01,2,201); %0.01:.005:2;  %1:.12:25  % make sure these vectors have the same length as tau_i and tau_d for delta
 tau_d=linspace(0.01,2,197); %0.01:0.005:2; %0.1:.025:5
