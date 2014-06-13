@@ -1042,3 +1042,4 @@ UA?  Perhaps this is the problem and why some SWA episodes of 5 minutes are abov
 
 Initial test of make_table.m didn't seem to work.  Fit of model to data for one BL file is terrible. 
 Find out if normalizing UA and LA messed things up. WORK ON THIS.
+Also look for a way to have all of my commits look like they came from me, not Jon. 
