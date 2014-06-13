@@ -12,7 +12,20 @@ function [Ti,Td,LA,UA,best_error,error_instant,best_S]=Franken_like_model_with_n
 %
 % Td: the optimum value for tau_d, the decay rate. 
 % 
-% error: the mean square error for the best fit
+% LA: the lower asymptote found from make_frequency_plot.m
+% 
+% UA: the upper asymptote found from make_frequency_plot.m
+%
+% best_error: the mean square error for the best fit
+%
+% error_instant: the error of the model run with lactate as the 
+% signal where instead of following the exponential model it 
+% just instantly jumps up or down to the UA or LA if the state
+% switches.  
+%
+% best_S: the vector S of the best-fit homeostatic model
+%
+
 tic
 
 
@@ -25,16 +38,25 @@ window_length=4;  % size of moving window (in hours) used to compute
 
 [LA,UA]=make_frequency_plot(datafile,window_length,signal);
 
-if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-  LA
-  UA
-end
 
-% if using delta power as a signal, prepare the data we will compare 
-% to by finding all SWS episodes of longer than 5 minutes (like 
-% Franken et al)
+% -- if using delta power normalize UA and LA to mean SWS delta 
+% -- power in last 4 hours of baseline light period and find 
+% -- all SWS episodes of longer than 5 minutes (like 
+% -- Franken et al)
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
+  baseline_start_hours = 17;
+  baseline_end_hours = 21;
+  ind_start = baseline_start_hours*360;
+  ind_end = baseline_end_hours*360;
+  
+  %[t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
+
+  locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
+  mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
+
+  LA = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  UA = (UA/mn)*100;
+
 end
 
 % if using a moving window for the upper and lower assymptotes, S

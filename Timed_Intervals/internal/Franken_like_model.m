@@ -22,9 +22,25 @@ window_length=4;
 % bounds for the model (like Franken et al. 2001 Figure 1)
 [LA,UA]=make_frequency_plot(datafile,window_length,signal);
 
+
+% -- if using delta power normalize UA and LA to mean SWS delta 
+% -- power in last 4 hours of baseline light period and find 
+% -- all SWS episodes of longer than 5 minutes (like 
+% -- Franken et al)
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-  LA
-  UA
+  baseline_start_hours = 17;
+  baseline_end_hours = 21;
+  ind_start = baseline_start_hours*360;
+  ind_end = baseline_end_hours*360;
+  
+  %[t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
+
+  locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
+  mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
+
+  LA = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  UA = (UA/mn)*100;
+
 end
 
 
@@ -48,8 +64,8 @@ mask=(window_length/2)*360+1:size(datafile,1)-(window_length/2)*360;
 
 dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-tau_i=0.05:.1:5;  %1:.12:25
-tau_d=0.05:0.025:5; %0.1:.025:5
+tau_i=1:.12:25 %following Franken (was 0.05:.1:5)
+tau_d=0.1:.025:5 %following Franken (was 0.05:0.025:5)
 elseif strcmp(signal,'lactate')
 tau_i=linspace(0.01,2,50); %0.01:.005:2;  %1:.12:25  % make sure these vectors have the same length as tau_i and tau_d for delta
 tau_d=linspace(0.01,2,199); %0.01:0.005:2; %0.1:.025:5

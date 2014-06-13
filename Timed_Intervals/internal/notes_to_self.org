@@ -999,3 +999,27 @@ Compare 10 iterations of NM with random starting guesses to 1 NM run with
 my initial triangle and compare both to brute force.  
 
 Send Jonathan a draft today before I leave!
+
+* Friday, June 13, 2014
+Change Franken_like_model.m and Franken_like_model_with_nelder_mead.m to 
+return UA and LA normalized as a percentage of mean SWS delta power in last 
+4 hours of the baseline light period.  
+
+NOtes from talk with Jonathan: in the discussion of this paper (and in the
+next paper) use NM to optimize at least one more thing: Make a histogram
+of number of 10 second epochs on the vertical axis and Slow Wave Activity 
+on the horizontal axis.  YOu should see two humps: one representing 
+Wake and one for sleep.  Since the scoring of each epoch is something done 
+by hand, (and prone to error), we'd like to get away from the human 
+error element in that scoring and let the optimization algorithm 
+choose the cut-off point between sleep and wake (or REM) and label all of 
+epochs to the right of the cut-off as sleep and all epochs to the left of 
+the cut-off as W(or R).  This would replace the human scoring of each 
+epoch and it is something that Franken could not have done because computing 
+power with brute force would have been prohibitive.  Also, later we could 
+vary what exactly we mean by Slow Wave.  Is it 1-4 Hz or 0.5-5 Hz? or 1-9 Hz? 
+We could perhaps vary this as well and see which one best fits the data. 
+See the photo I took on June 13 2014.  Once a cut-off is chosen I would need to 
+fill in the state column of the data file with the state score (S or W) made 
+from looking at the algorithm and run the simulation (and optimize taui and taud) using 
+that cut-off

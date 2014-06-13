@@ -25,6 +25,11 @@ window_length=4;  % size of moving window (in hours) used to compute
 
 [LA,UA]=make_frequency_plot(datafile,window_length,signal);
 
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
+  LA
+  UA
+end
+
 % if using delta power as a signal, prepare the data we will compare 
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
@@ -62,8 +67,6 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 end
 
 if strcmp(signal,'lactate')
-size(LA)
-size(UA)  
 [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA, ...
 								window_length,mask,p),initial_guess,optimset('TolX',1e-3));
 end

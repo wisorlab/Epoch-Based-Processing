@@ -985,3 +985,17 @@ NM triangles                  best fit of model using NM
 
 Best option may be to modify Figure2_script.m to work for both lactate and delta and 
 include the extra panels.  
+
+I may need to have an option in PROCESSLBATCHMODE.m that lets you choose 
+between NM or brute force.  This way I can have one script that makes all 
+the panels of the figure (with and without NM).  Or maybe not.  Figure2_script.m
+just does it in the script.  I can probably just do this.  
+
+I couldn't get fminsearch.m to plot the successive guesses so I'm using 
+nelder_mead_for_lactate.m and nelder_mead_for_delta.m for the NM 
+panel of the plot.  
+
+Compare 10 iterations of NM with random starting guesses to 1 NM run with 
+my initial triangle and compare both to brute force.  
+
+Send Jonathan a draft today before I leave!
