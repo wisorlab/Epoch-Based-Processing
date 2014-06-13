@@ -1,4 +1,4 @@
-function [Ti,Td,LA,UA,best_error,error_instant,best_S]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -43,22 +43,21 @@ window_length=4;  % size of moving window (in hours) used to compute
 % -- power in last 4 hours of baseline light period and find 
 % -- all SWS episodes of longer than 5 minutes (like 
 % -- Franken et al)
-if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   baseline_start_hours = 17;
   baseline_end_hours = 21;
   ind_start = baseline_start_hours*360;
   ind_end = baseline_end_hours*360;
   
-  %[t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
-
   locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
   mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
 
-  LA = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
-  UA = (UA/mn)*100;
+  LAnormalized = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  UAnormalized = (UA/mn)*100;   % upper asymptote normalized to mean delta power during SWS in last 4hr of baseline
 
+
+if strcmp(signal,'delta1') || strcmp(signal,'delta2')
+  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
 end
-
 % if using a moving window for the upper and lower assymptotes, S
 % will have 720 fewer elements than the number of rows of datafile,
 % so set up a new index for S

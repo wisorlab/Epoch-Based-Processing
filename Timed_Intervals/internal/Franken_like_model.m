@@ -1,4 +1,4 @@
-function [Ti,Td,LA,UA,best_error,error_instant,best_S]=Franken_like_model(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S]=Franken_like_model(datafile,signal,filename)
 % USAGE:  [Ti,Td,error]=Franken_like_model(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -38,13 +38,13 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
   mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
 
-  LA = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
-  UA = (UA/mn)*100;
+  LAnormalized = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  UAnormalized = (UA/mn)*100;   % upper asymptote normalized to mean delta power during SWS in last 4hr of baseline
 
 end
 
 
-% if using lactate as a signal, prepare the data we will compare 
+% if using delta power as a signal, prepare the data we will compare 
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
@@ -67,8 +67,8 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 tau_i=1:.12:25 %following Franken (was 0.05:.1:5)
 tau_d=0.1:.025:5 %following Franken (was 0.05:0.025:5)
 elseif strcmp(signal,'lactate')
-tau_i=linspace(0.01,2,50); %0.01:.005:2;  %1:.12:25  % make sure these vectors have the same length as tau_i and tau_d for delta
-tau_d=linspace(0.01,2,199); %0.01:0.005:2; %0.1:.025:5
+tau_i=linspace(0.01,2,201); %0.01:.005:2;  %1:.12:25  % make sure these vectors have the same length as tau_i and tau_d for delta
+tau_d=linspace(0.01,2,197); %0.01:0.005:2; %0.1:.025:5
 end
 
 error=zeros(length(tau_i),length(tau_d));
