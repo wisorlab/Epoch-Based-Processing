@@ -1027,7 +1027,7 @@ that cut-off.
 For the brute force calculations, use the same number of total iterations and 
 ranges and increments as Franken did.  Franken says: "ti (1–25 hr, step-size 0.12 hr) 
 and td (0.1–5 hr, step-size 0.025 hr) values, i.e., the simulation was run for 40,000 
-different combinations of time constants for each mouse.  Make sure I use this range 
+different combinations of time constants for each mouse."  Make sure I use this range 
 when doing the brute force calculations.  DONE in Franken_like_model.m.  I left the 
 Figure2 script alone because the contour plot looks good as it is.  
 
@@ -1040,3 +1040,6 @@ then I could make one big script to make the entire table.
 TEST make_freq_plot.m by changing the number of bins used.  Does that affect the calculation of 
 UA?  Perhaps this is the problem and why some SWA episodes of 5 minutes are above UA. 
 
+Initial test of make_table.m didn't seem to work.  Fit of model to data for one BL file is terrible. 
+Find out if normalizing UA and LA messed things up. WORK ON THIS.
+Also look for a way to have all of my commits look like they came from me, not Jon. 

@@ -1043,3 +1043,44 @@ UA?  Perhaps this is the problem and why some SWA episodes of 5 minutes are abov
 Initial test of make_table.m didn't seem to work.  Fit of model to data for one BL file is terrible. 
 Find out if normalizing UA and LA messed things up. WORK ON THIS.
 Also look for a way to have all of my commits look like they came from me, not Jon. 
+
+
+* Monday, June 16, 2014
+Goals for today:
+1) +Fix bug that messes up UA and LA in brute force.+ DONE
+2) Get my WSU ID lined up. CALLED (IN PROGRESS)
+3) Make sure my script for table is running properly. +CHANGE GRANULARITY BACK in Franken_like_model.m+ and +data_dir in make_table.m+
+4) Figure out why some SWS episodes are above UA
+5) Continue writing and working on to-do list in paper. 
+6) Make Nelder-Mead return XS and YS for both lactate and delta. Then plot 
+   them in Figure2_script.m.  I modified nelder_mead_for_delta.m to keep all the 
+iterates, so it should be possible to to plot them easily. 
+ 
+  It looks like nelder_mead_for_delta.m stores the simplex in the variable V. make sure
+it has three elements and figure out how to keep all 3 at every step so I can plot the 
+triangles. Check size of V at end of algorithm (I added a size(V) statement to end of 
+nelder_mead_for_delta.m)
+
+For 1) NM still looks good with BL118140.txt.  Try Franken_like_model.m.  
+CHANGE taui and taud BACK in Franken_like_model.m!! The starting value for S 
+is different between NM and BF.  I'm trying to run BF with a finer spacing 
+to see if that does it.  I can't see anything that would make them start at different S 
+values.  They both call run_S_model.m which is where that is handled.  With a finer 
+grid, Franken_like_model.m gives terrible results.  The values of taui and taud are fine, 
+but the fit of the model to data is terrible.  S starts at 2000 instead of 3500.
+I think I found the error: the problem was in the plot statement for plotting the best fit:
+I was doing plot(t,S) not plot(t,best_S) at the end of Franken_like_model.m, so it was plotting the last iteration of S,
+ which may have been way off.  Franken_like_model_with_nelder_mead.m already had 
+plot(t,best_S) so that's why it was working and the other one was not.  FIXED
+
+The problem file is BL-118540.txt.  Lactate is bad, hardly any change except sensor dying.  Check delta for this one. 
+
+After meeting with Jonathan, we decided to set up a new protocol for handling lacate data sets. If the signal 
+is lactate, find the first 2 NREM episodes that are 1 minute or longer and cut off all data before that.  
+I have implemented this and it looks good. DONE
+TO DO: I may want to update my plots so I'm plotting real time on the bottom 
+axis, not time from start of simulation, since they all start at different times now.  
+Check to see if the one file I use for the figure is affected. If so, I may have to slightly redo the panel in the 
+figure. It is only minimally affected.  Not worth changing the figure. 
+
+TO

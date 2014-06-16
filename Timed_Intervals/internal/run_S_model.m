@@ -36,6 +36,8 @@ function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,filename
 
 %makeplot=1;  % flag 
 
+
+
   if nargin==9
     filename='';
   end

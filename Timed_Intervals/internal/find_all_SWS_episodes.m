@@ -58,7 +58,7 @@ counter=0;  % counter for number of SWS episodes longer than 5 min.
 
 % find all SWS episodes > 5 min
 for i=1:size(allruns,1)
-  if (allruns(i,2)-allruns(i,1)) > 30  % 30 rows means 5 minutes
+  if (allruns(i,2)-allruns(i,1)) > 29  % 30 rows means 5 minutes (29 inclusive)
     counter = counter+1;
 
     t_mdpt_SWS(counter) = t_hours(floor((allruns(i,1)+ ...

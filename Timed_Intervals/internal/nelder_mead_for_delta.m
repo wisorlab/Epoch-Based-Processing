@@ -61,7 +61,7 @@ for j = 1:n+1,
   if (j~=hi & j~=lo & Y(j)>=Y(ho)), ho=j; end
 end                          % End of Order.
 
-
+iterate=1;
 cnt = 0;
 while (Y(hi)>Y(lo)+epsilon & cnt<max1) | cnt<min1
 % The main while loop has started.
@@ -143,13 +143,15 @@ while (Y(hi)>Y(lo)+epsilon & cnt<max1) | cnt<min1
   if show==1,
    
     diary output,disp([V(lo,:),Y(lo)]),diary off;
-    XS = V(1:n+1,1)'; XSL = [XS,XS(1)];
-    YS = V(1:n+1,2)'; YSL = [YS,YS(1)];
+    XS(iterate,:) = V(1:n+1,1)'; XSL = [XS(iterate,:),XS(iterate,1)];
+    YS(iterate,:) = V(1:n+1,2)'; YSL = [YS(iterate,:),YS(iterate,1)];
 	hold on;
-    plot(XS,YS,'or',XSL,YSL,'-g');
+
+plot(XS,YS,'or',XSL,YSL,'-g');
 	hold off;
 	figure(gcf);
   end;
+iterate=iterate+1;
 end                          % End of the main while loop.
 hold off;
 snorm = 0;                   % Determine the size of the simplex:
@@ -164,3 +166,6 @@ best_tau_i=V(lo,2);
 best_error = Y(lo);
 dV = snorm;
 dy = abs(Y(hi)-Y(lo));
+size(V)
+size(XS)
+size(XSL)

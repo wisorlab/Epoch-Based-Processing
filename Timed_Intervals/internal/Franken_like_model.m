@@ -27,7 +27,7 @@ window_length=4;
 % -- power in last 4 hours of baseline light period and find 
 % -- all SWS episodes of longer than 5 minutes (like 
 % -- Franken et al)
-if strcmp(signal,'delta1') || strcmp(signal,'delta2')
+%if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   baseline_start_hours = 17;
   baseline_end_hours = 21;
   ind_start = baseline_start_hours*360;
@@ -41,7 +41,7 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   LAnormalized = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
   UAnormalized = (UA/mn)*100;   % upper asymptote normalized to mean delta power during SWS in last 4hr of baseline
 
-end
+%end
 
 
 % if using delta power as a signal, prepare the data we will compare 
@@ -77,6 +77,7 @@ error=zeros(length(tau_i),length(tau_d));
 % run the model and compute error for all combinations of tau_i and tau_d
 for i=1:length(tau_i)
   for j=1:length(tau_d)
+   
     S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,tau_i(i),tau_d(j),window_length,0,filename); % run model
    
     % compute error (depending on if delta power or lactate was used)
@@ -115,14 +116,14 @@ t=0:dt:dt*(size(datafile,1)-1);
 if strcmp(signal,'delta1') | strcmp(signal,'delta2') 
   plot(t_mdpt_SWS,data_at_SWS_midpoints,'ro')
   hold on
-  plot(t,S)
+  plot(t,best_S)
   ylabel('Delta power')
   title('Best fit of model to delta power data')
 elseif strcmp(signal,'lactate')
   plot(t,datafile(:,2),'ro')
   hold on
   tS=t((window_length/2)*360+1:end-(window_length/2)*360);
-  plot(tS,S)
+  plot(tS,best_S)
   plot(tS,LA,'--')
   plot(tS,UA,'--')
   ylabel('lactate')

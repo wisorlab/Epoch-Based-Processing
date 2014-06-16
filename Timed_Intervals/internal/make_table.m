@@ -7,7 +7,7 @@
 % Lactate ES
 
 
-data_dir = 'D:\mrempe\strain_study_data\BL\fig1_file\'; 
+data_dir = 'D:\mrempe\strain_study_data\BL\long_files\'; 
 
 % First call PROCESSLBATCHMODE.m using NM and delta
 [signal,state,bestS,UANMdelta,LANMdelta,timerNMdelta,tiNMdelta,tdNMdelta]=PROCESSLBATCHMODE(data_dir,'delta2','NelderMead');
@@ -47,15 +47,15 @@ SEMtiNMlactate  = std(tiNMlactate)/length(tiNMlactate);
 SEMtdNMlactate  = std(tdNMlactate)/length(tdNMlactate);
 
 % UA and LA
-meanUANMdelta = mean(UANMdelta);    
-meanLANMdelta = mean(LANMdelta);
-SEMUANMdelta  = std(UANMdelta)/length(UANMdelta);
-SEMLANMdelta  = std(LANMdelta)/length(LANMdelta);
+meanUANMdelta = mean(cell2mat(UANMdelta));    
+meanLANMdelta = mean(cell2mat(LANMdelta));
+SEMUANMdelta  = std(cell2mat(UANMdelta))/length(UANMdelta);
+SEMLANMdelta  = std(cell2mat(LANMdelta))/length(LANMdelta);
 
-meanUABFdelta = mean(UABFdelta);
-meanLABFdelta = mean(LABFdelta);
-SEMUABFdelta  = std(UABFdelta)/length(UABFdelta);
-SEMLABFdelta  = std(LABFdelta)/length(LABFdelta);
+meanUABFdelta = mean(cell2mat(UABFdelta));
+meanLABFdelta = mean(cell2mat(LABFdelta));
+SEMUABFdelta  = std(cell2mat(UABFdelta))/length(UABFdelta);
+SEMLABFdelta  = std(cell2mat(LABFdelta))/length(LABFdelta);
 
 % computing times
 meantimeNMdelta = mean(timerNMdelta);  %delta
@@ -73,26 +73,26 @@ SEMtimeBFlactate = std(timerBFlactate)/length(timerBFlactate);
 
 % Finally, put it all into a matrix 
 
-Table = [num2str(meantiNMdelta,2) '(' num2str(SEMtiNMdelta,2) ')  ' ... %ti
-	 num2str(meantdNMdelta,2) '(' num2str(SEMtdNMdelta,2) ')  ' ... %td
-	 num2str(meanUANMdelta,2) '(' num2str(SEMUANMdelta,2) ')  ' ... %UA
-	 num2str(meanLANMdelta,2) '(' num2str(SEMLANMdelta,2) ')  ' ... %LA
-	 num2str(meantimeNMdelta,4) '(' num2str(SEMtimeNMdelta,4) ')  '; ...  %running time
-	 num2str(meantiBFdelta,2) '(' num2str(SEMtiBFdelta,2) ')  ' ... %ti
-	 num2str(meantdBFdelta,2) '(' num2str(SEMtdBFdelta,2) ')  ' ... %td
-	 num2str(meanUABFdelta,2) '(' num2str(SEMUABFdelta,2) ')  ' ... %UA
-	 num2str(meanLABFdelta,2) '(' num2str(SEMLABFdelta,2) ')  ' ... %LA
-	 num2str(meantimeBFdelta,4) '(' num2str(SEMtimeBFdelta,4) ')  '; ...  %running time
-	 num2str(meantiNMlactate,2) '(' num2str(SEMtiNMlactate,2) ')  ' ... %ti LACTATE
-	 num2str(meantdNMlactate,2) '(' num2str(SEMtdNMlactate,2) ')  ' ... %td
-	 num2str(meanUANMdelta,2) '(' num2str(SEMUANMdelta) ')  ' ... %UA
-	 num2str(meanLANMdelta,2) '(' num2str(SEMLANMdelta,2) ')  ' ... %LA
-	 num2str(meantimeNMlactate,2) '(' num2str(SEMtimeNMlactate,2) ')  '; ...  %running time
-	 num2str(meantiBFlactate,2) '(' num2str(SEMtiBFlactate,2) ')  ' ... %ti
-	 num2str(meantdBFlactate,2) '(' num2str(SEMtdBFlactate,2) ')  ' ... %td
-	 num2str(meanUABFdelta,2) '(' num2str(SEMUABFdelta,2) ')  ' ... %UA
-	 num2str(meanLABFdelta,2) '(' num2str(SEMLABFdelta,2) ')  ' ... %LA
-	 num2str(meantimeBFlactate,4) '(' num2str(SEMtimeBFlactate,4) ')  '];  %running time
+Table = [sprintf('%1.2f',meantiNMdelta) '(' sprintf('%1.2f',SEMtiNMdelta) ')  ' ... %ti
+	 sprintf('%1.2f',meantdNMdelta) '(' sprintf('%1.2f',SEMtdNMdelta) ')  ' ... %td
+	 sprintf('%3.0f',meanUANMdelta) '(' sprintf('%03.0f',SEMUANMdelta) ')  ' ... %UA
+	 sprintf('%3.0f',meanLANMdelta) '(' sprintf('%03.0f',SEMLANMdelta) ')  ' ... %LA
+	 sprintf('%010.2f',meantimeNMdelta) '(' sprintf('%1.2f',SEMtimeNMdelta) ')'; ...  %running time
+	 sprintf('%1.2f',meantiBFdelta) '(' sprintf('%1.2f',SEMtiBFdelta) ')  ' ... %ti
+	 sprintf('%1.2f',meantdBFdelta) '(' sprintf('%1.2f',SEMtdBFdelta) ')  ' ... %td
+	 sprintf('%3.0f',meanUABFdelta) '(' sprintf('%03.0f',SEMUABFdelta) ')  ' ... %UA
+	 sprintf('%3.0f',meanLABFdelta) '(' sprintf('%03.0f',SEMLABFdelta) ')  ' ... %LA
+	 sprintf('%010.2f',meantimeBFdelta) '(' sprintf('%1.2f',SEMtimeBFdelta) ')'; ...  %running time
+	 sprintf('%1.2f',meantiNMlactate) '(' sprintf('%1.2f',SEMtiNMlactate) ')  ' ... %ti LACTATE
+	 sprintf('%1.2f',meantdNMlactate) '(' sprintf('%1.2f',SEMtdNMlactate) ')  ' ... %td
+	 sprintf('%3.0f',meanUANMdelta) '(' sprintf('%03.0f',SEMUANMdelta) ')  ' ... %UA
+	 sprintf('%3.0f',meanLANMdelta) '(' sprintf('%03.0f',SEMLANMdelta) ')  ' ... %LA
+	 sprintf('%010.2f',meantimeNMlactate) '(' sprintf('%1.2f',SEMtimeNMlactate) ')'; ...  %running time
+	 sprintf('%1.2f',meantiBFlactate) '(' sprintf('%1.2f',SEMtiBFlactate) ')  ' ... %ti
+	 sprintf('%1.2f',meantdBFlactate) '(' sprintf('%1.2f',SEMtdBFlactate) ')  ' ... %td
+	 sprintf('%3.0f',meanUABFdelta) '(' sprintf('%03.0f',SEMUABFdelta) ')  ' ... %UA
+	 sprintf('%3.0f',meanLABFdelta) '(' sprintf('%03.0f',SEMLABFdelta) ')  ' ... %LA
+	 sprintf('%010.2f',meantimeBFlactate) '(' sprintf('%1.2f',SEMtimeBFlactate) ')'];  %running time
 
 
 save table_values.mat   %save it all into a matlab workspace

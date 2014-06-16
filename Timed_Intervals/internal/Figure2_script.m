@@ -336,7 +336,7 @@ if strcmp(signal,'lactate')
 
 elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
   guesses=[1 3; 3 3; 2 1];
-  [bti,btd,be,iters]=nelder_mead_for_delta(guesses,1,1000,1e-9,0,PhysioVars,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints);
+  [bti,btd,be,iters]=nelder_mead_for_delta(guesses,1,1000,1e-9,1,PhysioVars,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints);
 end
 figure(F)
 subplot(3,3,7)

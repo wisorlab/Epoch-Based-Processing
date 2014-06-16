@@ -1,10 +1,16 @@
-function [signal_data,state_data,best_S,UppA,LowA,Taui,Taud]=PROCESSLBATCHMODE(directory,signal)
-% USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal)
+function [signal_data,state_data,best_S,UppA,LowA,Timer,Taui,Taud]=PROCESSLBATCHMODE(directory,signal,algorithm)
+% USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal,algorithm)
 %
+% INPUTS:
+% directory is where the data files are (include the entire directory. i.e. 'D:\mrempe\strain_study_data\BL\long_files\'
 %
 % signal can be one of three options: 'lactate', 'delta1' or 'delta2',
 % where delta1 means the delta power in EEG1 and delta2 is delta power in EEG2
+%
+% algorithm is either 'NelderMead' or 'BruteForce' and determines how the optimum 
+% values of taui and taud are found. 
 % 
+%  
 % OUTPUTS:
 % signal_data: a cell array containing vectors of either delta power or lactate, one for each file in the directory
 % best_S:  a cell array containing the best fit curve S, one for each file in the directory
@@ -172,14 +178,19 @@ files       = files(Indices_of_largest);
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
 for FileCounter=1:length(files)
   
-  %[Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
-  [Ti,Td,LA,UA,best_error,error_instant,S] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
+  if strcmp(algorithm,'NelderMead')  
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
+  end
+  if strcmp(algorithm,'BruteForce')
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
+  end
 
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;
-  LowA{FileCounter} = LA;
-  UppA{FileCounter} = UA;
-  Error(FileCounter)  = best_error;
+  LowA{FileCounter} = LA;  %normalized LA
+  UppA{FileCounter} = UA;  %normalized UA
+  Timer(FileCounter) = ElapsedTime;
+  Error(FileCounter) = best_error;
   Error2(FileCounter) = error_instant;
   %delete(findall(0,'Type','figure')); %if you want to delete all figures before next run
   
