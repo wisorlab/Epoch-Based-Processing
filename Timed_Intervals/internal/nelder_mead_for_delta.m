@@ -1,4 +1,4 @@
-function [best_tau_i,best_tau_d,best_error,P] = nelder_mead_for_delta(V,min1,max1,epsilon,show,...
+function [best_tau_i,best_tau_d,best_error,P,XS,YS] = nelder_mead_for_delta(V,min1,max1,epsilon,show,...
                                                   datafile,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints)
 %---------------------------------------------------------------------------
 %NELDER   Nelder-Mead method to search for a minimum.
@@ -18,7 +18,8 @@ function [best_tau_i,best_tau_d,best_error,P] = nelder_mead_for_delta(V,min1,max
 %   dy        error bound for the minimum
 %   P         matrix containing the vertices in the iterations
 %   Q         array containing iterations for  F(P)
-%
+%   XS        array containing the x values of all 3 vertices of the simplex (triangle) each step
+%   YS        arrya containing the y values of all 3 vertices of the simplex (triangle) each step
 % NUMERICAL METHODS: MATLAB Programs, (c) John H. Mathews 1995
 % To accompany the text:
 % NUMERICAL METHODS for Mathematics, Science and Engineering, 2nd Ed, 1992

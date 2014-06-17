@@ -1,4 +1,4 @@
-function [Fig_handle,error]=Figure2_script(directory,signal)
+function [Fig_handle,error,xs,ys]=Figure2_script(directory,signal)
 %usage: [Fig_handle,error]=Figure2_script(directory)
 %
 % directory: directory where the data file is located ('data_files/BL/fig1_file')
@@ -105,10 +105,17 @@ end
     plot(0:max(ns),UA)
     hold off  
     xlabel('DELTA POWER [mV^2]')
-  
+    if strcmp(signal,'lactate')  
+      axis([0 500 0 19])
+    else
+      axis([0 800 0 10000])
+    end
   end
   ahand=gca;
 
+  
+
+% Nelder Mead for best fit
   mask=(window_length/2)*360+1:size(PhysioVars,1)-(window_length/2)*360;
   dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
  
@@ -169,6 +176,8 @@ initial_guess = [1 1];     % one starting guess
     plot(tS,best_SNM)   
     legend('wake','sleep','rem','best fit model')
     legend BOXOFF
+    ylabel('LACTATE SIGNAL [nA]')
+    xlabel('TIME [h]')
     hold off
   elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
     scatter(t_mdpt_SWS,data_at_SWS_midpoints,30,'MarkerEdgeColor','k', ...
@@ -188,6 +197,7 @@ end
   subplot(3,3,2:3)  
   if strcmp(signal,'lactate')
     plot(t,PhysioVars(:,2),'o','MarkerFaceColor',[0.5 0.5 0.5],'MarkerEdgeColor',[0.5 0.5 0.5])
+    box off  
   elseif strcmp(signal,'delta1') ||  strcmp(signal,'delta2')
      scatter(t_mdpt_SWS,data_at_SWS_midpoints,30,'MarkerEdgeColor','k', ...
 	    'LineWidth',1.5,'MarkerFaceColor',[0.5 0.5 0.5])
@@ -199,9 +209,9 @@ hold on
   plot(tS,LA,'k--')
   plot(tS,UA,'k--')
   if strcmp(signal,'lactate')  
-    ylabel('lactate')
+    ylabel('LACTATE SIGNAL [nA]')
   end
-  xlabel('Time (hours)')
+  xlabel('TIME [h]')
   if strcmp(signal,'delta1') || strcmp(signal,'delta2')  
     axis([0 45 0 UA+1000])
   end
@@ -236,8 +246,10 @@ hold on
   end
   
   if strcmp(signal,'lactate')
-    tau_i=0.01:0.005:2*Ti;
-    tau_d=0.01:0.005:2*Td;
+tau_i=0:.005:0.4;
+tau_d=0:.005:0.12;
+    % tau_i=0.01:0.005:2*Ti;
+    % tau_d=0.01:0.005:2*Td;
   end
   
   error=zeros(length(tau_i),length(tau_d));
@@ -293,6 +305,8 @@ subplot(3,3,5:6)
     legend('wake','sleep','rem','best fit model')
     legend BOXOFF
     hold off
+    xlabel('TIME [h]')
+    ylabel('LACTATE SIGNAL [nA]')
   elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
     scatter(t_mdpt_SWS,data_at_SWS_midpoints,30,'MarkerEdgeColor','k', ...
 	    'LineWidth',1.5,'MarkerFaceColor',[0.5 0.5 0.5])
@@ -330,17 +344,29 @@ chand=gca;
 
 % -- Nelder-Mead iteration plot (triangles)
 if strcmp(signal,'lactate')
-  guesses=[0.5 1;1.5 1;1 2];
-  [bti,btd,be,iters]=nelder_mead_for_lactate(guesses,1,1000,1e-9,0,PhysioVars,dt,LA,UA,window_length,mask);
+  guesses=[0.08 .3;.11 .3;.095 .1];
+  [bti,btd,be,iters,xs,ys]=nelder_mead_for_lactate(guesses,1,1000,1e-9,1,PhysioVars,dt,LA,UA,window_length,mask);
 
 
 elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
   guesses=[1 3; 3 3; 2 1];
-  [bti,btd,be,iters]=nelder_mead_for_delta(guesses,1,1000,1e-9,1,PhysioVars,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints);
+  [bti,btd,be,iters,xs,ys]=nelder_mead_for_delta(guesses,1,1000,1e-9,1,PhysioVars,dt,LA,UA,t_mdpt_indices,data_at_SWS_midpoints);
 end
+
 figure(F)
 subplot(3,3,7)
-plot(iters(:,1),iters(:,2),'x','MarkerSize',6)
+first_simplex=[guesses;guesses(1,:)];
+plot(first_simplex(:,1),first_simplex(:,2),'-x')
+hold on
+for i=1:size(xs,1)
+  xsl = [xs(i,:),xs(i,1)];
+  ysl = [ys(i,:),ys(i,1)];
+  plot(xs(i,:),ys(i,:),'or',xsl,ysl,'-k')
+end
+hold off
+
+
+%plot(iters(:,1),iters(:,2),'x','MarkerSize',6)
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 axis([tau_d(1) tau_d(end) tau_i(1) tau_i(end)])
 end

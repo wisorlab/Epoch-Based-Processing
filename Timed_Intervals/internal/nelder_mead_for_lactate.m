@@ -1,4 +1,4 @@
-function [best_tau_i,best_tau_d,best_error,P] = nelder_mead_for_lactate(V,min1,max1,epsilon,show,...
+function [best_tau_i,best_tau_d,best_error,P,XS,YS] = nelder_mead_for_lactate(V,min1,max1,epsilon,show,...
                                                   datafile,dt,LA,UA,window_length,mask)
 %---------------------------------------------------------------------------
 %NELDER   Nelder-Mead method to search for a minimum.
@@ -18,7 +18,8 @@ function [best_tau_i,best_tau_d,best_error,P] = nelder_mead_for_lactate(V,min1,m
 %   dy        error bound for the minimum
 %   P         matrix containing the vertices in the iterations
 %   Q         array containing iterations for  F(P)
-%
+%   XS        array containing the x values of all 3 vertices of the simplex (triangle) each step
+%   YS        array containing the y values of all 3 vertices of the simplex (triangle) each step
 % NUMERICAL METHODS: MATLAB Programs, (c) John H. Mathews 1995
 % To accompany the text:
 % NUMERICAL METHODS for Mathematics, Science and Engineering, 2nd Ed, 1992
@@ -60,7 +61,7 @@ for j = 1:n+1,
   if (j~=hi & j~=lo & Y(j)>=Y(ho)), ho=j; end
 end                          % End of Order.
 
-
+iterate=1;
 cnt = 0;
 while (Y(hi)>Y(lo)+epsilon & cnt<max1) | cnt<min1
 % The main while loop has started.
@@ -143,13 +144,15 @@ end                        % End of Improve.
   format long;               % Print iteration and plot 2-dim case.
   if show==1,
     diary output,disp([V(lo,:),Y(lo)]),diary off;
-    XS = V(1:n+1,1)'; XSL = [XS,XS(1)];
-    YS = V(1:n+1,2)'; YSL = [YS,YS(1)];
+    XS(iterate,:) = V(1:n+1,1)'; XSL = [XS(iterate,:),XS(iterate,1)];
+    YS(iterate,:)  = V(1:n+1,2)'; YSL = [YS(iterate,:),YS(iterate,1)];
+figure
 	hold on;
     plot(XS,YS,'or',XSL,YSL,'-g');
 	hold off;
 	figure(gcf);
   end;
+iterate=iterate+1;
 end                          % End of the main while loop.
 hold off;
 snorm = 0;                   % Determine the size of the simplex:
