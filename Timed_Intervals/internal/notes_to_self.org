@@ -1,4 +1,4 @@
-MY NOTES TO SELF -*- mode: org -*-
+﻿MY NOTES TO SELF -*- mode: org -*-
 July 16 2013:
 
 Jonathan's code (copied into my directory) seems to run up to the point 
@@ -1085,3 +1085,4 @@ figure. It is only minimally affected.  Not worth changing the figure.
 
 * Tuesday, June 17, 2014
 
+some stuff
