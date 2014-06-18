@@ -11,7 +11,7 @@ function error_simple_model=run_instant_model(dataset,LA,UA,window_length)
 % If sleep state is wake or REM, it follows
 % UA.  If sleep state is sleep, it follows LA.
 
-%S=zeros(1,size(dataset,1));
+ %S=zeros(1,size(dataset,1));
 
 for i=1:size(dataset,1)-(window_length*360)
   if dataset(i+(window_length/2)*360,1)==0 || dataset(i+(window_length/2)*360,1)==2 %wake or REM
