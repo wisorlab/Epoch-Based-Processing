@@ -20,6 +20,8 @@ function [signal_data,state_data,best_S,UppA,LowA,Timer,Taui,Taud]=PROCESSLBATCH
 
 %profile -memory on
 
+
+
 directory_plus_extension=strcat(directory,'*.txt');
 
 

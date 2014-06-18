@@ -142,12 +142,29 @@ clear TimeStampMatrix
   start_time = TimeStampMatrix(:,locs_of_start_times(1));
   end_time = TimeStampMatrix(:,end);
 
-start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
-end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
-length_of_recording = etime(end_time',start_time');
-length_of_recording = length_of_recording/60/60; % convert from seconds to hours
+  start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
+  end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
+  length_of_recording = etime(end_time',start_time');
+  length_of_recording = length_of_recording/60/60; % convert from seconds to hours
 
-end % end of looping through files to load data and decide which files to exclude
+% ----- 
+% For lactate simulations, allow the lactate sensor to settle down:
+% Find the first two NREM episodes of at least 1 minute, and start 
+% the simulation at the end of the second 1-minute NREM episode
+% ----
+if strcmp(signal,'lactate')
+   ind_of_second_NREM_episode_end = find_first_two_NREM_episodes(state_data{FileCounter});
+   state_data{FileCounter}  = state_data{FileCounter}(ind_of_second_NREM_episode_end:end);
+   signal_data{FileCounter} = signal_data{FileCounter}(ind_of_second_NREM_episode_end:end);
+end
+
+
+
+
+
+
+
+end % end of looping through files to load data, decide which files to exclude, and cut off lactate transient
 
 % ------
 % Exclusion criteria:
@@ -156,8 +173,8 @@ end % end of looping through files to load data and decide which files to exclud
 % dynamic ranges.
 %------
 [sorteddata,sortIndex]=sort(dynamic_range,'descend');
-if length(dynamic_range) >= 10
-Indices_of_largest = sortIndex(1:10);  % 7 largest dynamic ranges
+if length(dynamic_range) >= 20
+Indices_of_largest = sortIndex(1:20);  % 7 largest dynamic ranges
 else
 Indices_of_largest = sortIndex;
 end
@@ -168,6 +185,9 @@ dynamic_range
 state_data  = state_data(Indices_of_largest);
 signal_data = signal_data(Indices_of_largest);
 files       = files(Indices_of_largest);
+
+
+
 
 
 
