@@ -9,6 +9,7 @@ IntervalDuration = str2double( BinString{1,1} );
 
 % look for 'matlab-utils' in the matlab folder
 % addpath ../../../Matlab/etc/matlab-utils/;
+addpath ../../../../Matlab/etc/matlab-utils/
 addpath C:/Users/wisorlab/Documents/MATLAB/Brennecke/matlab-pipeline/Matlab/etc/matlab-utils;
 addpath (pwd)
 
@@ -62,9 +63,6 @@ sheets2  = xl2.addSheets( sheetnames2 );
 xl2.sourceInfo( mfilename('fullpath') );
 xl2.rmDefaultSheets();
 
-for i=1:length(sheets2)
-    xl2.setCells( sheets2{i}, [2,1], cellfun(@(x) sprintf([sheetnames2{i} '-%d'],x),{1,2,3,4,5},'uni',false));
-end
 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.
     combinedStr = strcat(path,files{FileCounter});
@@ -77,8 +75,10 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     [WakeBoutCount(FileCounter,:),WakeBoutMean(FileCounter,:),SwsBoutCount(FileCounter,:),SwsBoutMean(FileCounter,:),RemsBoutCount(FileCounter,:),RemsBoutMean(FileCounter,:),BriefWakeCount(FileCounter,:)]=...
         DetectStateEpisodesIntervalMode(statechars,IntervalDuration);
     
+
     
     for k = 1:length(sheetnames2)
+        xl2.setCells( sheets2{k}, [2,1],cellstr( num2str( (1:length(sheetnames2)+1)', [sheetnames2{k} '-%d']))');
         sheet = xl2.Sheets.Item( sheetnames2{k} );
         xl2.setCells( sheet, [1,FileCounter+1], [files{FileCounter}, num2cell(eval([ sheetnames2{k} '(FileCounter,:)']))]);
     end
@@ -289,6 +289,9 @@ xl.setCells( sheets9{1}, [1,1], [ OutputEEG2Wake ] );
 xl.setCells( sheets10{1}, [1,1], [ OutputEEG1REMS ] );
 xl.setCells( sheets11{1}, [1,1], [ OutputEEG2REMS ] );
 
+prompt = { 'This program reports sleep states W,N,R as a percent of each analysis interval and FFTs in equivalent intervals.  How many 10-sec epochs do you wish to include in each analysis interval? ' };
+BinString = inputdlg(prompt,'Input',1,{'360'});
+
 % create a header row with 'Data 1-72'
 % TODO exchange 'data' for time... mod(10+(0:5:360)/60,12) or something
 %next line replaces this: data = [ char(ones(72,1) * 'Data ' ) num2str( [1:72]' ) ];
@@ -296,6 +299,17 @@ xl.setCells( sheets11{1}, [1,1], [ OutputEEG2REMS ] );
 %The first row of the line for this mouse within each matrix will identify the state from which the FFT data are derived.
 load chirp
 sound  (y)
-OutputName= strcat('SleepStatesAndFfts_',num2str(BinString),'EpochsPerBin.xlsx');
-xl.Excel.ActiveWorkbook.SaveAs(OutputName);
+
+prompt = { 'Would you like to add a notes section?' };
+notes = questdlg(prompt);
+
+if strcmpi(notes,'Yes')
+    dataSourceSheet = xl2.Sheets.Item(1);
+    xl.setCells(dataSourceSheet,[1,5],{'Notes','Please enter your notes here'})
+end
+
+xl.saveAs(['SleepPctFFT_' num2str(IntervalDuration) '-Epochs' ],path);
+xl2.saveAs(['BoutAnalysis_' num2str(IntervalDuration) '-Epochs' ],path);
+
+
 
