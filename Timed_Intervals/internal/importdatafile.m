@@ -26,6 +26,11 @@ function [data,textdata]=importdatafile(FileToRead,directory)
 %               rows removed.  It is just strings on lines 
 %               containing EEG data. 
 
+if nargin ==1 
+	directory='';
+end
+
+
 DELIMITER = '\t';
 HEADERLINES = 2;
 NUM_COLUMNS = 83;  % number of colums in original data set 

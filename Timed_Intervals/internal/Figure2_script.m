@@ -67,12 +67,12 @@ end
     [nall,xall]=hist(PhysioVars(1:(window_length)*360+1,2),xbins);
     h=barh(xall,nall);
     %axis([0 19.5 0 500])
-    axis([0 500 0 19.5])
+    axis([0 400 0 40])
     xlabel('LACTATE SIGNAL [nA]')  
     ylabel('FREQUENCY')
     hold on
-    l1=line([0 max(nall)],[LA(1) LA(1)],'LineStyle','--'); %horizontal
-    l2=line([0 max(nall)],[UA(1) UA(1)],'LineStyle','--');  
+    l1=line([0 max(nall)+300],[LA(1) LA(1)],'LineStyle','--'); %horizontal
+    l2=line([0 max(nall)+300],[UA(1) UA(1)],'LineStyle','--');  
     hold off
 
   elseif strcmp(signal,'delta1') || strcmp(signal,'delta2') % delta
@@ -179,6 +179,7 @@ initial_guess = [1 1];     % one starting guess
     ylabel('LACTATE SIGNAL [nA]')
     xlabel('TIME [h]')
     hold off
+    axis([0 45 0 40])
   elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
     scatter(t_mdpt_SWS,data_at_SWS_midpoints,30,'MarkerEdgeColor','k', ...
 	    'LineWidth',1.5,'MarkerFaceColor',[0.5 0.5 0.5])
@@ -210,6 +211,7 @@ hold on
   plot(tS,UA,'k--')
   if strcmp(signal,'lactate')  
     ylabel('LACTATE SIGNAL [nA]')
+  axis([0 45 0 40])
   end
   xlabel('TIME [h]')
   if strcmp(signal,'delta1') || strcmp(signal,'delta2')  
@@ -217,21 +219,21 @@ hold on
   end
 
   if strcmp(signal,'lactate')  % insets for lactate
-    axis([0 45 0 20])
+    axis([0 45 0 40])
     axes('Position',[.82 .83 .05 .05])
     time_late= 38;  % time in hours to compute inset histogram 
     xbins_late=linspace(0,max(data(360*time_late-720:360*time_late+720)),30);
     [nlate,xlate]=hist(data(360*time_late-720:360*time_late+720),xbins);
     barh(xlate,nlate)
     box off
-    axis([0 max(nlate) 0 19.5])
+    axis([0 max(nlate) 0 30])
     axes('Position',[.5 .89 .05 .05])
     time_early= 8;  % time in hours to compute inset histogram 
     xbins_early=linspace(0,max(data(360*time_early-720:360*time_early+720)),30);
     [nearly,xearly]=hist(data(360*time_early-720:360*time_early+720),xbins);
     barh(xearly,nearly)
     box off
-    axis([0 max(nearly) 0 19.5])
+    axis([0 max(nearly) 0 30])
     hold off
   end
   bhand=gca;  
@@ -246,8 +248,8 @@ hold on
   end
   
   if strcmp(signal,'lactate')
-tau_i=0:.005:0.4;
-tau_d=0:.005:0.12;
+tau_i=0.1:.05:3.8;
+tau_d=0.005:.01:0.8;
     % tau_i=0.01:0.005:2*Ti;
     % tau_d=0.01:0.005:2*Td;
   end
@@ -307,6 +309,7 @@ subplot(3,3,5:6)
     hold off
     xlabel('TIME [h]')
     ylabel('LACTATE SIGNAL [nA]')
+    axis([0 45 0 40])
   elseif strcmp(signal,'delta1') || strcmp(signal,'delta2')
     scatter(t_mdpt_SWS,data_at_SWS_midpoints,30,'MarkerEdgeColor','k', ...
 	    'LineWidth',1.5,'MarkerFaceColor',[0.5 0.5 0.5])
@@ -344,7 +347,7 @@ chand=gca;
 
 % -- Nelder-Mead iteration plot (triangles)
 if strcmp(signal,'lactate')
-  guesses=[0.08 .3;.11 .3;.095 .1];
+  guesses=[0.5 1.5;0.7 1.5;0.6 0.5];
   [bti,btd,be,iters,xs,ys]=nelder_mead_for_lactate(guesses,1,1000,1e-9,1,PhysioVars,dt,LA,UA,window_length,mask);
 
 
