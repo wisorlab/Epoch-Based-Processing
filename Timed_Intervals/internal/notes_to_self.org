@@ -1086,3 +1086,23 @@ figure. It is only minimally affected.  Not worth changing the figure.
 * Tuesday, June 17, 2014
 
 some stuff
+
+* Friday, July 11, 2014
+Working on the automated scoring problem.  One approach I'm trying in PCA, like Gilmour_etal.  
+I wrote sleepscorePCA.m and it runs and plots, but doesn't seem to give us nice separate clouds like
+Gilmour shows.  If I used eig.m, subtracted out the row means, normalized and then added in row means again, I got
+exactly what I got when I used eig.m without any normalizing. The graphs using pca.m and eigs with normalizing 
+are not quite the same, altough qualitatively they are about the same.  Using eigs.m without any normalizing 
+doesn't give me any data below zero. Why? Because all my data are positive (averages of EEG).
+Gilmour has his variables going from -1 to 1 so I scaled my data to also go from -1 to 1. 
+pca.m still gives me something slightly different than using eigs.m, but I think I will just stick with using pca.m
+and normalizing to [-1 1] first. 
+sleepscorePCA.m seems to be running well now and making nice graphs.  It doesn't match Gilmour though. Keep looking through
+all the files in each of the strains.  
+
+Try this routine on all the different strains to see if it looks good for any of them.  
+
+If I 
+
+
+Then keep working on the Bayesian approach (autoscore.m) using edfread.m and interpolating the lactate signal. 

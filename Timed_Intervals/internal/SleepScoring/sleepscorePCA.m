@@ -11,7 +11,7 @@ function [Feature,PCAvectors]=sleepscorePCA(inputfile,signal,outputfilename)
 	%
 	% signal			either EEG1 or EEG2 specifying which signal to use
 	% outputfilename 	the name of the file to which the Feature Matrix and PCA vectors are written  
-	 
+
 
 	% TODO:
 	% Make a snazzy user interface so you can just click on data points plotted along the principal 
@@ -76,7 +76,7 @@ figure %plot delta vs. EMG
 plot(Feature(:,5)./max(Feature(:,5)),Feature(:,1)./max(Feature(:,1)),'.') %normalize 
 xlabel('EMG Power')
 ylabel('EEG delta Power')
-
+title(inputfile)
 % figure
 % plot3(score2(:,1),score2(:,2),score2(:,3),'.')
 % xlabel('PC1')
