@@ -193,7 +193,7 @@ end
 hdr.label = hdr.label(targetSignals);
 hdr.label = regexprep(hdr.label,'\W','');
 hdr.units = regexprep(hdr.units,'\W','');
-disp('Step 1 of 2: Reading requested records. (This may take a few minutes.)...');
+disp('Step 1 of 3: Reading requested records. (This may take a few minutes.)...');
 if nargout > 1 || assignToVariables
     % Scale data (linear scaling)
     scalefac = (hdr.physicalMax - hdr.physicalMin)./(hdr.digitalMax - hdr.digitalMin);
@@ -224,7 +224,7 @@ if nargout > 1 || assignToVariables
     % NOTE: 5/6/13 Modified for loop below to change instances of hdr.samples to
     % hdr.samples(ii). I think this underscored a problem with the reader.
     
-    disp('Step 2 of 2: Parsing data...');
+    disp('Step 2 of 3: Parsing data...');
     recnum = 1;
     for ii = 1:hdr.ns
         if ismember(ii,targetSignals)
@@ -251,3 +251,39 @@ if nargout > 1 || assignToVariables
     end
 end
 fclose(fid);
+
+
+disp('Step 3 of 3: Interpolating data so each variable has the same length')
+
+% Since different signals may have been read at different frequencies, I need 
+% to interpolate those that are sampled at a lower frequency than the highest frequency
+
+
+% Find the largest values in hdr.samples (this is the number of samples per 'duration' seconds)
+max_samples_per_epoch = max(hdr.samples(1:4));   %I'm leaving off EDFAnnotations because I don't care about interpolating them
+scale_factor = ones(1,4);
+
+    for i=1:4
+        if hdr.samples(i) ~= max_samples_per_epoch
+            scale_factor(i) = max_samples_per_epoch/hdr.samples(i);
+        end 
+    end 
+
+    num_of_vars_to_scale = sum(scale_factor~=1);
+    indices = find(scale_factor~=1);
+
+    % Now loop over all the variables that need scaling
+    for i=1:num_of_vars_to_scale 
+        a = find(record(indices(i),:)==0);
+        first_zero_loc = a(1);
+        X = 0:1:first_zero_loc-2;
+        V = record(1,1:first_zero_loc-1);
+        Xq = 0:1/scale_factor(indices(i)):first_zero_loc-1;
+        Xq=Xq(1:end-1);
+        newlactatevec = interp1(X,V,Xq);
+        record(indices(i),:) = newlactatevec;
+    clear a X Xq V 
+    end
+
+    
+

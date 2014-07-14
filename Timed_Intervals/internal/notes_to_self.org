@@ -1,4 +1,4 @@
-﻿MY NOTES TO SELF -*- mode: org -*-
+MY NOTES TO SELF -*- mode: org -*-
 July 16 2013:
 
 Jonathan's code (copied into my directory) seems to run up to the point 
@@ -30,7 +30,7 @@ ago to read in the excel files and batch process.  Also, set up different direct
 for each genetic strain.  Make sure I'm getting output that matches what I got before 
 (on my linux machine).  
 
-Gender
+
 NOTE:  Jonathan uses the 5th and 95th percentiles for the lactate in make_frequency_plot.m
 (see lines 120 and 121) (LA(i-shift) and UA(i-shift) ) where I currently 
 use the 1st and 99th percentiles.  After I make sure this new version of the code 
@@ -1106,3 +1106,13 @@ If I
 
 
 Then keep working on the Bayesian approach (autoscore.m) using edfread.m and interpolating the lactate signal. 
+
+
+* Monday, July 14, 2014
+I have the PCA approach working, and I have an option to color the points based on human-scored sleep state.  The plots don't look 
+much like the ones in Gilmour_et al, but they have some similarities.  
+Strains:
+AKR: not great
+BA: a couple look OK
+BL: not great
+DBA: a couple were quite good, some bad 1671_05_09_2013 looks good

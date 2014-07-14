@@ -1,6 +1,6 @@
 % this script calls sleepscorePCA.m for each file in the current directory
 
-directory = 'D:\mrempe\strain_study_data\BL\long_files\'
+directory = 'D:\mrempe\strain_study_data\DBA\long_files\'
 addpath ..
 
 directory_plus_extension=strcat(directory,'*.txt');
@@ -12,6 +12,8 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
 	[Feature,PCAvectors]=sleepscorePCA(strcat(directory,files(FileCounter).name),'EEG2','PCAoutput.txt');
   
 end
+
+
 
 
 

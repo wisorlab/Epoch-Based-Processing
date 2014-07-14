@@ -19,32 +19,49 @@ function [Feature,PCAvectors]=sleepscorePCA(inputfile,signal,outputfilename)
 	% check into using gname.m 
 
 
-
+plotcolor=1;  %to color the dots based on the sleep state (for testing)
 
 
 	% First, read in the .txt file 
 	% data has columns: lactate, EEG1_0.5-1Hz, EEG1_1-2Hz etc.
 	[data,textdata]=importdatafile(inputfile);
 
+	   % Set up the sleep state as a variable
+	   SleepState=zeros(size(data,1));
+	   for i = 1: size(data,1)  
+	   	if textdata{i,2}=='W' 
+	   		SleepState(i)=0;
+	   	elseif textdata{i,2}=='S'
+	   		SleepState(i)=1;
+	   	elseif textdata{i,2}=='P'
+	   		SleepState(i)=2;
+	   	elseif textdata{i,2}=='R'
+	   		SleepState(i)=2;
+	   	elseif isempty(textdata{i,2})==1
+	   		SleepState(i)=0;  
+	   	end
+	   end
 
-% Set up the feature matrix, a la Gilmour.
-% rows are data points, columns are delta	theta	low beta	high beta	EMG	Theta/delta	Beta/delta 
-% where delta = 1-4 Hz
-% 		theta = 5-9 Hz
-%		low beta = 10-20 Hz
-%		high beta = 30-40 Hz
-%		Theta/delta is the ratio of theta to delta
-%		Beta/delta is the ratio of beta to delta (here beta is defined as 15-30Hz)
 
-if strcmp(signal,'EEG1')
-	Feature(:,1) = mean(data(:,3:5),2);	%delta
-	Feature(:,2) = mean(data(:,7:10),2);	%theta
-	Feature(:,3) = mean(data(:,12:21),2);	%low beta
-	Feature(:,4) = mean(data(:,32:41),2);	%high beta
-	Feature(:,5) = data(:,82);				%EMG
-	Feature(:,6) = Feature(:,2)./Feature(:,1);
-	Feature(:,7) = mean(data(:,17:31),2)./Feature(:,1);
-end 
+
+	% Set up the feature matrix, a la Gilmour.
+	% rows are data points, columns are delta	theta	low beta	high beta	EMG	Theta/delta	Beta/delta 
+	% where delta = 1-4 Hz
+	% 		theta = 5-9 Hz
+	%		low beta = 10-20 Hz
+	%		high beta = 30-40 Hz
+	%		Theta/delta is the ratio of theta to delta
+	%		Beta/delta is the ratio of beta to delta (here beta is defined as 15-30Hz)
+
+	if strcmp(signal,'EEG1')
+	   Feature(:,1) = mean(data(:,3:5),2);	%delta
+	   Feature(:,2) = mean(data(:,7:10),2);	%theta
+	   Feature(:,3) = mean(data(:,12:21),2);	%low beta
+	   Feature(:,4) = mean(data(:,32:41),2);	%high beta
+	   Feature(:,5) = data(:,82);				%EMG
+	   Feature(:,6) = Feature(:,2)./Feature(:,1);
+	   Feature(:,7) = mean(data(:,17:31),2)./Feature(:,1);
+	end 
 
 if strcmp(signal,'EEG2')  
 	Feature(:,1) = mean(data(:,43:45),2);	%delta
@@ -66,17 +83,49 @@ explained
 % Now plot the points along the three eigenvectors with the 3 
 % largest eigenvalues of the covariance matrix
 figure
-plot3(FeaturesPCA(:,1),FeaturesPCA(:,2),FeaturesPCA(:,3),'.')
+if plotcolor==1
+	hold on
+	for i=1:length(FeaturesPCA)
+		if SleepState(i)==0
+	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'r.') %red dots for wake
+	elseif SleepState(i)==1
+	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'b.') %blue dots for NREM
+	elseif SleepState(i)==2
+	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'.','color',[1 .5 0]) %orange dots for REM
+	end
+	end
+	hold off
+	else
+		plot3(FeaturesPCA(:,1),FeaturesPCA(:,2),FeaturesPCA(:,3),'.')
+	end
+
 xlabel('PC1')
 ylabel('PC2')
 zlabel('PC3')
-title(inputfile)
+a = find(inputfile=='\');
+title(inputfile(a(end)+1:end))
 
 figure %plot delta vs. EMG
-plot(Feature(:,5)./max(Feature(:,5)),Feature(:,1)./max(Feature(:,1)),'.') %normalize 
+hold on
+if plotcolor==1
+for i=1:length(FeaturesPCA)
+	if SleepState(i)==0
+	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'r.') %red dots for wake
+	elseif SleepState(i)==1
+	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'b.') %blue dots for NREM
+	elseif SleepState(i)==2
+	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'.','color',[1 .5 0]) %orange dots for REM
+	end
+end
+hold off
+else
+	plot(Feature(:,5)./max(Feature(:,5)),Feature(:,1)./max(Feature(:,1)),'.') %normalize 
+end
+
 xlabel('EMG Power')
 ylabel('EEG delta Power')
-title(inputfile)
+a = find(inputfile=='\');
+title(inputfile(a(end)+1:end))
 % figure
 % plot3(score2(:,1),score2(:,2),score2(:,3),'.')
 % xlabel('PC1')
@@ -156,6 +205,7 @@ set(gca,'XTick',[])
 box off
 set(get(gca,'YLabel'),'Rotation',0)
 set(get(gca,'YLabel'),'HorizontalAlignment','right')
+title(inputfile(a(end)+1:end))
 
 subplot(10,1,2)
 plot(t,PCAvectors(:,2),'g')
