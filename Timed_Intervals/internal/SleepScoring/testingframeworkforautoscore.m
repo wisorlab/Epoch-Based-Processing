@@ -28,7 +28,10 @@ txtstarttime=cell2mat(textdatafromtxt(1,1));
 startvectxt = datevec(txtstarttime(2:end-3),'mm/dd/yyyy,HH:MM:SS'); % starting time and date from txt file
 startvecedf = datevec(strcat(header.startdate,'.',header.starttime),'dd.mm.yy.HH.MM.SS'); % same from edf file
 seconds_to_remove = etime(startvectxt,startvecedf);  %elapsed time (in seconds) between start of edf and start of txt file
-record=record(:,(seconds_to_remove*(max(header.samples)/header.duration))-(max(header.samples)/2)+1:end);  %remove everything before the .txt file starts
+%record=record(:,(seconds_to_remove*(max(header.samples)/header.duration))-(max(header.samples)/2)+1:end);  %remove everything before the .txt file starts
+record=record(:,(seconds_to_remove*(max(header.samples)/header.duration))+1:end);  %remove everything before the .txt file starts
+
+
 
 % get the sleep state column of the .txt file 
 sleepstate = zeros(size(numdatafromtxt,1),1);
@@ -53,17 +56,21 @@ for i = 1: size(numdatafromtxt,1)
 
 % reshape records into the format that autoscore.m wants and create the data cell array
 samples_per_epoch = max(header.samples);
-total_number_of_epochs = size(record,2)/samples_per_epoch; 
+total_number_of_epochs = floor(size(record,2)/samples_per_epoch); 
 
 signal = 'EEG1';
 
+disp('amount of edf signal being cut off:')
+lost=size(record,2)-samples_per_epoch*total_number_of_epochs
+disp(['this is equivalent to ', num2str(lost/1000), ' seconds'])
+
 if strcmp(signal,'EEG1')
-data.eeg = reshape(record(2,:),samples_per_epoch,total_number_of_epochs);
+data.eeg = reshape(record(2,1:(samples_per_epoch*total_number_of_epochs)),samples_per_epoch,total_number_of_epochs);
 elseif strcmp(signal,'EEG2')
-data.eeg = reshape(record(4,:),samples_per_epoch,total_number_of_epochs);
+data.eeg = reshape(record(4,1:(samples_per_epoch*total_number_of_epochs)),samples_per_epoch,total_number_of_epochs);
 end
 data.eeg_f = header.samples(2)/header.duration;
-data.emg = reshape(record(3,:),samples_per_epoch,total_number_of_epochs);
+data.emg = reshape(record(3,1:(samples_per_epoch*total_number_of_epochs)),samples_per_epoch,total_number_of_epochs);
 data.emg_f = header.samples(2)/header.duration;
 data.score = trainingdata;
 
@@ -73,6 +80,8 @@ disp('Running autoscore')
 
 
 % Compare the human-scoring to the autoscore
+size(sleepstate)
+size(score)
 figure
 plot(sleepstate)
 hold on 

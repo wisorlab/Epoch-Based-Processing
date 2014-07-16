@@ -1146,3 +1146,5 @@ Next make sure the lactate signal at the beginning of the cut-off records matche
 average over 10 secods)
 My testing framework including autoscore.m now runs, but the output is not good.  Check to make sure I have done the indexing correctly and the 
 epochs are lining up.  If they were not, then the training data would be faulty, making autoscore.m bound to give bad results.  
+Will says that the time listed is for the beginning of each epoch, they aren't centered.  Make sure the averages for the lactate signal
+are working out correctly.  
