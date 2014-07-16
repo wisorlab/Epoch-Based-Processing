@@ -1136,3 +1136,13 @@ I'm getting NaNs at the end of the lactate signal.  For file BA1209_3_16_2012.ed
 
 It looks like I fixed this bug.  It was an indexing problem.  edfread.m seems to work properly now.  
 
+* Wednesday, July 16, 2014
+I tried testing my idea to set up a vector of timestamps to go along with the "records" data structure that edfread.m produces, 
+but it was taking forever to run.  I had to kill it.  
+New approach:  just compute the difference between the start time of the .txt file and the "records" data structure and 
+cut off the appropriate number of columns of "records" so they match up.  This should be fast.  
+
+Next make sure the lactate signal at the beginning of the cut-off records matches that of the .txt file (I'll need to 
+average over 10 secods)
+My testing framework including autoscore.m now runs, but the output is not good.  Check to make sure I have done the indexing correctly and the 
+epochs are lining up.  If they were not, then the training data would be faulty, making autoscore.m bound to give bad results.  
