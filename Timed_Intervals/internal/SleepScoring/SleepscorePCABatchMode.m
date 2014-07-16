@@ -1,6 +1,6 @@
 % this script calls sleepscorePCA.m for each file in the current directory
 
-directory = 'D:\mrempe\strain_study_data\DBA\long_files\'
+directory = 'D:\mrempe\strain_study_data\BL\long_files\'
 addpath ..
 
 directory_plus_extension=strcat(directory,'*.txt');

@@ -1116,3 +1116,23 @@ AKR: not great
 BA: a couple look OK
 BL: not great
 DBA: a couple were quite good, some bad 1671_05_09_2013 looks good
+
+I was not able to compile the linux package that Will sent me (ParseNDP).  I may want to just look over the code to see if we can 
+glean anything from it even if we can't actually run it.  Jon is working on it.  
+
+
+On the front of using edfread.m and the Bayes autoscore.m function: I updated edfread.m to interpolate if a signal  
+is sampled at a lower frequency than the others.  This seems to be working and it runs on BA1216_05_07_2012.edf and BA1209_3_16_2012.edf. 
+
+I finally understand the header in the edf file: "samples" means the number of samples per epoch.  The length of the epoch (in seconds) in stored 
+in "duration".  "records" is the number of "duration"-long epochs that the dataset contains.  So, the variable "record" that edfread.m returns has 
+size "ns" rows and "records"*max(samples) columns.  
+
+Check to make sure edfread.m works on other files and check efficiency vs. interp1qr.m then try running autoscore.m.  
+RECHECK edfread.m again.  Now that I look at record it doesn't look right.  Lots of NaNs at the end.
+
+* Tuesday, July 15, 2014
+I'm getting NaNs at the end of the lactate signal.  For file BA1209_3_16_2012.edf the NaNs begin at location 28229002.  
+
+It looks like I fixed this bug.  It was an indexing problem.  edfread.m seems to work properly now.  
+
