@@ -1143,8 +1143,30 @@ New approach:  just compute the difference between the start time of the .txt fi
 cut off the appropriate number of columns of "records" so they match up.  This should be fast.  
 
 Next make sure the lactate signal at the beginning of the cut-off records matches that of the .txt file (I'll need to 
-average over 10 secods)
+average over 10 secods)  It's close, but not quite the same.  
 My testing framework including autoscore.m now runs, but the output is not good.  Check to make sure I have done the indexing correctly and the 
 epochs are lining up.  If they were not, then the training data would be faulty, making autoscore.m bound to give bad results.  
 Will says that the time listed is for the beginning of each epoch, they aren't centered.  Make sure the averages for the lactate signal
 are working out correctly.  
+
+* Thursday, July 17, 2014
+One idea for the lactate signal: If I plot the raw edf data, there are lots of brief diversions to 0.  If I plot the data from the .txt 
+file, there aren't any diversions to 0.  It does have a high-frequency component, but it doesn't make it to 0.  
+Try computing the average of the lactate signal in the .edf file and plot that with the lactate signal from the .txt file. 
+This will tell me about smooting and if things line up.  
+These two aren't exactly the same (which I expected), but the diversions to 0 were gone and the traces nearly overlaid. 
+The peaks and valleys line up so it seems that I've done the indexing correctly.
+I wonder if there was a bit of smoothing done to the lactate signal in going from the edf to the .txt.  
+I tried plotting the average lactate from edf file overlaid with a shifted version and it looks like the plot 
+of averge edf vs txt signal: not bad, but it is worse than the edf vs txt signal plot.  Perhaps there is a small
+indexing problem.  Keep messing with my shifting until the edf shifted vs edf not shifted looks like the plot of 
+txt vs edf.  Then go back and see where the indexing problem arises.  I can't imagine this would affect much since it seems 
+to be less than one epoch.  Shift by 2000 is still worse than what I see comparing .txt to edf.
+Shifting by adding 1000 is still worse than the difference I see between .txt and .edf. Try shifting the other direction. 
+Shifting the other direction (by subtracting 1000 instead of adding it) makes my shifting plot look a lot like my .txt and .edf 
+plot.  So it seems that perhaps my edf file is shifted a bit to the left (smaller numbers).  
+If the indexing is correct, why doesn't the 
+
+12:53 I finally got the idea of choosing random blocks of 10 epochs working.  The
+
+Try Will's idea of plotting delta power vs. EMG to see some clustering.  

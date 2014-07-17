@@ -49,14 +49,39 @@ for i = 1: size(numdatafromtxt,1)
     end
   end
 
-  percentage_scored = .90;  % percentage of dataset that has been scored (the percentage that I don't set to unscored)
-  locs=randi(length(sleepstate),1,round((1-percentage_scored)*length(sleepstate))); % locations to set to 8 (unscored)
+  % randomly choose sequences of 10 manually scored training epochs
+  % so that the total percentage scored is percentage_scored
+  percentage_scored = 10;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
+  training_sequence_length_in_epochs = 10;
+  %locs=randi(length(sleepstate)-training_sequence_length_in_epochs,1,round(((1-percentage_scored/100)*length(sleepstate))/training_sequence_length_in_epochs)); % locations to set to 8 (unscored)
   trainingdata = sleepstate;
-  trainingdata(locs)=8;    % training data is like sleepstate with 90% turned to 8 (for autoscore.m)
+  % for i=1:length(locs)
+  %   trainingdata(locs(i):locs(i)+training_sequence_length_in_epochs-1)=8;    % training data is like sleepstate with 90% turned to 8 (for autoscore.m)
+  % end
+
+  num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs)
+  %r=randi(length(sleepstate)-training_sequence_length_in_epochs,1,num_subsets_scored);
+    r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_sequences_scored,'Replace',false); %randomly selected sequences of 10 epochs
+
+  
+  r=sort(r);   % r values are the starting points for the randomly-selected sequences of 10 epochs
+  % while min(r(2:end)-r(1:end-1)) < training_sequence_length_in_epochs %if two values are too close together, do it again
+  % 	%r=randi(length(sleepstate)-training_sequence_length_in_epochs,1,num_subsets_scored);
+  %   r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_subsets_scored,'Replace',false);
+
+  % 	r=sort(r);
+  % end
+
+for i=1:length(r)
+	epoch_locs_scored(10*i-9:10*i) = r(i)*10-9:r(i)*10;
+end
+
+notscored=setdiff(1:length(sleepstate),epoch_locs_scored);
+trainingdata(notscored)=8;
 
 % reshape records into the format that autoscore.m wants and create the data cell array
 samples_per_epoch = max(header.samples);
-total_number_of_epochs = floor(size(record,2)/samples_per_epoch); 
+total_number_of_epochs = floor(size(record,2)/samples_per_epoch); %floor in case there is a partial epoch at the end
 
 signal = 'EEG1';
 
