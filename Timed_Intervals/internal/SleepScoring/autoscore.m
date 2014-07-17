@@ -30,11 +30,19 @@ input = zeros(n, 21);
 for i = 1 : 20
     input(:, i) = sum(eegP(and(eegF >= bands(i), eegF < bands(i + 1)), :), 1);
 end;
-input(:, 21) = sum(emgP(and(emgF >= 4, emgF < 40), :));
+input(:, 21) = sum(emgP(and(emgF >= 10, emgF < 40), :));
 
 % Normalize using a log transformation and smooth over time
 input = conv2(max(log(input), -20), fspecial('gaussian', [ 5 1 ], 0.75), 'same');
 
 % Automatically classify data based on the given training epochs
 training = (data.score <= 2); % 0-2 = Wake/NREM/REM, 8 = not scored
-score = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+err
+
+%ME: compare training data and score
+figure
+plot(data.score(training))
+hold on
+plot(score(training),'r')
+hold off

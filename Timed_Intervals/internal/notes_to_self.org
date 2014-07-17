@@ -1167,6 +1167,20 @@ Shifting the other direction (by subtracting 1000 instead of adding it) makes my
 plot.  So it seems that perhaps my edf file is shifted a bit to the left (smaller numbers).  
 If the indexing is correct, why doesn't the 
 
-12:53 I finally got the idea of choosing random blocks of 10 epochs working.  The
+Addressing issues in autoscore.m that I noticed from the paper (that may not match the code)
+1) [X]They choose a random selection of 100 sequences of 10 manually scored training epochs
+2) "The number of bands is dependent on the frequency range and resolution of the data" I don't think this matches the code in autoscore.m.
+I think it does.  It's just poorly worded.  Is is only dependent on the resolution in the sense that if your sample frequency is lower than 200 you 
+have to worry about Nyquist.  
+3) "A band-pass filter from 10 to 40 Hz for the EMG signal is used to eliminate artefacts" Check this. Right now it is 4 to 40. 
+Try changing it if the output is not good.  This had no effect.   
+
+12:53 I finally got the idea of choosing random blocks of 10 epochs working.  This is number 1 above.  
+
+Question:  When I increase the amount of training data, why doesn't the fit of the model get better?  If nothing else,
+it should be just keeping the training data and not change that at all, right?  Yes. The output of autoscore.m doesn't even 
+match the training data on the epochs where the training data was given.  
+
+I'm trying another .edf file just in case the one I was using happened to be wacky.
 
 Try Will's idea of plotting delta power vs. EMG to see some clustering.  

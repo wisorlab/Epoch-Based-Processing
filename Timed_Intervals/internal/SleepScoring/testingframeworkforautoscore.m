@@ -13,9 +13,11 @@
 % - run autoscore.m
 % - compare results to the human-scored .txt file using the kappa statistic
 
-filename='C:\Users\wisorlab\Desktop\BA1205.edf';
-txtfilename='D:\mrempe\strain_study_data\BA\BA_long\BA-120540.txt';
+% filename='C:\Users\wisorlab\Desktop\BA1205.edf';
+% txtfilename='D:\mrempe\strain_study_data\BA\BA_long\BA-120540.txt';
 
+filename='C:\Users\wisorlab\Desktop\BL1181.edf';
+txtfilename='C:\Users\wisorlab\Desktop\BL-118140.txt';
 
 % call edfread first to get headers and records
 disp('Calling edfread')
@@ -51,27 +53,13 @@ for i = 1: size(numdatafromtxt,1)
 
   % randomly choose sequences of 10 manually scored training epochs
   % so that the total percentage scored is percentage_scored
-  percentage_scored = 10;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
+  percentage_scored = 80;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
   training_sequence_length_in_epochs = 10;
-  %locs=randi(length(sleepstate)-training_sequence_length_in_epochs,1,round(((1-percentage_scored/100)*length(sleepstate))/training_sequence_length_in_epochs)); % locations to set to 8 (unscored)
   trainingdata = sleepstate;
-  % for i=1:length(locs)
-  %   trainingdata(locs(i):locs(i)+training_sequence_length_in_epochs-1)=8;    % training data is like sleepstate with 90% turned to 8 (for autoscore.m)
-  % end
-
-  num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs)
-  %r=randi(length(sleepstate)-training_sequence_length_in_epochs,1,num_subsets_scored);
-    r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_sequences_scored,'Replace',false); %randomly selected sequences of 10 epochs
-
-  
+  num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs);
+  r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_sequences_scored,'Replace',false); %randomly selected sequences of 10 epochs
   r=sort(r);   % r values are the starting points for the randomly-selected sequences of 10 epochs
-  % while min(r(2:end)-r(1:end-1)) < training_sequence_length_in_epochs %if two values are too close together, do it again
-  % 	%r=randi(length(sleepstate)-training_sequence_length_in_epochs,1,num_subsets_scored);
-  %   r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_subsets_scored,'Replace',false);
-
-  % 	r=sort(r);
-  % end
-
+  
 for i=1:length(r)
 	epoch_locs_scored(10*i-9:10*i) = r(i)*10-9:r(i)*10;
 end
