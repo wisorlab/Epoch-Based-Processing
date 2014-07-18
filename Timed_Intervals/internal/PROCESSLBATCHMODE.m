@@ -96,8 +96,8 @@ clear TimeStampMatrix
   else PhysioVars(:,2)=data(:,1);
   end
   
-  PhysioVars(:,3) = mean(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
-  PhysioVars(:,4) = mean(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
+  PhysioVars(:,3) = sum(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
+  PhysioVars(:,4) = sum(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
   
   d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); 
   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);

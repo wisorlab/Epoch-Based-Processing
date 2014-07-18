@@ -26,12 +26,22 @@ disp('Calling edfread')
 % read in the .txt file so I can make use of the sleep state data.
 disp('Reading in .txt file')
 [numdatafromtxt,textdatafromtxt]=importdatafile(txtfilename);
+
+% Sometimes the edf file starts before the .txt file, so cut off the beginning of the edf file
 txtstarttime=cell2mat(textdatafromtxt(1,1));
 startvectxt = datevec(txtstarttime(2:end-3),'mm/dd/yyyy,HH:MM:SS'); % starting time and date from txt file
 startvecedf = datevec(strcat(header.startdate,'.',header.starttime),'dd.mm.yy.HH.MM.SS'); % same from edf file
 seconds_to_remove = etime(startvectxt,startvecedf);  %elapsed time (in seconds) between start of edf and start of txt file
 %record=record(:,(seconds_to_remove*(max(header.samples)/header.duration))-(max(header.samples)/2)+1:end);  %remove everything before the .txt file starts
 record=record(:,(seconds_to_remove*(max(header.samples)/header.duration))+1:end);  %remove everything before the .txt file starts
+
+% Sometimes the edf file ends later than the .txt file so cut off the end of the .edf file so the lengths match up
+epochs_in_txt_file = size(numdatafromtxt,1);
+if size(record,2) > max(header.samples)*epochs_in_txt_file
+	record = record(:,1:max(header.samples)*epochs_in_txt_file);
+end
+
+
 
 
 
@@ -53,7 +63,7 @@ for i = 1: size(numdatafromtxt,1)
 
   % randomly choose sequences of 10 manually scored training epochs
   % so that the total percentage scored is percentage_scored
-  percentage_scored = 80;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
+  percentage_scored = 90;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
   training_sequence_length_in_epochs = 10;
   trainingdata = sleepstate;
   num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs);
@@ -64,18 +74,18 @@ for i=1:length(r)
 	epoch_locs_scored(10*i-9:10*i) = r(i)*10-9:r(i)*10;
 end
 
+
+
 notscored=setdiff(1:length(sleepstate),epoch_locs_scored);
 trainingdata(notscored)=8;
 
-% reshape records into the format that autoscore.m wants and create the data cell array
+% reshape records into the format that autoscore.m wants and create the cell array called data
 samples_per_epoch = max(header.samples);
 total_number_of_epochs = floor(size(record,2)/samples_per_epoch); %floor in case there is a partial epoch at the end
 
-signal = 'EEG1';
 
-disp('amount of edf signal being cut off:')
-lost=size(record,2)-samples_per_epoch*total_number_of_epochs
-disp(['this is equivalent to ', num2str(lost/1000), ' seconds'])
+signal = 'EEG2';
+
 
 if strcmp(signal,'EEG1')
 data.eeg = reshape(record(2,1:(samples_per_epoch*total_number_of_epochs)),samples_per_epoch,total_number_of_epochs);
@@ -87,19 +97,26 @@ data.emg = reshape(record(3,1:(samples_per_epoch*total_number_of_epochs)),sample
 data.emg_f = header.samples(2)/header.duration;
 data.score = trainingdata;
 
-% Run autoscore.m to score the sleep data epoch-by-epoch (using the training data)
+% Run autoscore.m to score the sleep data epoch-by-epoch (using the training data) 
 disp('Running autoscore')
 [score] = autoscore(data);
 
 
 % Compare the human-scoring to the autoscore
-size(sleepstate)
-size(score)
+% First by computing kappa
+kappa = compute_kappa(sleepstate,score)
+
+
 figure
 plot(sleepstate)
 hold on 
 plot(score,'r')
 hold off
+
+% make a scatterplot like Brankack et al 2010
+Brankack(data)
+
+
 
 
 % set up a vector(matrix) of time stamps for the data in "records"

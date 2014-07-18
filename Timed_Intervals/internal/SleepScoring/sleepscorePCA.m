@@ -54,23 +54,23 @@ plotcolor=1;  %to color the dots based on the sleep state (for testing)
 	%		Beta/delta is the ratio of beta to delta (here beta is defined as 15-30Hz)
 
 	if strcmp(signal,'EEG1')
-	   Feature(:,1) = mean(data(:,3:5),2);	%delta
-	   Feature(:,2) = mean(data(:,7:10),2);	%theta
-	   Feature(:,3) = mean(data(:,12:21),2);	%low beta
-	   Feature(:,4) = mean(data(:,32:41),2);	%high beta
+	   Feature(:,1) = sum(data(:,3:5),2);	%delta
+	   Feature(:,2) = sum(data(:,7:10),2);	%theta
+	   Feature(:,3) = sum(data(:,12:21),2);	%low beta
+	   Feature(:,4) = sum(data(:,32:41),2);	%high beta
 	   Feature(:,5) = data(:,82);				%EMG
 	   Feature(:,6) = Feature(:,2)./Feature(:,1);
-	   Feature(:,7) = mean(data(:,17:31),2)./Feature(:,1);
+	   Feature(:,7) = sum(data(:,17:31),2)./Feature(:,1);
 	end 
 
 if strcmp(signal,'EEG2')  
-	Feature(:,1) = mean(data(:,43:45),2);	%delta
-	Feature(:,2) = mean(data(:,47:50),2);	%theta
-	Feature(:,3) = mean(data(:,52:61),2);	%low beta
-	Feature(:,4) = mean(data(:,72:81),2);	%high beta
+	Feature(:,1) = sum(data(:,43:45),2);	%delta
+	Feature(:,2) = sum(data(:,47:50),2);	%theta
+	Feature(:,3) = sum(data(:,52:61),2);	%low beta
+	Feature(:,4) = sum(data(:,72:81),2);	%high beta
 	Feature(:,5) = data(:,82);				%EMG
 	Feature(:,6) = Feature(:,2)./Feature(:,1);
-	Feature(:,7) = mean(data(:,57:71),2)./Feature(:,1);
+	Feature(:,7) = sum(data(:,57:71),2)./Feature(:,1);
 end
 
 
@@ -106,8 +106,8 @@ a = find(inputfile=='\');
 title(inputfile(a(end)+1:end))
 
 figure %plot delta vs. EMG
-hold on
 if plotcolor==1
+hold on
 for i=1:length(FeaturesPCA)
 	if SleepState(i)==0
 	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'r.') %red dots for wake
@@ -126,6 +126,35 @@ xlabel('EMG Power')
 ylabel('EEG delta Power')
 a = find(inputfile=='\');
 title(inputfile(a(end)+1:end))
+
+%try plotting EEG vs EMG to see if we get any clustering
+if strcmp(signal,'EEG1')
+	allEEG = sum(data(:,2:41),2);
+end
+if strcmp(signal,'EEG2')
+	allEEG = sum(data(:,42:81),2);
+end
+
+figure
+if plotcolor==1
+	hold on 
+	for i=1:length(FeaturesPCA)
+		if SleepState(i)==0
+			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'r.')
+		elseif SleepState(i)==1
+			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'b.')
+		elseif SleepState(i)==2
+			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'.','color',[1 .5 0])
+		end
+	end
+	hold off
+else 
+	plot(Feature(:,5)./max(Feature(:,5)),allEEG./max(allEEG),'.')
+end
+
+
+
+
 % figure
 % plot3(score2(:,1),score2(:,2),score2(:,3),'.')
 % xlabel('PC1')

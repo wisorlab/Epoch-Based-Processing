@@ -1169,10 +1169,10 @@ If the indexing is correct, why doesn't the
 
 Addressing issues in autoscore.m that I noticed from the paper (that may not match the code)
 1) [X]They choose a random selection of 100 sequences of 10 manually scored training epochs
-2) "The number of bands is dependent on the frequency range and resolution of the data" I don't think this matches the code in autoscore.m.
+2) [X] "The number of bands is dependent on the frequency range and resolution of the data" I don't think this matches the code in autoscore.m.
 I think it does.  It's just poorly worded.  Is is only dependent on the resolution in the sense that if your sample frequency is lower than 200 you 
 have to worry about Nyquist.  
-3) "A band-pass filter from 10 to 40 Hz for the EMG signal is used to eliminate artefacts" Check this. Right now it is 4 to 40. 
+3) [X] "A band-pass filter from 10 to 40 Hz for the EMG signal is used to eliminate artefacts" Check this. Right now it is 4 to 40. 
 Try changing it if the output is not good.  This had no effect.   
 
 12:53 I finally got the idea of choosing random blocks of 10 epochs working.  This is number 1 above.  
@@ -1181,6 +1181,29 @@ Question:  When I increase the amount of training data, why doesn't the fit of t
 it should be just keeping the training data and not change that at all, right?  Yes. The output of autoscore.m doesn't even 
 match the training data on the epochs where the training data was given.  
 
-I'm trying another .edf file just in case the one I was using happened to be wacky.
+I'm trying another .edf file just in case the one I was using happened to be wacky. It was equally bad. 
 
-Try Will's idea of plotting delta power vs. EMG to see some clustering.  
+
+* Friday, July 18, 2014
+I coded up the kappa statistic calculation (compute_kappa.m) and checked it vs. a file from MATLAB central. It won't run
+in testingframeworkforautoscore.m yet because the vector of sleep states from autoscore needs to be the same size 
+as the vector of sleep states from the .txt file (manually scored).  First work on making these the same length. 
+
+Right now I'm reading into autoscore.m data.eeg which has 15736 columns and data.score which as 15479 rows.  In the autoscore.m 
+comments it says that data.eeg should be (samples per epoch x epoch count) and data.score should be (epoch count x 1).  
+I guess it does not throw an error if these are not actually the same length.  Perhaps fixing this problem will make autoscore.m 
+perform better.  
+
+I fixed the problem with the size of the edf data and the .txt data not lining up.  The edf file had more data at the end. 
+I checked means of the last few epochs to make sure they lined up with the .txt file and they did (mostly). 
+However, autoscoring still looks terrible.  
+
+Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almost identical to the EEG delta vs. EMG plot.
+
+ It could be that autoscore.m is actually working now.  I get values for kappa around .83-.84.  Even though the plots don't look great, 
+ it may be working.  But, one thing that is strange: going from 10% to 50% training data only improved kappa from .82 to .83. 
+
+ One aha: for sleepscorePCA should I be using sum or mean to compute the power in the delta band?  I had mean(), but now I'm thinking 
+ sum.  Don't we want to add up the power in each of the 0.5-1,1-2,2-3,3-4 bands?  This was a typo in PROCESSLBATCHMODE.m too, but 
+ fixing it didn't change much except the vertical scale on the eeg fit to data plot.  It didn't seem to change anything in sleepscorePCA.m 
+ either.  

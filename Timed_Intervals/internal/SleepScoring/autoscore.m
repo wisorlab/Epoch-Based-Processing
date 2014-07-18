@@ -16,7 +16,7 @@ function [ score ] = autoscore( data )
 %   Output data:
 %   score      = Automatic scoring results
 
-n = size(data.eeg, 2);
+n = size(data.eeg, 2);  %total number of epochs?
 
 % Transform EEG and EMG signals to frequency domain
 eegN = size(data.eeg, 1);
@@ -26,14 +26,22 @@ emgN = size(data.emg, 1);
 
 % Split data into logarithmic frequency bands
 bands = logspace(log10(0.5), log10(100), 21);
-input = zeros(n, 21);
-for i = 1 : 20
+% bands(1)=0.5;
+% bands(2)=4;
+% bands(3)=10;
+% bands(4)=15;
+% bands(5)=30;
+% bands(6)=100;
+
+input = zeros(n, length(bands));
+for i = 1 : length(bands)-1
     input(:, i) = sum(eegP(and(eegF >= bands(i), eegF < bands(i + 1)), :), 1);
 end;
-input(:, 21) = sum(emgP(and(emgF >= 10, emgF < 40), :));
+input(:, length(bands)) = sum(emgP(and(emgF >= 10, emgF < 40), :));
 
 % Normalize using a log transformation and smooth over time
 input = conv2(max(log(input), -20), fspecial('gaussian', [ 5 1 ], 0.75), 'same');
+size(input)
 
 % Automatically classify data based on the given training epochs
 training = (data.score <= 2); % 0-2 = Wake/NREM/REM, 8 = not scored
