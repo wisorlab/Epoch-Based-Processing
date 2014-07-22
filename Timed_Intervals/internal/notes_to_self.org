@@ -1210,16 +1210,25 @@ Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almo
 
  * Monday, July 21, 2014
  Notes from talk with Jonathan: 
- 1) For the PCA approach, do noise reduction on the data first.  Do the same thing I do in PROCESSLBATCHMODE.m. That may 
+ 1) [X] For the PCA approach, do noise reduction on the data first.  Do the same thing I do in PROCESSLBATCHMODE.m. That may 
  help the clustering to work.  THIS HELPED SOME, BUT I THINK A MACHINE LEARNING APPROACH WILL BE MORE EFFECTIVE.  
  2) Compare their EMG to ours: Jonathan says our EMG signal is integrating under the curve of EMG data for each 10-second 
  epoch.  What are they doing in the Gilmour paper? Is it an average or integrating like we are?  Look at the .edf file and 
  ask Will. 
  3) For the Bayesian approach, choose "random" segments that are a) between 10AM and 2PM if not sleep deprived and b) containing 
- at least 10% of each of 3 states.  
- 4) Try to quantify how different the average lactate is from the .edf as compared to the .txt file. Make a plot or something. 
+ at least 10% of each of 3 states.  WITH THIS APPROACH I'M STILL GETTING ABOUT .84 FOR KAPPA AND .92 GLOBAL AGREEMENT. 
+ 4) [X] Try to quantify how different the average lactate is from the .edf as compared to the .txt file. Make a plot or something.
+ I worked on this for a while and played with different shiftings.  Shifting by 300 or 400 rows helped some, but still wasn't perfect. 
+ This seems like a wild goose chase.  At least peaks and valleys line up the way I'm doing it and they are close.  Perhaps there was some 
+ kind of smoothing done in the export to .edf or something.  
  5) Eventually, I'll need Will or someone to re-score files in 2,5,10 second epochs so I can auto-score them and compare.  
  6) Play with Support Vector Machines in matlab.  There is ample documentation.  Maybe also look at my 
  notes from the Machine Learning course.  
 
  I tried to do Naive Bayes using the 7 variables I used in PCA.  This didn't really help.  Kappa was still .8256.  Probably not worth trying.  
+
+
+ * Tuesday, July 22, 2014
+ Make testingframeworkforautoscore.m into a function and run it on lots of datasets in BA and BL.  I will need an edf and .txt for each dataset I do. 
+ Set up a directory of .edf files that match the .txt files and run it for each combo and compute the kappa and global agreement (these should be 
+ return values for the function)  

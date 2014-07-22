@@ -13,11 +13,11 @@
 % - run autoscore.m
 % - compare results to the human-scored .txt file using the kappa statistic
 
-% filename='C:\Users\wisorlab\Desktop\BA1205.edf';
-% txtfilename='D:\mrempe\strain_study_data\BA\BA_long\BA-120540.txt';
+filename='C:\Users\wisorlab\Desktop\BA1205.edf';
+txtfilename='D:\mrempe\strain_study_data\BA\BA_long\BA-120540.txt';
 
-filename='C:\Users\wisorlab\Desktop\BL1181.edf';
-txtfilename='C:\Users\wisorlab\Desktop\BL-118140.txt';
+% filename='C:\Users\wisorlab\Desktop\BL1181.edf';
+% txtfilename='C:\Users\wisorlab\Desktop\BL-118140.txt';
 
 % call edfread first to get headers and records
 disp('Calling edfread')
@@ -64,16 +64,35 @@ for i = 1: size(numdatafromtxt,1)
   % randomly choose sequences of 10 manually scored training epochs
   % so that the total percentage scored is percentage_scored
   percentage_scored = 5;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
-  training_sequence_length_in_epochs = 10;
-  trainingdata = sleepstate;
-  num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs);
-  r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_sequences_scored,'Replace',false); %randomly selected sequences of 10 epochs
-  r=sort(r);   % r values are the starting points for the randomly-selected sequences of 10 epochs
+%   training_sequence_length_in_epochs = 10;
+   trainingdata = sleepstate;
+%   num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs);
+%   r=datasample(1:(length(sleepstate)/training_sequence_length_in_epochs),num_sequences_scored,'Replace',false); %randomly selected sequences of 10 epochs
+%   r=sort(r);   % r values are the starting points for the randomly-selected sequences of 10 epochs
   
-for i=1:length(r)
-	epoch_locs_scored(10*i-9:10*i) = r(i)*10-9:r(i)*10;
-end
+% for i=1:length(r)
+% 	epoch_locs_scored(10*i-9:10*i) = r(i)*10-9:r(i)*10;
+% end
 
+
+% Another approach: Find regions between 10AM and 2PM and choose random epochs in these 
+% regions that contain at least 10% of each of the 3 states.
+num_sequences_scored = round((percentage_scored/100)*length(sleepstate));
+percent_wake = 0;
+percent_SWS  = 0;
+percent_REM  = 0;
+
+indices_tenAM = find(not(cellfun('isempty',strfind(textdatafromtxt,'10:00:00'))));
+indices_twoPM = find(not(cellfun('isempty',strfind(textdatafromtxt,'14:00:00'))));
+
+
+while min([percent_wake percent_SWS percent_REM])<.10
+	r=datasample([indices_tenAM(1):indices_twoPM(1) indices_tenAM(2):indices_twoPM(2)],num_sequences_scored,'Replace',false);
+	percent_wake = length(find(sleepstate(r)==0))/length(r);
+	percent_SWS  = length(find(sleepstate(r)==1))/length(r);
+	percent_REM  = length(find(sleepstate(r)==2))/length(r);
+end 
+epoch_locs_scored=r;
 
 
 notscored=setdiff(1:length(sleepstate),epoch_locs_scored);
@@ -101,6 +120,13 @@ data.score = trainingdata;
 disp('Running autoscore')
 [score] = autoscore(data);
 
+%Try using the 7 vectors of data from the PCA approach, but with a Naive Bayes approach instead
+
+%[scoreFeatures,errFeatures] = classify(Features, Features(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
+
+
+
+
 
 % Compare the human-scoring to the autoscore
 % First by computing kappa
@@ -114,7 +140,7 @@ plot(score,'r')
 hold off
 
 % make a scatterplot like Brankack et al 2010
-Brankack(data)
+%Brankack(data)
 
 
 
