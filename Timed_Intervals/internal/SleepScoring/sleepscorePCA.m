@@ -74,6 +74,59 @@ if strcmp(signal,'EEG2')
 end
 
 
+% Smoothing
+for i=1:7
+	FeatureSmoothed(:,i)=medianfiltervectorized(Feature(:,i),2);
+end
+
+figure
+subplot(7,1,1)
+plot(Feature(:,1),'b')
+hold on
+plot(FeatureSmoothed(:,1),'k--')
+hold off
+subplot(7,1,2)
+plot(Feature(:,2),'r')
+hold on
+plot(FeatureSmoothed(:,2),'k--')
+hold off
+subplot(7,1,3)
+plot(Feature(:,3),'g')
+hold on
+plot(FeatureSmoothed(:,3),'k--')
+hold off
+subplot(7,1,4)
+plot(Feature(:,4),'c')
+hold on
+plot(FeatureSmoothed(:,4),'k--')
+hold off
+subplot(7,1,5)
+plot(Feature(:,5),'k')
+hold on
+plot(FeatureSmoothed(:,5),'k--')
+hold off
+subplot(7,1,6)
+plot(Feature(:,6),'y')
+hold on
+plot(FeatureSmoothed(:,6),'k--')
+hold off
+subplot(7,1,7)
+plot(Feature(:,7),'color',[1 .5 0])
+hold on
+plot(FeatureSmoothed(:,7),'k--')
+hold off
+
+
+Feature=FeatureSmoothed;
+
+
+% d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); 
+%   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
+  
+%   PhysioVars(:,3) = d1smoothed;
+%   PhysioVars(:,4) = d2smoothed;
+
+
 % Finally, do the PCA (using svd, the default for pca.m) 
 % First normalize so each variable goes from -1 to 1.  This seems to be what Gilmour_etal did (Fig 1)
 scalefactor = max(max(Feature))-min(min(Feature));
@@ -152,7 +205,10 @@ else
 	plot(Feature(:,5)./max(Feature(:,5)),allEEG./max(allEEG),'.')
 end
 
-
+xlabel('EMG Power')
+ylabel('EEG')
+a = find(inputfile=='\');
+title(inputfile(a(end)+1:end))
 
 
 % figure

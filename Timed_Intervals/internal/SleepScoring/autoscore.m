@@ -45,7 +45,8 @@ size(input)
 
 % Automatically classify data based on the given training epochs
 training = (data.score <= 2); % 0-2 = Wake/NREM/REM, 8 = not scored
-[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+%[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+[score,err] = classify(input, input(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
 err
 
 %ME: compare training data and score

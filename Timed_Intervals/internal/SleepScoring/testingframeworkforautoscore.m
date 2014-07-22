@@ -63,7 +63,7 @@ for i = 1: size(numdatafromtxt,1)
 
   % randomly choose sequences of 10 manually scored training epochs
   % so that the total percentage scored is percentage_scored
-  percentage_scored = 90;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
+  percentage_scored = 5;  % percentage of dataset that has been scored (the percentage that I don't set to unscored) 10 means 10%, 20 means 20%, etc.
   training_sequence_length_in_epochs = 10;
   trainingdata = sleepstate;
   num_sequences_scored = round((percentage_scored/100)*(length(sleepstate))/training_sequence_length_in_epochs);
