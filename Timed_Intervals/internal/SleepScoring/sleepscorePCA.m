@@ -27,7 +27,7 @@ plotcolor=1;  %to color the dots based on the sleep state (for testing)
 	[data,textdata]=importdatafile(inputfile);
 
 	   % Set up the sleep state as a variable
-	   SleepState=zeros(size(data,1));
+	   SleepState=zeros(size(data,1),1);
 	   for i = 1: size(data,1)  
 	   	if textdata{i,2}=='W' 
 	   		SleepState(i)=0;
@@ -155,8 +155,10 @@ if plotcolor==1
 xlabel('PC1')
 ylabel('PC2')
 zlabel('PC3')
+view(0,90)
 a = find(inputfile=='\');
 title(inputfile(a(end)+1:end))
+
 
 figure %plot delta vs. EMG
 if plotcolor==1

@@ -193,7 +193,7 @@ end
 hdr.label = hdr.label(targetSignals);
 hdr.label = regexprep(hdr.label,'\W','');
 hdr.units = regexprep(hdr.units,'\W','');
-disp('Step 1 of 3: Reading requested records. (This may take a few minutes.)...');
+disp('EDFREAD Step 1 of 3: Reading requested records. (This may take a few minutes.)...');
 if nargout > 1 || assignToVariables
     % Scale data (linear scaling)
     scalefac = (hdr.physicalMax - hdr.physicalMin)./(hdr.digitalMax - hdr.digitalMin);
@@ -224,7 +224,7 @@ if nargout > 1 || assignToVariables
     % NOTE: 5/6/13 Modified for loop below to change instances of hdr.samples to
     % hdr.samples(ii). I think this underscored a problem with the reader.
     
-    disp('Step 2 of 3: Parsing data...');
+    disp('EDFREAD Step 2 of 3: Parsing data...');
     recnum = 1;
     for ii = 1:hdr.ns
         if ismember(ii,targetSignals)
@@ -253,7 +253,7 @@ end
 fclose(fid);
 
 
-disp('Step 3 of 3: Interpolating data so each variable has the same length')
+disp('EDFREAD Step 3 of 3: Interpolating data so each variable has the same length')
 
 % Since different signals may have been read at different frequencies, I need 
 % to interpolate those that are sampled at a lower frequency than the highest frequency

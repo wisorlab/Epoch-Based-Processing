@@ -13,6 +13,8 @@
 % - run autoscore.m
 % - compare results to the human-scored .txt file using the kappa statistic
 
+addpath ..  % this is where importdatafile.m is 
+
 filename='C:\Users\wisorlab\Desktop\BA1205.edf';
 txtfilename='D:\mrempe\strain_study_data\BA\BA_long\BA-120540.txt';
 
@@ -118,13 +120,13 @@ data.score = trainingdata;
 
 % Run autoscore.m to score the sleep data epoch-by-epoch (using the training data) 
 disp('Running autoscore')
-[score] = autoscore(data);
+score = autoscore(data);
 
 %Try using the 7 vectors of data from the PCA approach, but with a Naive Bayes approach instead
 
 %[scoreFeatures,errFeatures] = classify(Features, Features(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
 
-
+[global_agreement,wake_percent_agreement,SWS_percent_agreement,REM_percent_agreement]=compute_agreement(sleepstate,score)
 
 
 

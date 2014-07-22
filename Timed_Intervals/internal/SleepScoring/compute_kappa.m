@@ -46,4 +46,4 @@ function kappa=compute_kappa(v1,v2)
 
 
 	% as an aside, compute "global agreement" like Rytkonen does:
-	global_agreement=1-(length(find(v1-v2))/length(v1))
+	%global_agreement=1-(length(find(v1-v2))/length(v1))

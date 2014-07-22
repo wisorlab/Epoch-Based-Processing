@@ -41,13 +41,13 @@ input(:, length(bands)) = sum(emgP(and(emgF >= 10, emgF < 40), :));
 
 % Normalize using a log transformation and smooth over time
 input = conv2(max(log(input), -20), fspecial('gaussian', [ 5 1 ], 0.75), 'same');
-size(input)
+
 
 % Automatically classify data based on the given training epochs
 training = (data.score <= 2); % 0-2 = Wake/NREM/REM, 8 = not scored
-%[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
-[score,err] = classify(input, input(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
-err
+[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+%[score,err] = classify(input, input(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
+disp(['percentage of training data incorrectly classified: ', num2str(err)])
 
 %ME: compare training data and score
 figure
