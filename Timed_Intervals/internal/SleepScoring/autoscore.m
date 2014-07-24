@@ -45,7 +45,10 @@ input = conv2(max(log(input), -20), fspecial('gaussian', [ 5 1 ], 0.75), 'same')
 
 % Automatically classify data based on the given training epochs
 training = (data.score <= 2); % 0-2 = Wake/NREM/REM, 8 = not scored
-[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+%[score,err] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+[score,err,post,logp,coeff] = classify(input, input(training, :),data.score(training),'diaglinear','empirical'); % Naive Bayes
+
+
 %[score,err] = classify(input, input(training, :),data.score(training),'diagquadratic',[.62 .33 .05]); % Naive Bayes
 disp(['percentage of training data incorrectly classified: ', num2str(err)])
 
@@ -55,3 +58,4 @@ plot(data.score(training))
 hold on
 plot(score(training),'r')
 hold off
+

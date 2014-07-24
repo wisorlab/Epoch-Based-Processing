@@ -1,5 +1,6 @@
 function kappa=compute_kappa(v1,v2)
-
+%Usage: kappa=compute_kappa(v1,v2)
+%
 	% this function computes the kappa statistic for two different 
 	% vectors that contain the sleep scoring (0=wake,1=SWS,2=REM) for 
 	% every epoch of a recording. Kappa gives a measure of how 

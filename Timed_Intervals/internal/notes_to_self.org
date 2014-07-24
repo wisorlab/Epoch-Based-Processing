@@ -1238,4 +1238,49 @@ Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almo
  Notes from talk with Jonathan:  looking at the PCA approach: for our purposes it doesn't matter if an epoch is wake or REM 
  since they are treated the same way in the model.  Does PCA seem more viable if we don't really need to distinguish between 
  wake and REM?  You might try an automated (k-nearest neighbors or something) approach to separate out the wake/REM from the SWS.  I
- think there is a nice Matlab example about this.  Also in my notes from Machine Learning.  
+ think there is a nice Matlab example about this.  Also in my notes from Machine Learning.  This only works if you already have quite 
+ a bit of scored data, which is exactly what we'd like to avoid if we use the PCA approach.  
+
+ * Wednesday, July 23, 2014
+ I spent some time working on making plots of the classifying system in MATLAB.  For the PCA approach I can make 
+ nice plots of how the classifier is (or could be) working.  I'm not quite sure how to use that to classify 
+ un-classified data since I'm essentially using the entire scored dataset as training data.  
+ I tried to make a similar plot in autoscore.m to see if I could see similar lines and groups, but as far as I can 
+ tell the data that autoscore uses in classify is a 21 dimensional vector for each time step.  This is hard to plot
+ and it's not as if the first couple of elements are the most important like in PCA.  I think that autoscore.m is doing 
+ the same kind of thing, plotting the power in the different frequency bands, and then drawing lines between groups. 
+
+ I don't think the PCA sketching approach is going to pan out.  K nearest neighbors would also require training data.  The user
+ would be looking at a bunch of black dots.  Coming up with a way to select an ellipse or strange shape of points and then find 
+ those points in the matrix of data would be really tricky.  Jon seemed to have a way to do it in another language, but I think
+ that would be getting too messy.  I have something working using autoscore.m and only requires 5% of the epochs to be scored before
+ we use the algorithm.  To me this is the most expediant way to go.  
+
+ One more thing I could try:  set up the PCA approach with a subset of the data to train the algorithm and then use that as input
+ to classify.m.  Try this just for one dataset.
+ I did this using BL1181 and a random 5% of the scored data as training and the quadratic discriminant in classify.m. 
+ global agreement= 86.7%, Wake agreement=82%,SWS agreement=94%, REM agreement=84%  kappa=76% 
+ But the question is: were many of these epochs incorrectly scored to begin with? 
+
+ This approach is looking promising and I coded it up in classify_usingPCA.m. 
+ I'm trying different combos of parameters for classify.m and the 3 largest PCs with a linear discriminant function 
+ seems to work pretty well, at least for BL118140. Using 3 largest PCs with quadratic discriminant was overfitting. 
+ Check 3 largest PCs with linear discriminant on all the BL files. Looks good for all BL and BA, using only 5% of the 
+ data as training data. 
+
+ Should I include EMG as another dimension? EMG is already included in the Feature vector.  
+
+ Now PCA with classify seems like a good way to go.  I've made several figures.  I think that several of the epochs 
+ were misclassified to begin with.  The kappa values are not huge, but that is probably because several epochs were misclassified
+ to begin with. In my opinion these are probably corrected with the algorithm.  
+
+classify.m can use as many dimensions as you want to classify the data and draws lines (hyperplanes?) through space and separate the data. 
+It does give higher kappa values, but I'm not sure I completely trust the human-scored data.  This explains why classify has an error. 
+Drawing lines and classifying will inevitably change the classification of some of the epochs.  But, looking at the PCA plot, it seems that 
+many of them need to be changed so this may be OK.  I don't think we should treat the human-scored data as gospel.  
+Another benefit to doing the PCA approach is that it uses .txt files and not .edf files.  I would require a partially-scored .txt file for 
+training data, but I don't think that's a big deal.  I like not having to deal with .edf files since they are so large and require a good 
+deal more tweaking to make work.  
+
+One thing I will need to work on eventually: go through all the code and change everthing that assumes a 10-second epoch length.  
+Compute epoch length from the text data in the .txt file and read that variable in wherever I need it. 
