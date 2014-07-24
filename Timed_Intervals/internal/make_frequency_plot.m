@@ -102,8 +102,8 @@ if strcmp(signal,'lactate')
  % make a histogram of the data initially
   if newfig==1 
     figure 
-    xbins=linspace(0,max(data(1:(window_length)*360+1)),30);
-    [nall,xall]=hist(data(1:(window_length)*360+1),xbins);
+    xbins=linspace(0,max(data(1:(window_length)*(60*60/epoch_length)+1)),30);
+    [nall,xall]=hist(data(1:(window_length)*(60*60/epoch_length)+1),xbins);
     h=bar(xall,nall);
     axis([0 19.5 0 500])
   end
@@ -112,19 +112,20 @@ if strcmp(signal,'lactate')
   % animation stuff
   if(animation)
     figure
-    xbins=linspace(0,max(data(1:(window_length)*360+1)),30);
-    [nall,xall]=hist(data(1:(window_length)*360+1),xbins);
+    xbins=linspace(0,max(data(1:(window_length)*(60*60/epoch_length)+1)),30);
+    [nall,xall]=hist(data(1:(window_length)*(60*60/epoch_length)+1),xbins);
     h=bar(xall,nall)
     axis([0 19.5 0 500]) 
   end
   
-  shift=(window_length/2)*360;
-  %for i=361:(length(data)-360)
+  
+  shift=(window_length/2)*(60*60/epoch_length);
+  %for i=361:(length(data)-(60*60/epoch_length))
   for i=shift+1:(length(data)-shift)
        % if using lactate, the histograms for SWS and REM will overlap,
     % so just use the 1st percentile for SWS
-    % LA(i-360)=quantile(data(i-360:i+360),.01);
-    % UA(i-360)=quantile(data(i-360:i+360),.99);
+    % LA(i-(60*60/epoch_length))=quantile(data(i-(60*60/epoch_length):i+(60*60/epoch_length)),.01);
+    % UA(i-(60*60/epoch_length))=quantile(data(i-(60*60/epoch_length):i+(60*60/epoch_length)),.99);
        LA(i-shift)=quantile(data(i-shift:i+shift),.01);
        UA(i-shift)=quantile(data(i-shift:i+shift),.99);
     

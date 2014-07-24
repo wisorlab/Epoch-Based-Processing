@@ -1212,9 +1212,9 @@ Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almo
  Notes from talk with Jonathan: 
  1) [X] For the PCA approach, do noise reduction on the data first.  Do the same thing I do in PROCESSLBATCHMODE.m. That may 
  help the clustering to work.  THIS HELPED SOME, BUT I THINK A MACHINE LEARNING APPROACH WILL BE MORE EFFECTIVE.  
- 2) Compare their EMG to ours: Jonathan says our EMG signal is integrating under the curve of EMG data for each 10-second 
+ 2) [X]Compare their EMG to ours: Jonathan says our EMG signal is integrating under the curve of EMG data for each 10-second 
  epoch.  What are they doing in the Gilmour paper? Is it an average or integrating like we are?  Look at the .edf file and 
- ask Will. 
+ ask Will.  I think this is irrelevant now.  
  3) [X] For the Bayesian approach, choose "random" segments that are a) between 10AM and 2PM if not sleep deprived and b) containing 
  at least 10% of each of 3 states.  WITH THIS APPROACH I'M STILL GETTING ABOUT .84 FOR KAPPA AND .92 GLOBAL AGREEMENT. 
  4) [X] Try to quantify how different the average lactate is from the .edf as compared to the .txt file. Make a plot or something.
@@ -1222,7 +1222,8 @@ Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almo
  This seems like a wild goose chase.  At least peaks and valleys line up the way I'm doing it and they are close.  Perhaps there was some 
  kind of smoothing done in the export to .edf or something.  
  5) Eventually, I'll need Will or someone to re-score files in 2,5,10 second epochs so I can auto-score them and compare.  
- 6) Play with Support Vector Machines in matlab.  There is ample documentation.  Maybe also look at my notes from the Machine Learning course.  
+ 6) [X] Play with Support Vector Machines in matlab.  There is ample documentation.  Maybe also look at my notes from the Machine Learning course. 
+ I DECIDED NOT TO GO THIS ROUTE
 
  I tried to do Naive Bayes using the 7 variables I used in PCA.  This didn't really help.  Kappa was still .8256.  Probably not worth trying.  
 
@@ -1284,3 +1285,26 @@ deal more tweaking to make work.
 
 One thing I will need to work on eventually: go through all the code and change everthing that assumes a 10-second epoch length.  
 Compute epoch length from the text data in the .txt file and read that variable in wherever I need it. 
+
+* Thursday, July 24, 2014
+I started working on a tiny little function to write the autoscored sleep states to an excel file, but it's not quite working yet.  Work 
+on changing over the epoch length to be more general:
+In PROCESSLBATCHMODE.m compute the epoch length based on differences between time stamps. 
+Then check all of the subroutines.  Files checked
+[X] [X]importdatafile.m
+[X] [X]PROCESSLBATCHMODE.m
+[X] [X]Franken_like_model_with_neldermead.m
+[X] [X]Franken_like_model.m
+[X] [X]Make_frequency_plot.m
+[X] [X]find_all_SWS_episodes2.m
+[X] [X]find_all_SWS_episodes.m  change calls to this in Franken_like_model.m etc.  
+[X] [X]myobjectivefunction.m
+[X] [X]run_S_model.m
+
+3:38 PM The code is running with the epoch length not hardcoded in, but the values of the delta power are now way off.  The figure of delta 
+power looks generally the same as before, but the values of delta are much higher?  Taui and Taud values are unaffected. This may be because I'm 
+using sum instead of mean.  This was exactly it.  Changing back to mean made it exactly like my figure in the paper. 
+
+Ask Jonathan, should this be mean or sum? 
+
+TO do: change the epoch length and see if tau values change.  Just for kicks.  Change it in PROCESSLBATCHMODE.m 

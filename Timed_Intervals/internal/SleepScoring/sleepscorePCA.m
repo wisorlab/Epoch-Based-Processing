@@ -38,7 +38,7 @@ plotcolor=1;  %to color the dots based on the sleep state (for testing)
 	   	elseif textdata{i,2}=='R'
 	   		SleepState(i)=2;
 	   	elseif isempty(textdata{i,2})==1
-	   		SleepState(i)=0;  
+	   		SleepState(i)=0;     %Change this is a file is partially scored. Let the learning algorithm fill in the sleep state
 	   	end
 	   end
 
@@ -403,5 +403,5 @@ end
 
 %Finally, write out the tab-delimited PCA data as well as the Feature matrix
 % Rows are data points, Cols are Organized as follows: Delta	Theta	LowBeta	HighBeta	EMG	Theta/Delta	Beta/Delta	PCA1	PCA2 etc.
-dlmwrite(outputfilename,[Feature PCAvectors],'delimiter','\t')
+% dlmwrite(outputfilename,[Feature PCAvectors],'delimiter','\t')
 

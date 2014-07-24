@@ -1,4 +1,4 @@
-function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model(datafile,signal,filename,epoch_length)
 % USAGE:  [Ti,Td,error]=Franken_like_model(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -6,6 +6,10 @@ function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,Elapse
 %           EEG data in the columns after that.  
 %
 % signal: either 'delta' or 'lactate' 
+%
+% filename: the name of the .txt data file so I can use it in figure titles, etc.
+%
+% epoch_length: length of the epoch in seconds 
 %
 % OUTPUT:
 % Ti: the optimum value for tau_i, the rate of increase, using a
@@ -30,8 +34,8 @@ window_length=4;
 %if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   baseline_start_hours = 17;
   baseline_end_hours = 21;
-  ind_start = baseline_start_hours*360;
-  ind_end = baseline_end_hours*360;
+  ind_start = baseline_start_hours*(60*60/epoch_length);
+  ind_end = baseline_end_hours*(60*60/epoch_length);
   
   %[t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
 
@@ -48,21 +52,21 @@ window_length=4;
 % to by finding all SWS episodes of longer than 5 minutes (like 
 % Franken et al)
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
+  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,epoch_length);
 end
 
 % if using a moving window for the upper and lower assymptotes, S
 % will have 720 fewer elements than the number of rows of datafile,
 % so set up a new index for S
-% mask=find(t_mdpt_indices>360 & t_mdpt_indices<(size(datafile,1)-360));
+% mask=find(t_mdpt_indices>(60*60/epoch_length) & t_mdpt_indices<(size(datafile,1)-(60*60/epoch_length)));
 % t_mdpt_SWS_moving_window=t_mdpt_SWS(mask);
 % data_at_SWS_midpoints_moving_window=data_at_SWS_midpoints(mask);
 % t_mdpt_indices_moving_window=t_mdpt_indices(mask);
-%mask=361:size(datafile,1)-360';
-mask=(window_length/2)*360+1:size(datafile,1)-(window_length/2)*360;
+%mask=361:size(datafile,1)-(60*60/epoch_length)';
+mask=(window_length/2)*(60*60/epoch_length)+1:size(datafile,1)-(window_length/2)*(60*60/epoch_length);
 
 
-dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
+dt=1/(60*60/epoch_length);  % assuming data points are every 10 seconds and t is in hours 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 tau_i=1:.12:25; %following Franken (was 0.05:.1:5)
 tau_d=0.1:.025:5; %following Franken (was 0.05:0.025:5)
@@ -84,7 +88,7 @@ for i=1:length(tau_i)
     if strcmp(signal,'delta1') || strcmp(signal,'delta2')
       error(i,j)=sqrt((sum((S([t_mdpt_indices])-data_at_SWS_midpoints).^2))/length(t_mdpt_indices)); %RMSE
     elseif strcmp(signal,'lactate')
-      error(i,j)=sqrt((sum((S'-datafile([mask],2)).^2))/(size(datafile,1)-(window_length*360))); %RMSE
+      error(i,j)=sqrt((sum((S'-datafile([mask],2)).^2))/(size(datafile,1)-(window_length*(60*60/epoch_length)))); %RMSE
     end
       
     % display progress only at intervals of .25*total 
@@ -122,7 +126,7 @@ if strcmp(signal,'delta1') | strcmp(signal,'delta2')
 elseif strcmp(signal,'lactate')
   plot(t,datafile(:,2),'ro')
   hold on
-  tS=t((window_length/2)*360+1:end-(window_length/2)*360);
+  tS=t((window_length/2)*(60*60/epoch_length)+1:end-(window_length/2)*(60*60/epoch_length));
   plot(tS,best_S)
   plot(tS,LA,'--')
   plot(tS,UA,'--')

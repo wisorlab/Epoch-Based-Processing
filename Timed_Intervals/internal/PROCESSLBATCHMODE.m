@@ -54,9 +54,13 @@ clear TimeStampMatrix
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
   
 
+% Compute the length of one epoch here using TimeStampMatrix
+epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20));
+
+
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
-    lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*6;
+    lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*60/epoch_length_in_seconds;
     
     LactateSmoothed=medianfiltervectorized(data(:,1),1);
 
@@ -136,18 +140,22 @@ clear TimeStampMatrix
 
   locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %the twenty is for 20:00, 8:00PM
  
-  state_data{FileCounter} = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
+  state_data{FileCounter}  = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
   signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
+
 
 
   % compute the length of the datafile in hours 
   start_time = TimeStampMatrix(:,locs_of_start_times(1));
-  end_time = TimeStampMatrix(:,end);
+  end_time   = TimeStampMatrix(:,end);
 
   start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
   end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
   length_of_recording = etime(end_time',start_time');
   length_of_recording = length_of_recording/60/60; % convert from seconds to hours
+
+ 
+
 
 % ----- 
 % For lactate simulations, allow the lactate sensor to settle down:
@@ -176,7 +184,7 @@ end % end of looping through files to load data, decide which files to exclude, 
 %------
 [sorteddata,sortIndex]=sort(dynamic_range,'descend');
 if length(dynamic_range) >= 20
-Indices_of_largest = sortIndex(1:20);  % 7 largest dynamic ranges
+Indices_of_largest = sortIndex(1:20);  % 20 largest dynamic ranges
 else
 Indices_of_largest = sortIndex;
 end
@@ -201,10 +209,10 @@ files       = files(Indices_of_largest);
 for FileCounter=1:length(files)
   
   if strcmp(algorithm,'NelderMead')  
-	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name);
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds);
   end
   if strcmp(algorithm,'BruteForce')
-	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name); %for brute-force 
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds); %for brute-force 
   end
 
   Taui(FileCounter) = Ti;

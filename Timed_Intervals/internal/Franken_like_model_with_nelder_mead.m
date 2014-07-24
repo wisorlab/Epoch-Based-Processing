@@ -1,10 +1,14 @@
-function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model_with_nelder_mead(datafile,signal,filename)
+function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model_with_nelder_mead(datafile,signal,filename,epoch_length)
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
 %           state is in the first column, lactate or EEG data in the second column 
 %
 % signal: either 'delta' or 'lactate' 
+%
+% filename: the name of the .txt data file so I can use it in figure titles, etc.
+%
+% epoch_length: length of the epoch in seconds 
 %
 % OUTPUT:
 % Ti: the optimum value for tau_i, the rate of increase, using a
@@ -45,8 +49,8 @@ window_length=4;  % size of moving window (in hours) used to compute
 % -- Franken et al)
   baseline_start_hours = 17;
   baseline_end_hours = 21;
-  ind_start = baseline_start_hours*360;
-  ind_end = baseline_end_hours*360;
+  ind_start = baseline_start_hours*(60*60/epoch_length);
+  ind_end = baseline_end_hours*(60*60/epoch_length);
   
   locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
   mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
@@ -56,23 +60,23 @@ window_length=4;  % size of moving window (in hours) used to compute
 
 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
-  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile);
+  [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,epoch_length);
 end
 % if using a moving window for the upper and lower assymptotes, S
 % will have 720 fewer elements than the number of rows of datafile,
 % so set up a new index for S
-% mask=find(t_mdpt_indices>360 & t_mdpt_indices<(size(datafile,1)-360));
+% mask=find(t_mdpt_indices>(60*60/epoch_length) & t_mdpt_indices<(size(datafile,1)-(60*60/epoch_length)));
 % t_mdpt_SWS_moving_window=t_mdpt_SWS(mask);
 % data_at_SWS_midpoints_moving_window=data_at_SWS_midpoints(mask);
 % t_mdpt_indices_moving_window=t_mdpt_indices(mask);
-%mask=361:size(datafile,1)-360';
+%mask=361:size(datafile,1)-(60*60/epoch_length)';
 
 
 
-mask=(window_length/2)*360+1:size(datafile,1)-(window_length/2)*360;
+mask=(window_length/2)*(60*60/epoch_length)+1:size(datafile,1)-(window_length/2)*(60*60/epoch_length);
 
 
-dt=1/360;  % assuming data points are every 10 seconds and t is in hours 
+dt=1/(60*60/epoch_length);  % assuming data points are every 10 seconds and t is in hours 
 % tau_i=[0.05:0.01:1 1.1:.5:5];  %1:.12:25
 % tau_d=[0.05:0.01:1 1.1:.5:5]; %0.1:.025:5
 % error=zeros(length(tau_i),length(tau_d));
@@ -84,12 +88,12 @@ initial_guess = [1 1];     % one starting guess
 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,t_mdpt_indices,data_at_SWS_midpoints, ...
-								datafile,dt,LA,UA,window_length,mask,p),initial_guess,optimset('TolX',1e-3));
+								datafile,dt,LA,UA,window_length,epoch_length,mask,p),initial_guess,optimset('TolX',1e-3));
 end
 
 if strcmp(signal,'lactate')
 [bestparams,best_error] = fminsearch(@(p) myobjectivefunction(signal,0,0,datafile,dt,LA,UA, ...
-								window_length,mask,p),initial_guess,optimset('TolX',1e-3));
+								window_length,epoch_length,mask,p),initial_guess,optimset('TolX',1e-3));
 end
 best_tau_i=bestparams(1);
 best_tau_d=bestparams(2);
@@ -100,12 +104,12 @@ Td=best_tau_d;
 
 % run one more time with best fit and plot it (add a plot with circles)
 if  strcmp(signal,'lactate')
-  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,filename);
+  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,epoch_length,filename);
   %error_instant=run_instant_model(datafile,LA,UA,window_length);
 error_instant = 0;
 end
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
- best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,filename);
+ best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,epoch_length,filename);
 end
 
 
@@ -133,8 +137,8 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
     plot(t,datafile(:,2),'ro')
   
     hold on
-   %tS=t(361:end-360);
-    tS=t((window_length/2)*360+1:end-(window_length/2)*360);
+   %tS=t(361:end-(60*60/epoch_length));
+    tS=t((window_length/2)*(60*60/epoch_length)+1:end-(window_length/2)*(60*60/epoch_length));
     plot(tS,best_S)
     plot(tS,LA,'k--')
     plot(tS,UA,'k--')

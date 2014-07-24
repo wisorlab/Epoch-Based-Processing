@@ -1,6 +1,6 @@
-function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes(datafile,signal)
+function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes(datafile,signal,epoch_length)
 %USAGE:
-% [t_mdpt_SWS,t_midpt_indices,data_at_SWS_midpoints]=find_all_SWS_episodes(data,signal)
+% [t_mdpt_SWS,t_midpt_indices,data_at_SWS_midpoints]=find_all_SWS_episodes(data,signal,epoch_length)
 % 
 % This function finds all the SWS episodes of length > 5 minutes
 % and computes the median delta power (or lactate) in each of these SWS episodes
@@ -31,8 +31,8 @@ function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes
 
 
 % First set up a vector of time in hours
-t_hours=0:1/360:(1/360)*(size(datafile,1)-1);  %1/360 because 10 seconds
-                                        %is 1/360 of an hour. 
+t_hours=0:1/(60*60/epoch_length):(1/(60*60/epoch_length))*(size(datafile,1)-1);  %converting seconds to hours
+                                        
 
 
 % Pick off the correct data from datafile
@@ -57,8 +57,10 @@ t_mdpt_indices=0;
 counter=0;  % counter for number of SWS episodes longer than 5 min.
 
 % find all SWS episodes > 5 min
+SWS_episode_length = 5;  % in minutes
+rows_in_SWS_episode = SWS_episode_length*60/epoch_length;
 for i=1:size(allruns,1)
-  if (allruns(i,2)-allruns(i,1)) > 29  % 30 rows means 5 minutes (29 inclusive)
+  if (allruns(i,2)-allruns(i,1)) > rows_in_SWS_episode-1  % 30 rows means 5 minutes (29 inclusive)
     counter = counter+1;
 
     t_mdpt_SWS(counter) = t_hours(floor((allruns(i,1)+ ...

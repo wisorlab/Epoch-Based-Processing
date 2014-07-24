@@ -1,4 +1,4 @@
-function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile)
+function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,epoch_length)
 %USAGE:
 % [t_mdpt_SWS,t_midpt_indices,data_at_SWS_midpoints]=find_all_SWS_episodes2(datafile)
 % 
@@ -28,8 +28,8 @@ function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes
 
 
 % First set up a vector of time in hours
-t_hours=0:1/360:(1/360)*(size(datafile,1)-1);  %1/360 because 10 seconds
-                                        %is 1/360 of an hour. 
+t_hours=0:1/(60*60/epoch_length):(1/(60*60/epoch_length))*(size(datafile,1)-1);  % convert seconds to hours
+                                        
 
 
 data=datafile(:,2);
@@ -43,10 +43,14 @@ counter=0;  % counter for number of SWS episodes longer than 5 min.
 starting_indices=0;
 
 % for each 5 min sliding window check to see if 90% or more is SWA
-for i=30:size(datafile,1)
-  if length(find(datafile(i-29:i,1)==1))>=27
+window_length = 5;  % minutes
+percentage = .9;    % .9 means 90% of the window of length window_length needs to be SWS to be counted in the analysis
+rows_in_SWS_episode = window_length*60/epoch_length;
+
+for i=rows_in_SWS_episode:size(datafile,1)
+  if length(find(datafile(i-(rows_in_SWS_episode-1):i,1)==1))>=percentage*rows_in_SWS_episode
     counter = counter+1;
-    starting_indices(counter)=i-29;
+    starting_indices(counter)=i-(rows_in_SWS_episode-1);
     % t_mdpt_SWS(counter) = mean([t_hours(i-15),t_hours(i-14)]);
     % data_at_SWS_midpoints(counter) = median(data(i-29:i));
     % t_mdpt_indices(counter)=i-15;
@@ -56,17 +60,17 @@ end
 
 %disp(['5 min windows with 90 percent SWA: ' num2str(counter)])
 
-% now combine overlapping 5 minute windows
+% now combine overlapping windows
 first_index_of_streak=1;
 streak_counter=1;
 while first_index_of_streak < length(starting_indices)
-  c = max(find(starting_indices<(30+starting_indices(first_index_of_streak))));
+  c = max(find(starting_indices<(rows_in_SWS_episode+starting_indices(first_index_of_streak))));
 
 %end_of_streak=starting_indices(c)+30
  
-  t_mdpt_SWS(streak_counter) = mean([t_hours(starting_indices(first_index_of_streak)),t_hours(starting_indices(c)+29)]);
-  data_at_SWS_midpoints(streak_counter) = median(data(starting_indices(first_index_of_streak):starting_indices(c)+29));
-  t_mdpt_indices(streak_counter)=starting_indices(first_index_of_streak)+14;
+  t_mdpt_SWS(streak_counter) = mean([t_hours(starting_indices(first_index_of_streak)),t_hours(starting_indices(c)+(rows_in_SWS_episode-1))]);
+  data_at_SWS_midpoints(streak_counter) = median(data(starting_indices(first_index_of_streak):starting_indices(c)+(rows_in_SWS_episode-1)));
+  t_mdpt_indices(streak_counter)=starting_indices(first_index_of_streak)+(rows_in_SWS_episode/2-1);
   first_index_of_streak=c+1;  
   streak_counter=streak_counter+1;  
 

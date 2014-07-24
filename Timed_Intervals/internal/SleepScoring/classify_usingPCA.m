@@ -114,3 +114,8 @@ kappa = compute_kappa(SleepState,predicted_sleep_state);
 [global_agreement,wake_agreement,SWS_agreement,REM_agreement] = compute_agreement(SleepState,predicted_sleep_state);
 
 predicted_score = predicted_sleep_state;
+
+% export a new excel file where the column of sleep state has been overwritten with the computer-scored
+% sleep states
+%write_scored_file(filename,predicted_score)
+

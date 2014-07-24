@@ -1,9 +1,11 @@
-function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,filename)
+function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,epoch_length,filename)
 
 %usage: S=run_S_model(dataset,S0,LA,UA,ti,td)
 % dataset contains 2 columns. sleep state in the
 % first colum (0 for wake, 1 for sleep, 2 for REM), lactate or 
 % delta power in the second column.
+%
+% dt: is the epoch length (converted to hours)
 %
 % S0: the starting value for S
 %
@@ -23,6 +25,9 @@ function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,filename
 % moving window centered at each data point. 
 %
 % makeplot: 1 if you want to make a plot, 0 if you don't
+% 
+% epoch_length: length of 1 epoch in seconds (typically 2,4,8, or 10)
+
 
 
 % this function calculates a simple exponential model, like the one
@@ -114,16 +119,16 @@ function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,filename
   elseif length(LA) ~=1
 
 %preallocate for speed
-S = zeros(1,size(dataset,1)-(window_length*360));
+S = zeros(1,size(dataset,1)-(window_length*(60*60/epoch_length)));
 
 % initialize S to lactate value 
-    S(1)=dataset((window_length/2)*360,2); 
+    S(1)=dataset((window_length/2)*(60*60/epoch_length),2); 
   
  
-    for i=1:size(dataset,1)-(window_length*360+1)
-      if dataset(i+(window_length/2)*360,1)==0 || dataset(i+(window_length/2)*360,1)==2 %wake or REM
+    for i=1:size(dataset,1)-(window_length*(60*60/epoch_length)+1)
+      if dataset(i+(window_length/2)*(60*60/epoch_length),1)==0 || dataset(i+(window_length/2)*(60*60/epoch_length),1)==2 %wake or REM
 	S(i+1)=UA(i)-(UA(i)-S(i))*exp(-dt/ti);
-      elseif(dataset(i+(window_length/2)*360,1)==1) %sleep
+      elseif(dataset(i+(window_length/2)*(60*60/epoch_length),1)==1) %sleep
 	S(i+1)=LA(i)+(S(i)-LA(i))*exp(-dt/td);
       else
 	error('I found a sleepstate value that was not 0,1, or 2')
@@ -137,7 +142,7 @@ S = zeros(1,size(dataset,1)-(window_length*360));
     
     figure
     t=0:dt:dt*(size(dataset,1)-1);
-    tS=t((window_length/2)*360+1:end-(window_length/2)*360);
+    tS=t((window_length/2)*(60*60/epoch_length)+1:end-(window_length/2)*(60*60/epoch_length));
 
   
   
