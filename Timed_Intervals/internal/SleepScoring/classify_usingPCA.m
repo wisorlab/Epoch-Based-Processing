@@ -1,4 +1,4 @@
-function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal)
+function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal,already-scored)
 	% Usage: [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal)
 	%
 	%
@@ -13,7 +13,10 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	% Inputs:
 	%        filename:      name of the .txt file. This can either be partially-scored or fully scored. 
 	%        signal:        'EEG1' or 'EEG2'.  Which signal to use.
+	%        already_scored: 
 	%
+	% As of now, this reads in a fully-scored .txt file and only keeps a random 5% of the data. 
+	% Modify it to read in a partially-scored .txt file 
 	% TO DO: should this write to the excel file (or a new name excel file) so a user could just call 
 	% this function on a partially-scored .txt file and end up with a fully-scored .txt file?
 
@@ -26,7 +29,7 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 
 	   % Set up the sleep state as a variable
 	   SleepState=zeros(size(data,1),1);
-	   for i = 1: size(data,1)  
+	   for i = 1: size(data,1)               %0=Wake,1=SWS,2=REM, 5=artefact,8=not scored
 	   	if textdata{i,2}=='W' 
 	   		SleepState(i)=0;
 	   	elseif textdata{i,2}=='S'
@@ -35,11 +38,19 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	   		SleepState(i)=2;
 	   	elseif textdata{i,2}=='R'
 	   		SleepState(i)=2;
+	   	elseif textdata{i,2}=='X'
+	   		SleepState(i)=5;
+	   	elseif textdata{i,2}=='XX'
+	   		SleepState(i)=5;
 	   	elseif isempty(textdata{i,2})==1
-	   		SleepState(i)=0;     %If a file is partially scored let the learning algorithm fill in the sleep state
+	   		SleepState(i)=8;     %If a file is partially scored let the learning algorithm fill in the sleep state
 	   	end
 	   end
 
+% Handle artifacts 
+  if length(find(PhysioVars(:,1)==5)) > 0
+    PhysioVars = Handle_artifacts(PhysioVars);
+  end 
 
 	% Set up the feature matrix, a la Gilmour.
 	% rows are data points, columns are delta	theta	low beta	high beta	EMG	Theta/delta	Beta/delta 

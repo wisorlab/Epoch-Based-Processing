@@ -20,7 +20,7 @@ function [data,textdata]=importdatafile(FileToRead,directory)
 %      textdata This is a cell array containing the strings in 
 %               columns 1 and 2 of the data file (timestamp and sleep state)
 %               NOTE1: use curly brackets to access elements in 
-%               textdata. i.e. textdata{3,2} for the the sleep state 
+%               textdata. i.e. textdata{3,2} for the sleep state 
 %               on line 3.  
 %               NOTE2: textdata has already had the first two
 %               rows removed.  It is just strings on lines 

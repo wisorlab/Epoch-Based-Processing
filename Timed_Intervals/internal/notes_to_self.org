@@ -1312,14 +1312,22 @@ Ask Jonathan, should this be mean or sum?
 TO do: 
 1) [X] change the epoch length and see if tau values change.  Just for kicks.  Change it in PROCESSLBATCHMODE.m THIS DIDN'T WORK BECAUSE WHEN 
 I TRIED TO COMPUTE BASELINE DELTA POWER THE FILE WAS TOO SHORT.  WITH A REAL FILE SCORED AT 2-SEC EPOCHS THIS WON'T BE A PROBLEM.
-2) Decide how to handle epochs marked as X for artifact. One idea is to average and call the state the states 
+2) [X] Decide how to handle epochs marked as X for artifact. One idea is to average and call the state the states 
 of previous and next.  For the whisking study we could call it wake because that's when the whisking is happening and 
-the head piece moves around.  If the epoch before is different than the epoch after I don't know what to do. 
+the head piece moves around.  If the epoch before is different than the epoch after I don't know what to do. I WROTE A LITTLE 
+FUNCTION CALLED HANDLE_ARTIFACTS.M. IF THE EPOCH JUST BEFORE AND JUST AFTER ARE THE SAME STATE IT SCORES ALL THE ARTIFACT 
+EPOCHS INBETWEEN AS THE SAME STATE.  IT ALSO AVERAGES ALL THE EEG DATA. IF THEY ARE NOT THE SAME STATE, IT SCORES THE 
+ARTIFACT AS THE MOST COMMON STATE IN THE PRECEEDING AND  PROCEEDING 5 EPOCHS.  
 3) Fix the write_scored_file.m function so it doesn't mess with the original .txt file. Excel always asks if I want 
 to save my changes to the original file.  And it sometimes doesn't seem to handle changing the file name of the generated file
 if the filename I give it already exists.  
 3) Generate an autoscored .txt file for BL1181 and run my model on that to see if the tau values change at all.  
-4) replace plot3 loop and if statements in sleepscorePCA.m with gscatter.m calls.  
+4) [X] replace plot3 loop and if statements in sleepscorePCA.m with gscatter.m calls.  THIS WORKED AND IT'S MUCH 
+FASTER.  WHERE ELSE AM I USING FOR LOOPS FOR PLOTTING?  
+5) add some code to PROCESSLBATCHMODE.m to generate excel output with the Ti and Td values and Jon's DataSource info
+tab.  
+6) Keep playing with plotly to make snazzy graphs from matlab.  
 
 Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
-get to the bottom of it.  
+get to the bottom of it.  I was reading in too many columns of data in importdata.m. This created a column of NaNs. It's 
+fixed now.  

@@ -30,5 +30,5 @@ for i=1:size(runs_matrix,1)
 		state = mode(VarsWithArtefacts([runs_matrix(i,1)-6:runs_matrix(i,1)-1 runs_matrix(i,2)+1 runs+matrix(i,2)+6],1));
 		CleanedUpVars(runs_matrix(i,1):runs_matrix(1,2),1) = state; %if state is not the same immediately before and after, just use the most common state 
 	end
-	CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),2:end) = mean(VarsWithArtefacts([runs_matrix(i,1)-1 runs_matrix(i,2)+1],2:end),2);
+	CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),2:end) = repmat(mean(VarsWithArtefacts([runs_matrix(i,1)-1 runs_matrix(i,2)+1],2:end),1),runs_matrix(i,2)-runs_matrix(i,1)+1,1);
 end

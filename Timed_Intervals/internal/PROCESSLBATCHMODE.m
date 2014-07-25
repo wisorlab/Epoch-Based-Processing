@@ -114,10 +114,10 @@ epoch_length_in_seconds=2;
   PhysioVars(:,4) = d2smoothed;
   
 
-% % Handle artifacts 
-%   if length(find(PhysioVars(:,1)==5)) > 0
-%     PhysioVars = Handle_artifacts(PhysioVars);
-%   end 
+ % Handle artifacts 
+  if length(find(PhysioVars(:,1)==5)) > 0
+    PhysioVars = Handle_artifacts(PhysioVars);
+  end 
 
 
 

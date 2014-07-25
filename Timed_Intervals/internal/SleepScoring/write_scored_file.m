@@ -12,7 +12,7 @@ function write_scored_file(filename,predicted_score)
 % predicted_score    the output of classify.m generated in classify_usingPCA.m
 
 
-% This is so we can use Jon's stuff 
+% This is so I can use Jon's stuff 
 addpath ../../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/;
 %xl=XL('D:\mrempe\BL-118140Copy.txt');
 xl=XL(filename);

@@ -37,8 +37,12 @@ plotcolor=1;  %to color the dots based on the sleep state (for testing)
 	   		SleepState(i)=2;
 	   	elseif textdata{i,2}=='R'
 	   		SleepState(i)=2;
+	   	elseif textdata{i,2}=='X'
+	   		SleepState(i)=5;
+	   	elseif textdata{i,2}=='XX'
+	   		SleepState(i)=5;
 	   	elseif isempty(textdata{i,2})==1
-	   		SleepState(i)=0;     %Change this is a file is partially scored. Let the learning algorithm fill in the sleep state
+	   		SleepState(i)=0;     %Change this if a file is partially scored. Let the learning algorithm fill in the sleep state
 	   	end
 	   end
 
@@ -129,25 +133,19 @@ Feature=FeatureSmoothed;
 
 % Finally, do the PCA (using svd, the default for pca.m) 
 % First normalize so each variable goes from -1 to 1.  This seems to be what Gilmour_etal did (Fig 1)
-scalefactor = max(max(Feature))-min(min(Feature));
-[Coeff,FeaturesPCA,latent,tsquared,explained]=pca((2*(Feature-max(max(Feature))))./scalefactor+1);
+scalefactor = max(max(Feature))-min(min(Feature))+1;
+[Coeff,FeaturesPCA,latent,tsquared,explained]=pca((2*(Feature-max(max(Feature))))./scalefactor);
 explained
 
 % Now plot the points along the three eigenvectors with the 3 
 % largest eigenvalues of the covariance matrix
 figure
 if plotcolor==1
-	hold on
-	for i=1:length(FeaturesPCA)
-		if SleepState(i)==0
-	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'r.') %red dots for wake
-	elseif SleepState(i)==1
-	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'b.') %blue dots for NREM
-	elseif SleepState(i)==2
-	   plot3(FeaturesPCA(i,1),FeaturesPCA(i,2),FeaturesPCA(i,3),'.','color',[1 .5 0]) %orange dots for REM
-	end
-	end
-	hold off
+	g=gscatter(FeaturesPCA(:,1),FeaturesPCA(:,2),SleepState,[1 0 0;0 0 1;1 0.5 0],'o',5,'off');
+	set(g(1), 'MarkerFaceColor','r')
+	set(g(2), 'MarkerFaceColor','b')
+	set(g(3), 'MarkerFaceColor',[1 .5 0])
+	
 	else
 		plot3(FeaturesPCA(:,1),FeaturesPCA(:,2),FeaturesPCA(:,3),'.')
 	end
@@ -162,17 +160,12 @@ title(inputfile(a(end)+1:end))
 
 figure %plot delta vs. EMG
 if plotcolor==1
-hold on
-for i=1:length(FeaturesPCA)
-	if SleepState(i)==0
-	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'r.') %red dots for wake
-	elseif SleepState(i)==1
-	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'b.') %blue dots for NREM
-	elseif SleepState(i)==2
-	   plot(Feature(i,5)./max(Feature(:,5)),Feature(i,1)./max(Feature(:,1)),'.','color',[1 .5 0]) %orange dots for REM
-	end
-end
-hold off
+g=gscatter(Feature(:,5)./max(Feature(:,5)),Feature(:,1)./max(Feature(:,1)),SleepState,[1 0 0;0 0 1;1 0.5 0],'o',5,'off');
+set(g(1), 'MarkerFaceColor','r')
+set(g(2), 'MarkerFaceColor','b')
+set(g(3), 'MarkerFaceColor',[1 .5 0])
+
+
 else
 	plot(Feature(:,5)./max(Feature(:,5)),Feature(:,1)./max(Feature(:,1)),'.') %normalize 
 end
@@ -192,17 +185,12 @@ end
 
 figure
 if plotcolor==1
-	hold on 
-	for i=1:length(FeaturesPCA)
-		if SleepState(i)==0
-			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'r.')
-		elseif SleepState(i)==1
-			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'b.')
-		elseif SleepState(i)==2
-			plot(Feature(i,5)/max(Feature(:,5)),allEEG(i)/max(allEEG),'.','color',[1 .5 0])
-		end
-	end
-	hold off
+	g=gscatter(Feature(:,5)./max(Feature(:,5)),allEEG./max(allEEG),SleepState,[1 0 0; 0 0 1; 1 0.5 0],'o',5,'off');
+	set(g(1), 'MarkerFaceColor','r')
+	set(g(2), 'MarkerFaceColor','b')
+	set(g(3), 'MarkerFaceColor',[1 .5 0])
+	
+	
 else 
 	plot(Feature(:,5)./max(Feature(:,5)),allEEG./max(allEEG),'.')
 end
