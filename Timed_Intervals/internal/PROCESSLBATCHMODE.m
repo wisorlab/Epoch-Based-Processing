@@ -56,7 +56,7 @@ clear TimeStampMatrix
 
 % Compute the length of one epoch here using TimeStampMatrix
 epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20));
-
+epoch_length_in_seconds=2;
 
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
@@ -84,11 +84,15 @@ epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1
       PhysioVars(i,1)=2;
     elseif textdata{i,2}=='R'
       PhysioVars(i,1)=2;
+    elseif textdata{i,2}=='X'            %artefact
+      PhysioVars(i,1)=5;
+      elseif textdata{i,2}=='XX'            %artefact
+      PhysioVars(i,1)=5;
     elseif isempty(textdata{i,2})==1
       missing_values=missing_values+1;
       PhysioVars(i,1)=0;  
-				% else   
-				%   PhysioVars(i,1)=0;
+				else   
+				  error('I found a sleep state that wasn''t W,S,P,R,X or XX');
     end
   end
   missing_values
@@ -109,6 +113,14 @@ epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1
   PhysioVars(:,3) = d1smoothed;
   PhysioVars(:,4) = d2smoothed;
   
+
+% % Handle artifacts 
+%   if length(find(PhysioVars(:,1)==5)) > 0
+%     PhysioVars = Handle_artifacts(PhysioVars);
+%   end 
+
+
+
   state_data{FileCounter} = PhysioVars(:,1);
   if strcmp(signal,'lactate')
     signal_data{FileCounter} = PhysioVars(:,2);

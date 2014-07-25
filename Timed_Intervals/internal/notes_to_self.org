@@ -1307,4 +1307,19 @@ using sum instead of mean.  This was exactly it.  Changing back to mean made it 
 
 Ask Jonathan, should this be mean or sum? 
 
-TO do: change the epoch length and see if tau values change.  Just for kicks.  Change it in PROCESSLBATCHMODE.m 
+
+* Friday, July 25, 2014
+TO do: 
+1) [X] change the epoch length and see if tau values change.  Just for kicks.  Change it in PROCESSLBATCHMODE.m THIS DIDN'T WORK BECAUSE WHEN 
+I TRIED TO COMPUTE BASELINE DELTA POWER THE FILE WAS TOO SHORT.  WITH A REAL FILE SCORED AT 2-SEC EPOCHS THIS WON'T BE A PROBLEM.
+2) Decide how to handle epochs marked as X for artifact. One idea is to average and call the state the states 
+of previous and next.  For the whisking study we could call it wake because that's when the whisking is happening and 
+the head piece moves around.  If the epoch before is different than the epoch after I don't know what to do. 
+3) Fix the write_scored_file.m function so it doesn't mess with the original .txt file. Excel always asks if I want 
+to save my changes to the original file.  And it sometimes doesn't seem to handle changing the file name of the generated file
+if the filename I give it already exists.  
+3) Generate an autoscored .txt file for BL1181 and run my model on that to see if the tau values change at all.  
+4) replace plot3 loop and if statements in sleepscorePCA.m with gscatter.m calls.  
+
+Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
+get to the bottom of it.  

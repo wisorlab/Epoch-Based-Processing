@@ -33,7 +33,7 @@ end
 
 DELIMITER = '\t';
 HEADERLINES = 2;
-NUM_COLUMNS = 83;  % number of colums in original data set 
+NUM_COLUMNS = 82;  % number of colums in original data set 
                    % minus 2 for the 2 columns of text
 
 
