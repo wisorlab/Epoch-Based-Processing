@@ -63,6 +63,7 @@ window_length=4;  % size of moving window (in hours) used to compute
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes2(datafile,epoch_length);
 end
+
 % if using a moving window for the upper and lower assymptotes, S
 % will have 720 fewer elements than the number of rows of datafile,
 % so set up a new index for S

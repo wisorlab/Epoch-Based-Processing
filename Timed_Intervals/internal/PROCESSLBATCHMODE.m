@@ -55,8 +55,24 @@ clear TimeStampMatrix
   
 
 % Compute the length of one epoch here using TimeStampMatrix
-textdata{2,1}
-epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20));
+% I used to just compute the difference in seconds between first time stamp and second,
+% but that was not robust enough since sometimes there is a change in minutes between those two timestamps
+% textdata has mm/dd/yyy,HH:MM:SS AM format, but may or may not include quotes or single quotes,
+% so to be more robust, find the second colon and use that to get the seconds field of the time stamp
+f=find(textdata{1,1}==':');   % Find all locations of the colon in the first time stamp
+first_colon_loc = f(1);   
+last_colon_loc = f(2);
+hour_first_time_stamp    = str2num(textdata{1,1}(first_colon_loc-2))*10+str2num(textdata{1,1}(first_colon_loc-1));  
+hour_second_time_stamp   = str2num(textdata{2,1}(first_colon_loc-2))*10+str2num(textdata{2,1}(first_colon_loc-1));  
+minute_first_time_stamp  = str2num(textdata{1,1}(first_colon_loc+1))*10+str2num(textdata{1,1}(first_colon_loc+2));
+minute_second_time_stamp = str2num(textdata{2,1}(first_colon_loc+1))*10+str2num(textdata{2,1}(first_colon_loc+2));
+second_first_time_stamp  = str2num(textdata{1,1}(last_colon_loc+1))*10+str2num(textdata{1,1}(last_colon_loc+2));
+second_second_time_stamp = str2num(textdata{2,1}(last_colon_loc+1))*10+str2num(textdata{2,1}(last_colon_loc+2));
+
+epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_time_stamp second_second_time_stamp],[2014 2 28 hour_first_time_stamp minute_first_time_stamp second_first_time_stamp])
+
+%epoch_length_in_seconds = (textdata{2,1}(last_colon_loc+1)*10+textdata{2,1}(last_colon_loc+2))-(textdata{1,1}(last_colon_loc+1)*10+textdata{1,1}(last_colon_loc+2))
+%epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20)) 
 
 
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
@@ -94,8 +110,7 @@ epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1
 				  error('I found a sleep state that wasn''t W,S,P,R,X or XX');
     end
   end
-  missing_values
-
+  disp(['There were ',num2str(missing_values), ' epochs that were not scored.'])
 
  
   if strcmp(signal,'lactate') 
@@ -115,11 +130,10 @@ epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1
 
  % Handle artifacts 
   if length(find(PhysioVars(:,1)==5)) > 0
-    PhysioVars = Handle_artifacts(PhysioVars);
+    PhysioVars = handle_artefacts(PhysioVars);
   end 
 
-
-
+PhysioVars(4700:4710,1)
   state_data{FileCounter} = PhysioVars(:,1);
   if strcmp(signal,'lactate')
     signal_data{FileCounter} = PhysioVars(:,2);
@@ -149,7 +163,11 @@ epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1
     end
    end
 
-  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %the twenty is for 20:00, 8:00PM
+ 
+
+  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0) %the twenty is for 20:00, 8:00PM
+ 
+
  
   state_data{FileCounter}  = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
   signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
@@ -199,8 +217,7 @@ Indices_of_largest = sortIndex(1:20);  % 20 largest dynamic ranges
 else
 Indices_of_largest = sortIndex;
 end
-Indices_of_largest
-dynamic_range
+
 % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
 % by our exclusion rule
 state_data  = state_data(Indices_of_largest);
@@ -214,6 +231,7 @@ files       = files(Indices_of_largest);
 % COMPUTING LOOP
 %---
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
+disp('Starting computing loop...')
 for FileCounter=1:length(files)
   
   if strcmp(algorithm,'NelderMead')  
@@ -242,24 +260,26 @@ for FileCounter=1:length(files)
 end  %end of looping through files
     
 %write a DataSourceInfo tab
-addpath ../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/;
-xl=XL;
-sheet = xl.Sheets.Item(1);
+% disp('Writing data to an Excel file...')
+% addpath ../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/;
+% xl=XL;
+% sheet = xl.Sheets.Item(1);
 
-col1_name{1} = 'Taui Values';                                       % column headers
-first_header_cells=xl.setCells(sheet,[1,1],col1_name,'false','true');
-set(first_header_cells.Font, 'Bold', true)
-col2_name{1} = 'Taud Values';
-second_header_cells=xl.setCells(sheet,[2,1],col2_name,'false','true');
-set(second_header_cells.Font, 'Bold', true)
-col3_name{1} = 'CPU time';
-third_header_cells=xl.setCells(sheet,[3,1],col3_name,'false','true');
-set(third_header_cells.Font, 'Bold', true)
+% col1_name{1} = 'Taui Values';                                       % column headers
+% first_header_cells=xl.setCells(sheet,[1,1],col1_name,'false','true');
+% set(first_header_cells.Font, 'Bold', true)
+% col2_name{1} = 'Taud Values';
+% second_header_cells=xl.setCells(sheet,[2,1],col2_name,'false','true');
+% set(second_header_cells.Font, 'Bold', true)
+% col3_name{1} = 'CPU time';
+% third_header_cells=xl.setCells(sheet,[3,1],col3_name,'false','true');
+% set(third_header_cells.Font, 'Bold', true)
 
-xl.setCells(sheet,[1,2],mat2cell(Taui),'false','true')
 
-xl.sourceInfo(mfilename('fullpath'));                                % DataSourceInfo tab
-xl.saveAs(strcat('PROCESSLBATCHMODE output', '.txt'));
+% xl.setCells(sheet,[1,2],Taui','false','false');
+
+% xl.sourceInfo(mfilename('fullpath'));                                % DataSourceInfo tab
+% xl.saveAs(strcat('PROCESSLBATCHMODE output', '.txt'));
 
 
 

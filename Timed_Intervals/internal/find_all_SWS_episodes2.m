@@ -12,6 +12,7 @@ function [t_mdpt_SWS,data_at_SWS_midpoints,t_mdpt_indices]=find_all_SWS_episodes
 % datafile:  This is a data file containing 2 columns, where
 %            sleep state is in the first column (0=wake,1=SWS,2=REM), lactate
 %            or delta power is in the second colum
+% epoch_length: the length of the scoring epoch (in seconds)
 %
 
 %
@@ -43,9 +44,9 @@ counter=0;  % counter for number of SWS episodes longer than 5 min.
 starting_indices=0;
 
 % for each 5 min sliding window check to see if 90% or more is SWA
-window_length = 5;  % minutes
-percentage = .9;    % .9 means 90% of the window of length window_length needs to be SWS to be counted in the analysis
-rows_in_SWS_episode = window_length*60/epoch_length;
+SWSwindow_length = 5;  % minutes
+percentage = .9;    % .9 means 90% of the window of length SWSwindow_length needs to be SWS to be counted in the analysis
+rows_in_SWS_episode = SWSwindow_length*60/epoch_length;
 
 for i=rows_in_SWS_episode:size(datafile,1)
   if length(find(datafile(i-(rows_in_SWS_episode-1):i,1)==1))>=percentage*rows_in_SWS_episode

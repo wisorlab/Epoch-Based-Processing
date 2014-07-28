@@ -1336,6 +1336,15 @@ since that extra column gets put in the textdata for the next entry.  I need to 
 how many columns there are.  In fixing this I introduced a new bug that cuts off the first row of data in importdata.m FINALLY
 FIXED BOTH BUGS IN THIS.  MY FIX FOR COMPUTING HOW MANY COLUMNS INVOLVED READING IN A ROW OF DATA.  SINCE I WAS TELLING textscan.m TO 
 SKIP TWO LINES IT SKIPPED THE FIRST LINE OF DATA TOO.  IT SEEMS TO WORK NOW.  I TRIED IT ON SEVERAL DIFFERENT FILES.  
+9) [X] I found a new bug.  On file AKR1610_04_25_2.txt find_all_SWS_episodes2.m returns a t_mdpt_indices that is a 
+1-by-1 scalar and it's 0.  Of course this throws off everything.  Why is this happening and why didn't it happen before?  
+epoch_length_in_seconds was not being set correctly for the AKR and DBA strains.  Their data fields did not have single or 
+double quotes so my method of just counting digits to find the seconds did not work.  I made this much more robust and it 
+also now handles the case where there is a change of minute or hour between the first and second epoch.  I'm running
+PROCESSLBATCHMODE.m on all the strain_study datasets to make sure it still works on all of them.  
+10) locs_of_start_times (line 166 in PROCESSLBATCHMODE.m) is probably wrong and causing problems.  Make it more robust and general
+like I did with the calculation of epoch_length_in_seconds.  Actually, this is computed correctly for the file that 
+
 
 Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
 get to the bottom of it.  I was reading in too many columns of data in importdata.m. This created a column of NaNs. It's 
