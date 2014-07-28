@@ -1327,6 +1327,15 @@ FASTER.  WHERE ELSE AM I USING FOR LOOPS FOR PLOTTING?
 5) add some code to PROCESSLBATCHMODE.m to generate excel output with the Ti and Td values and Jon's DataSource info
 tab.  
 6) Keep playing with plotly to make snazzy graphs from matlab.  
+7) [x] Fix Franken_like_model_with_nelder_mead.m lines 50-51 so they are more general. If the file doesn't start at 8:00 PM, I don't think
+the baseline_start_hours and baseline_end_hours are correct.  Check Franken_like_model.m too. I wrote a function for this, normalizeLAUA.m
+and it almost works, but it seems to give slightly different numbers to what I had before for UAnormalized and LAnormalized.  Keep working on this. 
+THERE WAS A TINY INDEXING ERROR IN THE WAY I WAS DOING IT BEFORE.  THE NEW WAY IS CORRECT.  
+8) [X] I realized that not all .txt files have the same number of columns.  One AKR file I'm using has two columns for the EMG, so it messes up everything
+since that extra column gets put in the textdata for the next entry.  I need to make this much more robust so importdatafile.m knows
+how many columns there are.  In fixing this I introduced a new bug that cuts off the first row of data in importdata.m FINALLY
+FIXED BOTH BUGS IN THIS.  MY FIX FOR COMPUTING HOW MANY COLUMNS INVOLVED READING IN A ROW OF DATA.  SINCE I WAS TELLING textscan.m TO 
+SKIP TWO LINES IT SKIPPED THE FIRST LINE OF DATA TOO.  IT SEEMS TO WORK NOW.  I TRIED IT ON SEVERAL DIFFERENT FILES.  
 
 Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
 get to the bottom of it.  I was reading in too many columns of data in importdata.m. This created a column of NaNs. It's 

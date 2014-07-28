@@ -1,4 +1,4 @@
-function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model_with_nelder_mead(datafile,signal,filename,epoch_length)
+function [Ti,Td,LA,UA,best_error,error_instant,best_S,ElapsedTime]=Franken_like_model_with_nelder_mead(datafile,signal,filename,epoch_length)
 % USAGE:  [Ti,Td,LA,UA,error]=Franken_like_model_with_nelder_mead(datafile,signal)
 %
 % datafile: a sleep data file from Jonathan Wisor where sleep
@@ -16,9 +16,9 @@ function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,Elapse
 %
 % Td: the optimum value for tau_d, the decay rate. 
 % 
-% LA: the lower asymptote found from make_frequency_plot.m
+% LA: the lower asymptote found from make_frequency_plot.m (not nomralized)
 % 
-% UA: the upper asymptote found from make_frequency_plot.m
+% UA: the upper asymptote found from make_frequency_plot.m (not normalized)
 %
 % best_error: the mean square error for the best fit
 %
@@ -28,7 +28,8 @@ function [Ti,Td,LAnormalized,UAnormalized,best_error,error_instant,best_S,Elapse
 % switches.  
 %
 % best_S: the vector S of the best-fit homeostatic model
-%
+% NOTE: in PROCESSLBATCHMODE.m LA and UA get normalized by the mean SWS delta power 
+% in the last 4 hours of the baseline light period
 
 tic
 
@@ -47,16 +48,16 @@ window_length=4;  % size of moving window (in hours) used to compute
 % -- power in last 4 hours of baseline light period and find 
 % -- all SWS episodes of longer than 5 minutes (like 
 % -- Franken et al)
-  baseline_start_hours = 17;
-  baseline_end_hours = 21;
-  ind_start = baseline_start_hours*(60*60/epoch_length);
-  ind_end = baseline_end_hours*(60*60/epoch_length);
+  % baseline_start_hours = 17;   % These values are only good if the dataset starts at 8:00 PM
+  % baseline_end_hours = 21;
+  % ind_start = baseline_start_hours*(60*60/epoch_length)
+  % ind_end = baseline_end_hours*(60*60/epoch_length)
   
-  locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
-  mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
+  % locs = find(datafile(ind_start:ind_end,1)==1); % find SWS epochs in last 4 hr of baseline
+  % mn   = mean(datafile(locs+ind_start-1,2));     % mean delta power during SWS in last 4hr of baseline
 
-  LAnormalized = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
-  UAnormalized = (UA/mn)*100;   % upper asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  % LAnormalized = (LA/mn)*100;   % lower asymptote normalized to mean delta power during SWS in last 4hr of baseline
+  % UAnormalized = (UA/mn)*100;   % upper asymptote normalized to mean delta power during SWS in last 4hr of baseline
 
 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2')

@@ -15,8 +15,8 @@ function [signal_data,state_data,best_S,UppA,LowA,Timer,Taui,Taud]=PROCESSLBATCH
 % signal_data: a cell array containing vectors of either delta power or lactate, one for each file in the directory
 % best_S:  a cell array containing the best fit curve S, one for each file in the directory
 % Taui:    a vector of the rise time time constant, one value for each file in the directory
-% Taud:    a vector of the fall time time constant, one value for each fiel in the directory
-% new comment
+% Taud:    a vector of the fall time time constant, one value for each file in the directory
+% 
 
 %profile -memory on
 
@@ -55,8 +55,9 @@ clear TimeStampMatrix
   
 
 % Compute the length of one epoch here using TimeStampMatrix
+textdata{2,1}
 epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20));
-epoch_length_in_seconds=2;
+
 
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
@@ -85,8 +86,6 @@ epoch_length_in_seconds=2;
     elseif textdata{i,2}=='R'
       PhysioVars(i,1)=2;
     elseif textdata{i,2}=='X'            %artefact
-      PhysioVars(i,1)=5;
-      elseif textdata{i,2}=='XX'            %artefact
       PhysioVars(i,1)=5;
     elseif isempty(textdata{i,2})==1
       missing_values=missing_values+1;
@@ -211,9 +210,6 @@ files       = files(Indices_of_largest);
 
 
 
-
-
-
 %---
 % COMPUTING LOOP
 %---
@@ -227,10 +223,12 @@ for FileCounter=1:length(files)
 	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds); %for brute-force 
   end
 
+[LAnormalized,UAnormalized]=normalizeLAUA(LA,UA,[state_data{FileCounter} signal_data{FileCounter}],TimeStampMatrix);
+
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;
-  LowA{FileCounter} = LA;  %normalized LA
-  UppA{FileCounter} = UA;  %normalized UA
+  LowA{FileCounter} = LAnormalized;  %normalized LA
+  UppA{FileCounter} = UAnormalized;  %normalized UA
   Timer(FileCounter) = ElapsedTime;
   Error(FileCounter) = best_error;
   Error2(FileCounter) = error_instant;
@@ -239,9 +237,32 @@ for FileCounter=1:length(files)
   % populate cell array with S output
   best_S{FileCounter} = S;
 
+ 
 
 end  %end of looping through files
     
+%write a DataSourceInfo tab
+addpath ../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/;
+xl=XL;
+sheet = xl.Sheets.Item(1);
+
+col1_name{1} = 'Taui Values';                                       % column headers
+first_header_cells=xl.setCells(sheet,[1,1],col1_name,'false','true');
+set(first_header_cells.Font, 'Bold', true)
+col2_name{1} = 'Taud Values';
+second_header_cells=xl.setCells(sheet,[2,1],col2_name,'false','true');
+set(second_header_cells.Font, 'Bold', true)
+col3_name{1} = 'CPU time';
+third_header_cells=xl.setCells(sheet,[3,1],col3_name,'false','true');
+set(third_header_cells.Font, 'Bold', true)
+
+xl.setCells(sheet,[1,2],mat2cell(Taui),'false','true')
+
+xl.sourceInfo(mfilename('fullpath'));                                % DataSourceInfo tab
+xl.saveAs(strcat('PROCESSLBATCHMODE output', '.txt'));
+
+
+
 % make a bar graph showing the error in the model and the error using 
 % the instant model that follows the lactate upper and lower bounds and 
 % switches in-between them if the sleep state changes

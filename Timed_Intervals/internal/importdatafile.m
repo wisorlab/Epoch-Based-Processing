@@ -31,17 +31,19 @@ if nargin ==1
 end
 
 
-DELIMITER = '\t';
-HEADERLINES = 2;
-NUM_COLUMNS = 82;  % number of colums in original data set 
-                   % minus 2 for the 2 columns of text
+DELIMITER = sprintf('\t','');     % tab delimited
+HEADERLINES = 2-1;               % there are 2 header lines, but one gets read in the call to fgetl before textscan is called
+
 
 
 filename=strcat(directory,FileToRead);
 
-fid=fopen(filename);
+fid=fopen(filename);                          % compute number of columns present
+tLines = fgetl(fid);
+NUM_COLUMNS = numel(strfind(tLines,DELIMITER)) + 1;    
 
-format=['%s%s' repmat('%f', [1 NUM_COLUMNS])];
+
+format=['%s%s' repmat('%f', [1 NUM_COLUMNS-2])];    % minus 2 for the 2 columns of text
 %format=['%s',repmat('%f',1,NUM_COLUMNS)];
 c=textscan(fid,format,'Headerlines',HEADERLINES,'Delimiter',DELIMITER,'CollectOutput',1,'ReturnOnError',0);
 textdata=c{1};

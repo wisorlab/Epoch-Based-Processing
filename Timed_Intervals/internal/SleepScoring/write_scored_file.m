@@ -19,10 +19,12 @@ xl=XL(filename);
 
 sheet = xl.Sheets.Item(1);
 [numcols,numrows] = xl.sheetSize(sheet)
+xl2=xl.clone
 %xl.getCells(sheet,[1,1,1,100]);
 xl.setCells(sheet,[2,3],predicted_score,'FFEE00','true');
-a=find(filename=='.');
-xl.saveAs(strcat(filename(1:a),'AUTOSCORED','.txt'));
+a=find(filename=='.')
+filename(1:a-1)
+xl.saveAs(strcat(filename(1:a-1),'AUTOSCORED','.txt'));
 %xl.saveAs('anothertest.txt')
 
 fclose('all')  %so Excel doesn't think MATLAB still has the file open
