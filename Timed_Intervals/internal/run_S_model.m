@@ -43,7 +43,7 @@ function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,epoch_le
 
 
 
-  if nargin==9
+  if nargin==10
     filename='';
   end
 
@@ -72,9 +72,9 @@ function S=run_S_model(dataset,dt,S0,LA,UA,ti,td,window_length,makeplot,epoch_le
       iters=size(dataset,1);
     end
     
-dataset(4700:4710,1)
-    i
+
     for i=1:iters-1                 % 8640 10-second intervals=24 hours
+       %i 
       if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
 	S(i+1)=UA-(UA-S(i))*exp_rise;
       elseif(dataset(i,1)==1) %sleep
@@ -101,6 +101,7 @@ dataset(4700:4710,1)
   % [T,S]=ode45(@(t,S) homeostatode(t,S,issleep,ti,td,LA,UA),tspan,start_value); 
   
     for i=1:size(dataset,1)-1
+      %i 
       if dataset(i,1)==0 || dataset(i,1)==2 %wake or REM
 	S(i+1)=UA-(UA-S(i))*exp_rise;
       elseif(dataset(i,1)==1) %sleep

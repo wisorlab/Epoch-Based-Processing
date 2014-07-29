@@ -41,7 +41,7 @@ window_length=4;  % size of moving window (in hours) used to compute
 % make a frequency plot, and use it to figure out upper and lower
 % bounds for the model (like Franken et al. 2001 Figure 1)
 
-[LA,UA]=make_frequency_plot(datafile,window_length,signal);
+[LA,UA]=make_frequency_plot(datafile,window_length,signal,epoch_length);
 
 
 % -- if using delta power normalize UA and LA to mean SWS delta 
@@ -78,7 +78,7 @@ end
 mask=(window_length/2)*(60*60/epoch_length)+1:size(datafile,1)-(window_length/2)*(60*60/epoch_length);
 
 
-dt=1/(60*60/epoch_length);  % assuming data points are every 10 seconds and t is in hours 
+dt=1/(60*60/epoch_length);  % assuming  t is in hours 
 % tau_i=[0.05:0.01:1 1.1:.5:5];  %1:.12:25
 % tau_d=[0.05:0.01:1 1.1:.5:5]; %0.1:.025:5
 % error=zeros(length(tau_i),length(tau_d));

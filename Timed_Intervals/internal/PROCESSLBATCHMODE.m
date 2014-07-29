@@ -48,7 +48,7 @@ HowManyFiles = length(files) % Need to know the number of files to process.  Thi
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.   
 clear PhysioVars
 %clear dynamic_range
-clear TimeStampMatrix   
+%clear TimeStampMatrix   
 
   [data,textdata]=importdatafile(files(FileCounter).name,directory);%importfile returns data (a matrix) and textdata (a cell array)
   display(files(FileCounter).name) % One matrix (textdata) holds the date/time stamp and sleep state.  The other (data) holds the lactate and EEG data.
@@ -69,7 +69,7 @@ minute_second_time_stamp = str2num(textdata{2,1}(first_colon_loc+1))*10+str2num(
 second_first_time_stamp  = str2num(textdata{1,1}(last_colon_loc+1))*10+str2num(textdata{1,1}(last_colon_loc+2));
 second_second_time_stamp = str2num(textdata{2,1}(last_colon_loc+1))*10+str2num(textdata{2,1}(last_colon_loc+2));
 
-epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_time_stamp second_second_time_stamp],[2014 2 28 hour_first_time_stamp minute_first_time_stamp second_first_time_stamp])
+epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp minute_second_time_stamp second_second_time_stamp],[2014 2 28 hour_first_time_stamp minute_first_time_stamp second_first_time_stamp]);
 
 %epoch_length_in_seconds = (textdata{2,1}(last_colon_loc+1)*10+textdata{2,1}(last_colon_loc+2))-(textdata{1,1}(last_colon_loc+1)*10+textdata{1,1}(last_colon_loc+2))
 %epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20)) 
@@ -77,7 +77,7 @@ epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_ti
 
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
-    lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*60/epoch_length_in_seconds;
+    lactate_cutoff_time_rows=lactate_cutoff_time_hours*60*60/epoch_length_in_seconds(FileCounter);
     
     LactateSmoothed=medianfiltervectorized(data(:,1),1);
 
@@ -93,7 +93,13 @@ epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_ti
 
   missing_values=0;
   for i = 1: size(data,1)  
-    if textdata{i,2}=='W' 
+    %i
+
+    if isempty(textdata{i,2})==1        % call unscored epochs wake
+      missing_values=missing_values+1;
+      PhysioVars(i,1)=0;  
+
+    elseif textdata{i,2}=='W' 
       PhysioVars(i,1)=0;
     elseif textdata{i,2}=='S'
       PhysioVars(i,1)=1;
@@ -101,13 +107,12 @@ epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_ti
       PhysioVars(i,1)=2;
     elseif textdata{i,2}=='R'
       PhysioVars(i,1)=2;
+    elseif sum(textdata{i,2}=='Tr')==2
+      PhysioVars(i,1)=0;                 % call transitions wake
     elseif textdata{i,2}=='X'            %artefact
-      PhysioVars(i,1)=5;
-    elseif isempty(textdata{i,2})==1
-      missing_values=missing_values+1;
-      PhysioVars(i,1)=0;  
+      PhysioVars(i,1)=5; 
 				else   
-				  error('I found a sleep state that wasn''t W,S,P,R,X or XX');
+				  error('I found a sleep state that wasn''t W,S,P,R,Tr, or X');
     end
   end
   disp(['There were ',num2str(missing_values), ' epochs that were not scored.'])
@@ -118,8 +123,8 @@ epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_ti
   else PhysioVars(:,2)=data(:,1);
   end
   
-  PhysioVars(:,3) = sum(data(:,3:5),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
-  PhysioVars(:,4) = sum(data(:,43:45),2); % fftonly is a matrix with as many rows as there are rows in the input file, and 40 columns corresponding to the EEG1 and EEG2 ffts in 1 Hz bins.
+  PhysioVars(:,3) = sum(data(:,3:5),2);   % as many rows as there are rows in the input file, EEG1 delta power (1-4Hz) 
+  PhysioVars(:,4) = sum(data(:,43:45),2); % as many rows as there are rows in the input file, EEG2 delta power (1-4Hz)
   
   d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); 
   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
@@ -128,12 +133,15 @@ epoch_length_in_seconds=etime([2014 2 28 hour_second_time_stamp minute_second_ti
   PhysioVars(:,4) = d2smoothed;
   
 
+
  % Handle artifacts 
   if length(find(PhysioVars(:,1)==5)) > 0
     PhysioVars = handle_artefacts(PhysioVars);
   end 
 
-PhysioVars(4700:4710,1)
+
+
+
   state_data{FileCounter} = PhysioVars(:,1);
   if strcmp(signal,'lactate')
     signal_data{FileCounter} = PhysioVars(:,2);
@@ -150,33 +158,31 @@ PhysioVars(4700:4710,1)
   % first read in all the timestamp data into a matrix
   for i=1:length(textdata)
     try
-      TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
+      TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
     catch exception1
       try 
-	TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
+	TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
       catch exception2 
         try   
-          TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f %f:%f:%f');  
+          TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'%f/%f/%f %f:%f:%f');  
         catch exception3
         end  
       end
     end
    end
 
- 
-
-  locs_of_start_times = find(TimeStampMatrix(4,:)==20 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0) %the twenty is for 20:00, 8:00PM
+  locs_of_start_times = find(TimeStampMatrix{FileCounter}(4,:)==20 & TimeStampMatrix{FileCounter}(5,:)==0 & TimeStampMatrix{FileCounter}(6,:)==0); %the twenty is for 20:00, 8:00PM
  
 
  
   state_data{FileCounter}  = state_data{FileCounter}(locs_of_start_times(1):end,1);  %reset state_data and signal_data cell arrays to only include the data starting at 8:00PM
   signal_data{FileCounter} = signal_data{FileCounter}(locs_of_start_times(1):end,1);
-
+  TimeStampMatrix{FileCounter} = TimeStampMatrix{FileCounter}(:,locs_of_start_times(1):end);
 
 
   % compute the length of the datafile in hours 
-  start_time = TimeStampMatrix(:,locs_of_start_times(1));
-  end_time   = TimeStampMatrix(:,end);
+  start_time = TimeStampMatrix{FileCounter}(:,locs_of_start_times(1));
+  end_time   = TimeStampMatrix{FileCounter}(:,end);
 
   start_time(1:3) = [start_time(3); start_time(1); start_time(2)];
   end_time(1:3) = [end_time(3); end_time(1); end_time(2)];
@@ -211,18 +217,18 @@ end % end of looping through files to load data, decide which files to exclude, 
 % include only the datasets with the 7 largest
 % dynamic ranges.
 %------
-[sorteddata,sortIndex]=sort(dynamic_range,'descend');
-if length(dynamic_range) >= 20
-Indices_of_largest = sortIndex(1:20);  % 20 largest dynamic ranges
-else
-Indices_of_largest = sortIndex;
-end
+% [sorteddata,sortIndex]=sort(dynamic_range,'descend');
+% if length(dynamic_range) >= 20
+% Indices_of_largest = sortIndex(1:20);  % 20 largest dynamic ranges
+% else
+% Indices_of_largest = sortIndex;
+% end
 
-% reset signal_data and state_data cell arrays to only include files that haven't been excluded 
-% by our exclusion rule
-state_data  = state_data(Indices_of_largest);
-signal_data = signal_data(Indices_of_largest);
-files       = files(Indices_of_largest);
+% % reset signal_data and state_data cell arrays to only include files that haven't been excluded 
+% % by our exclusion rule
+% state_data  = state_data(Indices_of_largest);
+% signal_data = signal_data(Indices_of_largest);
+% files       = files(Indices_of_largest);
 
 
 
@@ -233,15 +239,16 @@ files       = files(Indices_of_largest);
 % Now that I've loaded all the data and determined which datasets to keep (and simulate)
 disp('Starting computing loop...')
 for FileCounter=1:length(files)
-  
+  disp(['File number ', num2str(FileCounter), ' of ', num2str(length(files))])
+  display(files(FileCounter).name)
   if strcmp(algorithm,'NelderMead')  
-	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds);
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model_with_nelder_mead([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds(FileCounter));
   end
   if strcmp(algorithm,'BruteForce')
-	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds); %for brute-force 
+	[Ti,Td,LA,UA,best_error,error_instant,S,ElapsedTime] = Franken_like_model([state_data{FileCounter} signal_data{FileCounter}],signal,files(FileCounter).name,epoch_length_in_seconds(FileCounter)); %for brute-force 
   end
 
-[LAnormalized,UAnormalized]=normalizeLAUA(LA,UA,[state_data{FileCounter} signal_data{FileCounter}],TimeStampMatrix);
+[LAnormalized,UAnormalized]=normalizeLAUA(LA,UA,[state_data{FileCounter} signal_data{FileCounter}],TimeStampMatrix{FileCounter});
 
   Taui(FileCounter) = Ti;
   Taud(FileCounter) = Td;

@@ -1342,8 +1342,39 @@ epoch_length_in_seconds was not being set correctly for the AKR and DBA strains.
 double quotes so my method of just counting digits to find the seconds did not work.  I made this much more robust and it 
 also now handles the case where there is a change of minute or hour between the first and second epoch.  I'm running
 PROCESSLBATCHMODE.m on all the strain_study datasets to make sure it still works on all of them.  
-10) locs_of_start_times (line 166 in PROCESSLBATCHMODE.m) is probably wrong and causing problems.  Make it more robust and general
-like I did with the calculation of epoch_length_in_seconds.  Actually, this is computed correctly for the file that 
+10) [X] locs_of_start_times (line 166 in PROCESSLBATCHMODE.m) is probably wrong and causing problems.  Make it more robust and general
+like I did with the calculation of epoch_length_in_seconds.  Actually, this is computed correctly for the file that has problems.
+11)[X] There is still an error in handle_artefacts.m since run_S_model is telling me that it encountered a sleep state that wasn't 0,
+1, or 2.  It doesn't seem to be an edge case either.  PhysioVars is changing after it is output from handle_artefacts and before 
+it's read into run_S_model.m  Ah, PhysioVars gets everything before 8:00 PM cut off when it's converted to state_data 
+and signal_data and it's state_data and signal_data that get read into Franken_like_model_with_nelder_mead so I'm looking in 
+the wrong place.  Find out how much gets cut off and adjust where I'm looking in PhysioVars.  OK: line 7416 is the culprit and it
+doesn't get fixed in handle_artefacts.m.  Figure out why not?  It is a case where the state before and after are different.  
+state on line 46 seems to be correct.  TYPO: line 47 had a 1 where I really want an i.  I think this will fix it.  FIXED! 
+at least for that one dataset.  Try running all the strain data.  Still having some errors with some files. 
+The issue may be when the state is not the same before and after a run of artefacts I use the mode of the 10 
+states around the artefact.  But I'm wondering if I'm having problems if there are lots of other artefacts around and 
+the mode is actually 5, meaning another artefact.  This is the problem.  Change it to be the mode of non-artefact epochs nearby. 
+I fixed this but there was yet another bug.  I had separate code to handle the edge cases, but then I only looped through 2:length-1,
+but if the first or last epoch wasn't an artefact I never dealt with them.  I think it's fixed now.  Finally, the AKR files all 
+run now.  Check the other strains.  They run too except for some epochs are scored as Tr which my code doesn't know how to handle. 
+I'm working with Will on this. Tr is for transient.  Go ahead and mark those as wake for the 10-second epochs.  When we 
+do 2-sec epochs these will be scored as something other than Tr and the learning algorithm will autoscore them.  This helped with 
+this issue, but the calculation of 1PM and 5PM in normalizeLAUA.m for file BA-121340.txt isn't working. ind_start and fivepmlocs 
+are way off.  It looks like normalizeLAUA.m should be using textdata not TimeStampMatrix since TimeStampMatrix doesn't get changed 
+when we cut off all data before 8 PM, but for the BA and BL files this shouldn't matter since they start at 8:00 PM anyway.  
+TimeStampMatrix needs to be different for each datafile.  Right now I clear it in the processing data loop, but I use 
+it again in the computing loop.  Make it a cell array so each recording has its own TimeStampMatrix.   This was a big bug 
+fix.  One recording in BA directory still doesn't work.  I think it may be too short so normalizeLAUA.m is trying to index 
+something that's not there.  Put in a conditional that checks to make sure the file is long enough.  I finally fixed 
+normalizeLAUA.m and it now runs for all the BA files. Check it for all the strains.  BLs all run too. AKRs all run too.
+DBAs all run too.  
+
+12) Check all the 2-second epoch files in the folder 2SecondEpochs to make sure the starting and ending times/dates and the 
+lactate signal look correct. 
+
+13) Check that the code still runs for all strains using lactate as the signal.  There were a couple of bugs that came up when 
+running the lactate model.  DBA now runs with lactate.  runs with AKRs too.    Runs with BL too.  
 
 
 Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 

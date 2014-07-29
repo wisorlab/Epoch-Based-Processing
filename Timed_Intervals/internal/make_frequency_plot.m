@@ -1,13 +1,13 @@
-function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,makefig,newfig)
+function [LA,UA,h]=make_frequency_plot(datafile,window_length,signal,epoch_length,makefig,newfig)
 % USAGE: [LA,UA]=make_frequency_plot(datafile,signal)
 %
 % this function reads in a sleep data file with two columns: sleep state, signal (delta or lactate)
 % given to me by J. Wisor 2011. 
 % signal is 'lactate' or 'delta'
 %
-% optional 4th argument is 1 if make the frequency histogram at all, newfig is if you
+% optional argument is 1 if make the frequency histogram at all, newfig is if you
 % want the histogram in a new figure, if not, use the current figure. a new figure
-if nargin==3 makefig=0; newfig=0; end
+if nargin==4 makefig=0; newfig=0; end
 %
 % window_length is the length (in hours) of the moving window used
 % in the calculation of UA and LA.
