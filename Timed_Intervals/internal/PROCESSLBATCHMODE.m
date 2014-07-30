@@ -156,21 +156,7 @@ epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp min
 
 % Cut off all data before 8:00PM 
   % first read in all the timestamp data into a matrix
-  for i=1:length(textdata)
-    try
-      TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
-    catch exception1
-      try 
-	TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
-      catch exception2 
-        try   
-          TimeStampMatrix{FileCounter}(:,i) = sscanf(textdata{i,1},'%f/%f/%f %f:%f:%f');  
-        catch exception3
-        end  
-      end
-    end
-   end
-
+  TimeStampMatrix{FileCounter} = create_TimeStampMatrix_from_textdata(textdata);
   locs_of_start_times = find(TimeStampMatrix{FileCounter}(4,:)==20 & TimeStampMatrix{FileCounter}(5,:)==0 & TimeStampMatrix{FileCounter}(6,:)==0); %the twenty is for 20:00, 8:00PM
  
 

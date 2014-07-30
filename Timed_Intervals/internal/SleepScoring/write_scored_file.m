@@ -11,20 +11,41 @@ function write_scored_file(filename,predicted_score)
 % filename           .txt file from which we are overwriting the sleep state info, but keeping everything else
 % predicted_score    the output of classify.m generated in classify_usingPCA.m
 
+% First copy the original file so we don't mess it up
+ a = find(filename=='.');
+ newfilename = strcat(filename(1:a-1), 'AUTOSCORED', filename(a:end));
+ copyfile(filename,newfilename,'f');
+
+
+
 
 % This is so I can use Jon's stuff 
 addpath ../../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/;
 %xl=XL('D:\mrempe\BL-118140Copy.txt');
-xl=XL(filename);
+xl=XL(newfilename);
 
 sheet = xl.Sheets.Item(1);
-[numcols,numrows] = xl.sheetSize(sheet)
-xl2=xl.clone
-%xl.getCells(sheet,[1,1,1,100]);
-xl.setCells(sheet,[2,3],predicted_score,'FFEE00','true');
-a=find(filename=='.')
-filename(1:a-1)
-xl.saveAs(strcat(filename(1:a-1),'AUTOSCORED','.txt'));
-%xl.saveAs('anothertest.txt')
+[numcols,numrows] = xl.sheetSize(sheet);
+
+
+% should I convert the numerical scores back into W,S and P/R?  
+sleepstate_vec=cell(size(predicted_score));
+for i=1:length(predicted_score)
+	if predicted_score(i)==0
+		sleepstate_vec{i}='W';
+	elseif predicted_score(i)==1
+		sleepstate_vec{i}='S';
+	elseif predicted_score(i)==2
+		sleepstate_vec{i}='R';
+	end
+end
+
+
+xl.setCells(sheet,[2,3],sleepstate_vec,'FFEE00');
+
+
+a=find(newfilename=='\');
+xl.saveAs(newfilename(a+1:end),newfilename(1:a));
 
 fclose('all')  %so Excel doesn't think MATLAB still has the file open
+

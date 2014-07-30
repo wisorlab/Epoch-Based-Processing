@@ -15,9 +15,11 @@ xl = XL;
 if isstr(files), files = {files}; end
 
 % file name
-t1 = regexp(files{1},'(\w+\d+)\s+(\d+)_(\d+)_(\d+)','tokens');
-t2 = regexp(files{2},'(\w+\d+)\s+(\d+)_(\d+)_(\d+)','tokens');
-sheets = xl.addSheets({[t1{1,1}{1} ' ' t1{1,1}{2} '_' t1{1,1}{3} '-' t2{1,1}{3} '_' t1{1,1}{4}]});
+t1 = regexp(files{1},'(\w*)','match');
+t2 = regexp(files{2},'(\w*)','match');
+% t1 = regexp(files{1},'(\w+\d+)\s+(\d+)_(\d+)_(\d+)','tokens');
+% t2 = regexp(files{2},'(\w+\d+)\s+(\d+)_(\d+)_(\d+)','tokens');
+sheets = xl.addSheets({[ t1{1} '-' t2{1} '_' t1{2} ]});
 
 % loop through files
 for i=1:length(files)

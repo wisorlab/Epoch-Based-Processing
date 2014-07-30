@@ -1234,7 +1234,8 @@ Try Will's idea of plotting EEG vs. EMG to see some clustering. This looked almo
  return values for the function)  
  Left to do for conversion:
  1) process_data_for_autoscore.m lines beginning samples_per_epoch and total_number_of_epochs need to be changed to be more general.  The 
- epoch length and so on should be determined from the txt file.  I can use one edf file for multiple epoch lengths, correct?  
+ epoch length and so on should be determined from the txt file.  I can use one edf file for multiple epoch lengths, correct?  This
+ is only if I use edf files.  If I only use .txt files I shouldn't have to mess with this anymore.  
 
  Notes from talk with Jonathan:  looking at the PCA approach: for our purposes it doesn't matter if an epoch is wake or REM 
  since they are treated the same way in the model.  Does PCA seem more viable if we don't really need to distinguish between 
@@ -1373,10 +1374,37 @@ DBAs all run too.
 12) Check all the 2-second epoch files in the folder 2SecondEpochs to make sure the starting and ending times/dates and the 
 lactate signal look correct. 
 
-13) Check that the code still runs for all strains using lactate as the signal.  There were a couple of bugs that came up when 
-running the lactate model.  DBA now runs with lactate.  runs with AKRs too.    Runs with BL too.  
+13) [X] Check that the code still runs for all strains using lactate as the signal.  There were a couple of bugs that came up when 
+running the lactate model.  DBA now runs with lactate.  runs with AKRs too.    Runs with BL too.  Runs with BA too.
 
 
-Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
+14 [X] Last column of data from importdata.m seems to be all Nans.  I don't use this column up until now, but I need to 
 get to the bottom of it.  I was reading in too many columns of data in importdata.m. This created a column of NaNs. It's 
 fixed now.  
+
+
+* Wednesday, July 30, 2014
+For the past several days I've been working on the issues listed above so I haven't made a new entry.  
+Now when I run classify_usingPCA.m the plots don't look the same as what I had before. Even the human-scored plot
+doesn't look the same.  Somehow there is more red in it now. 
+The difference can't be smoothing, because I'm smoothing the data in exactly the same way as PROCESSLBATCHMODE.m
+I just don't see the clumping as well as I do in the previous figures. Even for the same file.  
+I figured it out: the difference was how I was handling the unscored epochs.  Previously when an epoch was 
+unscored I set it to wake since the scorers would often leave segments unscored if it was a long wake episode. 
+This affected the "human" scored plot which in turn affected how the algorithm 
+learned from it.  Think about how to handle unscored epochs.  I changed line 37 in classify_usingPCA.m.  That's it.
+I handled this by adding an argument to classify_usingPCA.m to tell if the file has been scored by a person already or not.
+If it was already fully scored by a person then all the unscored epochs should be set to wake.  If not, then unscored epochs
+are just unscored and they should be filled in with the learning algorithm.  
+
+I worked on write_scored_file.m and classify_usingPCA.m and they seem to be working correctly.  I generated a new .txt 
+file for BL-118140.txt and then ran both the human-scored file and the PCA-scored file and the results are very similar.  
+The tau values are slightly different, but the pictures look nearly identical. 
+
+Try running some 2-second epoch files through classify_usingPCA.m and then run them through PROCESSLBATCHMODE.m to see if time constants are any different 
+with 2-second epochs.   
+
+Running the 2-second epoch files through classify_usingPCA.m produces PCA graphs that look very different from the 10-second versions,
+even for the human-scored files.  Try looking at the first 3 PCAs and compare between 10-second and 2-second.  Maybe the wake 
+epochs are in the third dimension.  I may need to use a more sophisticated classifying scheme like autoscore.m, but it's strange 
+that it worked so well on the 10-sec data and the 2-sec data looks so different, even before I do anything to it with machine learning.  

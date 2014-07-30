@@ -106,7 +106,7 @@ Td=best_tau_d;
 
 % run one more time with best fit and plot it (add a plot with circles)
 if  strcmp(signal,'lactate')
-  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,1,epoch_length,filename);
+  best_S=run_S_model(datafile,dt,(LA(1)+UA(1))/2,LA,UA,Ti,Td,window_length,0,epoch_length,filename);
   %error_instant=run_instant_model(datafile,LA,UA,window_length);
 error_instant = 0;
 end
@@ -115,8 +115,11 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
 end
 
 
-t=0:dt:dt*(size(datafile,1)-1);
+ElapsedTime=toc
 
+
+% plot the best fit
+t=0:dt:dt*(size(datafile,1)-1);
 
 if strcmp(signal,'delta1') || strcmp(signal,'delta2') 
   error_instant=0;  % this won't get set if signal is delta, but the function returns it
@@ -130,7 +133,7 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
   plot(t,best_S)
   ylabel('Delta power')
   xlabel('Time (hours)')
-  title(['Best fit of model to delta power data for file ' filename])
+  title(['Best fit of model to delta power data for file ' filename ' using ' num2str(epoch_length) '-second epochs'])
     hold off
 
 
@@ -146,32 +149,10 @@ if strcmp(signal,'delta1') || strcmp(signal,'delta2')
     plot(tS,UA,'k--')
     ylabel('lactate')
     xlabel('Time (hours)')
-    title('Best fit of model to lactate data')
+    title(['Best fit of model to lactate data for file ' filename 'using ' num2str(epoch_length) '-second epochs'])
     hold off
     
   end
-
-  ElapsedTime=toc
-
-% hold on
-
-% if strcmp(signal,'delta') 
-%   plot(t_mdpt_SWS,data_at_SWS_midpoints,'ro')
-% ylabel('Delta power')
-% elseif strcmp(signal,'lactate')
-%   plot(t,datafile(:,2),'ro')
-% ylabel('lactate')
-% end
-
-% hold off
-% if strcmp(signal,'delta')
-%   title('Best fit of model to delta power data')
-% elseif strcmp(signal,'lactate')
-%   title('Best fit of model to lactate data')
-% end  
-% xlabel('Time (hours)')
-
-
 
 % make a contour plot of the errors
 % figure
