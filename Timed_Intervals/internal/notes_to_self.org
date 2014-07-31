@@ -1407,4 +1407,40 @@ with 2-second epochs.
 Running the 2-second epoch files through classify_usingPCA.m produces PCA graphs that look very different from the 10-second versions,
 even for the human-scored files.  Try looking at the first 3 PCAs and compare between 10-second and 2-second.  Maybe the wake 
 epochs are in the third dimension.  I may need to use a more sophisticated classifying scheme like autoscore.m, but it's strange 
-that it worked so well on the 10-sec data and the 2-sec data looks so different, even before I do anything to it with machine learning.  
+that it worked so well on the 10-sec data and the 2-sec data looks so different, even before I do anything to it with machine learning. 
+
+* Thursday, July 31, 2014
+To do today:
+1) [X] run sleep reports on BL1181 using 10-second epochs and 2-second epochs to see what has changed. 
+Wake minutes are almost identical.  REM minutes are almost identical. SWS minutes are almost identical.  Why 
+do the PCA graphs look so different?  
+2) [X] update (or modify) SLEEPREPORT.m to make it compute the length of the epoch, and tell me how many minutes 
+were spent in each state during the entire recording, and percentages of entire recording spent in each state.
+I updated SLEEPREPORT.m and it still runs on the 10-second data for BL118140.txt and it give the same output as before. 
+Try it on the 2-second epoch data.  I have not implemented percentages in each state yet.  
+I made two files to compare 10-second epoch data to 2-second epoch data: BoutAnalysis_77400-EpochsWORKS.xlsx in 
+2SecondEpochs/BL and BoutAnalysis_15479-EpochsWORKS.xlsx in strain_study_data/BL/fig1_file
+I pushed my updates to github.
+3) Use Jon's DateTime.m command (downloaded from elseiff.com?) and use that for my dateTime calculations.
+4) Look at a 3D graph of the first 3 PCAs.  Why does this graph look so different for 2-second epochs compared to 10-second 
+epochs?  PROBLEM:  in classify_usingPCA.m if I'm using EEG2 I use columns 43-45 for delta, but in the file 
+BL1181-2sec.txt these are not the right columns.  check this.  That's not it.  This is correct.  Does the sampling 
+frequency change anything in pca.m or classify?  I fixed one bug: I was calling the smoothing function, but 
+I wasn't using the smoothed version in the pca function.  This is fixed. 
+One realization:  These graphs are very dependent on the order in which you plot the points.  If you plot red last, you 
+see a lot of red.  If you plot blue last it's covered with blue.  So the graph doesn't really look all that different than 
+the 10-second epoch case.  I guess since there are so many more points plotted it makes it harder to see the colors. 
+
+Keep thinking about the medianfilter.  Should the argument to the median filter depend on the epoch length?  Same would
+go for when I call it in PROCESSLBATCHMODE.m.  
+
+I merged my changed on GitHub to the branch wisorlab.  I think the branch mrempe no longer exists.  I may need to delete 
+it.  Also, when I make changes now do this: 
+  git clone wisorlab:Epoch-Based-Processing
+  git checkout master
+  git status, git commit -am 'text'
+  git push origin master 
+
+
+
+

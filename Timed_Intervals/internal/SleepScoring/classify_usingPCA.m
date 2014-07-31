@@ -27,9 +27,15 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	% -- First import the .txt file
 	% data has columns: lactate, EEG1_0.5-1Hz, EEG1_1-2Hz etc.
 	addpath ..  %where importdatafile.m lives
+	addpath ../../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/
 	[data,textdata]=importdatafile(filename);
 	TimeStampMatrix = create_TimeStampMatrix_from_textdata(textdata);
 	size(data)
+	D1=DateTime(textdata{1,1});
+	D2=DateTime(textdata{2,1});
+	epoch_length_in_seconds = D2.second-D1.second;
+
+
 
     % Set up the sleep state as a variable
 	SleepState=zeros(size(data,1),1);
@@ -119,8 +125,9 @@ end
 
 
 % Smoothing
+filter_width=10/epoch_length_in_seconds;
 for i=1:7
-	FeatureSmoothed(:,i)=medianfiltervectorized(Feature(:,i),2);
+	Feature(:,i)=medianfiltervectorized(Feature(:,i),filter_width);
 end
 
 % Compute the Principal Components
@@ -167,19 +174,45 @@ predicted_sleep_state = classify(PCAvectors(:,1:3),PCAvectors(scored_rows,1:3),S
 
 % Compare human-scored vs computer scored
 figure
-gscatter(PCAvectors(:,1),PCAvectors(:,2),SleepState,[1 0 0; 0 0 1; 1 .5 0],'osd');
+wake=find(SleepState==0);
+sleep=find(SleepState==1);
+rem=find(SleepState==2);
+%gscatter(PCAvectors(scored_rows,1),PCAvectors(scored_rows,2),SleepState(scored_rows),[1 0 0; 0 0 1; 1 0.5 0],'osd')
+plot(PCAvectors(rem,1),PCAvectors(rem,2),'d','Color',[1 0.5 0])
+hold on
+plot(PCAvectors(wake,1),PCAvectors(wake,2),'ro')
+plot(PCAvectors(sleep,1),PCAvectors(sleep,2),'bs')
+hold off
+%gscatter(PCAvectors(:,1),PCAvectors(:,2),SleepState,[1 0 0; 0 0 1; 1 0.5 0],'osd');
 xlabel('PCA1')
 ylabel('PCA2')
 a = find(filename=='\');
-title(['Human-scored data for file ', filename(a(end)+1:end)])
+title(['Human-scored data for file ', filename(a(end)+1:end), ' using plot instead of gscatter'])
 legend('Wake','SWS','REMS')
 
 figure
-gscatter(PCAvectors(:,1),PCAvectors(:,2),predicted_sleep_state,[1 0 0; 0 0 1; 1 .5 0],'osd');
+gscatter(PCAvectors(:,1),PCAvectors(:,2),predicted_sleep_state,[1 0 0; 0 0 1; 1 0.5 0],'osd');
 xlabel('PCA1')
 ylabel('PCA2')
 a = find(filename=='\');
 title(['Computer-scored data for file ', filename(a(end)+1:end)])
+legend('Wake','SWS','REMS')
+
+
+figure
+wake=find(SleepState==0);
+sleep=find(SleepState==1);
+rem=find(SleepState==2);
+%gscatter(PCAvectors(scored_rows,1),PCAvectors(scored_rows,2),SleepState(scored_rows),[1 0 0; 0 0 1; 1 0.5 0],'osd')
+plot3(PCAvectors(wake,1),PCAvectors(wake,2),PCAvectors(wake,3),'ro')
+hold on
+plot3(PCAvectors(sleep,1),PCAvectors(sleep,2),PCAvectors(sleep,3),'bs')
+plot3(PCAvectors(rem,1),PCAvectors(rem,2),PCAvectors(rem,3),'d','Color',[1 0.5 0])
+hold off
+xlabel('PCA1')
+ylabel('PCA2')
+a = find(filename=='\');
+title(['Human-scored data for file ', filename(a(end)+1:end), ' in 3D'])
 legend('Wake','SWS','REMS')
 
 
@@ -191,5 +224,5 @@ predicted_score = predicted_sleep_state;
 
 % export a new excel file where the column of sleep state has been overwritten with the computer-scored
 % sleep states
-write_scored_file(filename,predicted_score);
+%write_scored_file(filename,predicted_score);
 
