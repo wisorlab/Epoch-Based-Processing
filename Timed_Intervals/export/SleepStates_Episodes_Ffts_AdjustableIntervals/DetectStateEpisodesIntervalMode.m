@@ -1,11 +1,22 @@
-function [WakeBoutCount,WakeBoutMean,SwsBoutCount,SwsBoutMean,RemsBoutCount,RemsBoutMean,BriefWakeCount]=DetectStateEpisodesIntervalMode(statearray,AnalysisInterval);
-%statearray is the sequence of state scores for the ENTIRE recording.  0=wake; 1=SWS; 2= REMS.
-
-%DO NOT run this function on sub-intervals of data.  Run it on entire sequence of epochs. It will divide output data into intervals of duration AnalysisInterval.
-
+function [WakeBoutCount,WakeBoutMean,SwsBoutCount,SwsBoutMean,RemsBoutCount,RemsBoutMean,BriefWakeCount]=DetectStateEpisodesIntervalMode(statearray,AnalysisInterval,epoch_length_in_seconds);
+%usage: [WakeBoutCount,WakeBoutMean,SwsBoutCount,SwsBoutMean,RemsBoutCount,RemsBoutMean,BriefWakeCount]=DetectStateEpisodesIntervalMode(statearray,AnalysisInterval,epoch_length_in_seconds);
+%
+%
+% 
+%
+% DO NOT run this function on sub-intervals of data.  Run it on entire sequence of epochs. It will divide output data into intervals of duration AnalysisInterval.
+%
 %This function will divide that array into appropriate intervals based on the AnalysisInterval input.
+%
+% INPUTS: 
+% statearray               the sequence of state scores for the ENTIRE recording.  0=wake; 1=SWS; 2= REMS.
+% AnalysisInterval          the number of epochs per unit of analysis.  Read in from the user at the beginning of SLEEPREPORT.m
+% 
+% OUTPUTS WILL BE VECTORS OF LENGTH floor(length(statearray)/AnalysisInterval)
+% BriefWakeCount:      The number of wake episodes that are shorter than brief_wake_definition in seconds. 
 
-%OUTPUTS WILL BE VECTORS OF LENGTH floor(length(statearray)/AnalysisInterval);
+brief_wake_definition = 20;              % any wake episode shorter than this (in seconds) will be considered a brief awakening. 
+rows_in_brief_awakening = brief_wake_definition/epoch_length_in_seconds;
 
 try
     if (class (statearray(1))=='char')   %this loop converts a char array into a double array if needed
@@ -14,6 +25,7 @@ try
         statearray(states=='w')=0;
         statearray(states=='s')=1;
         statearray(states=='r')=2;
+        statearray(states=='p')=2;
         statearray(isnan(statearray))=0;
     end
 end
@@ -40,7 +52,7 @@ BoutStats(3,2:end)=diff(BoutStats(1,:));
 AllWakeBouts=find(BoutStats(2,:)==0);
 AllSWSBouts=find(BoutStats(2,:)==1);
 AllRemsBouts=find(BoutStats(2,:)==2);
-AllBriefWake=intersect(AllWakeBouts, find(BoutStats(3,:)<2));
+AllBriefWake=intersect(AllWakeBouts, find(BoutStats(3,:)<rows_in_brief_awakening));
 
 WakeBoutMean=NaN(1,NumIntervals);
 SwsBoutMean=NaN(1,NumIntervals);

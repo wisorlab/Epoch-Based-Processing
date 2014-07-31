@@ -2,14 +2,14 @@ clear  %clears all pre-existing variables from the workspace so they do not impa
 
 %the user picks interval duration 
 
-prompt = { 'This program reports sleep states W,N,R as a percent of each analysis interval and FFTs in equivalent intervals.  How many 10-sec epochs do you wish to include in each analysis interval? ' };
+prompt = { 'This program reports sleep states W,N,R as a percent of each analysis interval and FFTs in equivalent intervals.  How many epochs (10-sec or 2-sec) do you wish to include in each analysis interval? ' };
 BinString = inputdlg(prompt,'Input',1,{'360'});
 BinName=['% ' BinString  '-Epoch Interval'];
 IntervalDuration = str2double( BinString{1,1} );
 
 % look for 'matlab-utils' in the matlab folder
 % addpath ../../../Matlab/etc/matlab-utils/;
-addpath ../../../../Matlab/etc/matlab-utils/
+%addpath ../../../../Matlab/etc/matlab-utils/
 addpath C:/Users/wisorlab/Documents/MATLAB/Brennecke/matlab-pipeline/Matlab/etc/matlab-utils;
 addpath (pwd)
 
@@ -41,17 +41,17 @@ NumberEEGColumns=20;
 %Output arrays are created here.  They have one row for each file and one
 %column for each anaylsis interval or analysis interval X EEG frequency
 %bin.
-OutputPctSWS = cell(length(files)+1,maxIntervals+1);
-OutputPctWake= cell(length(files)+1,maxIntervals+1);
+OutputPctSWS   = cell(length(files)+1,maxIntervals+1);
+OutputPctWake  = cell(length(files)+1,maxIntervals+1);
 OutputPctREMS  = cell(length(files)+1,maxIntervals+1);
-OutputSWA1=     cell(length(files)+1,maxIntervals+1);
-OutputSWA2=     cell(length(files)+1,maxIntervals+1);
-OutputEEG1SWS= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
-OutputEEG1Wake= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
-OutputEEG1REMS= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
-OutputEEG2SWS= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
-OutputEEG2Wake= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
-OutputEEG2REMS= cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputSWA1     = cell(length(files)+1,maxIntervals+1);
+OutputSWA2     = cell(length(files)+1,maxIntervals+1);
+OutputEEG1SWS  = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputEEG1Wake = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputEEG1REMS = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputEEG2SWS  = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputEEG2Wake = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
+OutputEEG2REMS = cell(length(files)+1,maxIntervals*NumberEEGColumns+1);
 
 
 %Now count minutes of sleep and process FFT data.  These will be outputted
@@ -71,9 +71,15 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     %It is a major caveat that the headers from the txt file are retained in textdata but not in data, which means that data and textdata are not aligned with respect to epoch number
     numberIntervals(FileCounter)=(fix(length(data)/IntervalDuration));
     
-     statechars=char(textdata(3:end,2));
+    % compute the epoch length in seconds and the number of epochs per minute
+    DT1=DateTime(textdata{3,1});
+    DT2=DateTime(textdata{4,1});
+    epoch_length_in_seconds = DT2.second-DT1.second;
+    epochs_per_minute = 60/epoch_length_in_seconds;
+
+    statechars=char(textdata(3:end,2));
     [WakeBoutCount(FileCounter,:),WakeBoutMean(FileCounter,:),SwsBoutCount(FileCounter,:),SwsBoutMean(FileCounter,:),RemsBoutCount(FileCounter,:),RemsBoutMean(FileCounter,:),BriefWakeCount(FileCounter,:)]=...
-        DetectStateEpisodesIntervalMode(statechars,IntervalDuration);
+    DetectStateEpisodesIntervalMode(statechars,IntervalDuration,epoch_length_in_seconds);
     
 
     
@@ -143,7 +149,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
       %here, we identify and count epochs of each state.
         
         SWSEpochs=find(logical(State=='S'));
-        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/6;
+        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epoch_length_in_seconds;
         if SWSMinutes(FileCounter,BinReader)>0
             SWSEEG1FFT=EEG1fft(SWSEpochs(:),:);
             SWSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(SWSEEG1FFT);
@@ -159,7 +165,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         WakeEpochs=find(logical(State=='W' | State=='X'));
-        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/6;
+        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epoch_length_in_seconds;
         if WakeMinutes(FileCounter,BinReader)>0
             WakeEEG1FFT=EEG1fft(WakeEpochs(:),:);
             WakeEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(WakeEEG1FFT);
@@ -171,7 +177,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         REMSEpochs=find(logical(State=='R' | State=='P'));
-        REMSMinutes(FileCounter,BinReader)=numel(REMSEpochs)/6;
+        REMSMinutes(FileCounter,BinReader)=numel(REMSEpochs)/epoch_length_in_seconds;
         if REMSMinutes(FileCounter,BinReader)>0
             REMSEEG1FFT=EEG1fft(REMSEpochs(:),:);
             REMSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(REMSEEG1FFT);
@@ -191,19 +197,19 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     %the for loop is necessary because whole lines of numerical data cannot
     %be placed into a cell array chunk-wise.
     for IntervalCount=1:numberIntervals
-        CellOutPctSWS  {FileCounter,IntervalCount} = SWSMinutes(FileCounter,IntervalCount);
-        CellOutPctWake  {FileCounter,IntervalCount} = WakeMinutes(FileCounter,IntervalCount);
-        CellOutPctREMS  {FileCounter,IntervalCount} = REMSMinutes(FileCounter,IntervalCount);
-        CellOutSWA1  {FileCounter,IntervalCount} = SWAEEG1Average(FileCounter,IntervalCount);
-        CellOutSWA2  {FileCounter,IntervalCount} = SWAEEG1Average(FileCounter,IntervalCount);
+        CellOutPctSWS{FileCounter,IntervalCount}  = SWSMinutes(FileCounter,IntervalCount);
+        CellOutPctWake{FileCounter,IntervalCount} = WakeMinutes(FileCounter,IntervalCount);
+        CellOutPctREMS{FileCounter,IntervalCount} = REMSMinutes(FileCounter,IntervalCount);
+        CellOutSWA1{FileCounter,IntervalCount}    = SWAEEG1Average(FileCounter,IntervalCount);
+        CellOutSWA2{FileCounter,IntervalCount}    = SWAEEG2Average(FileCounter,IntervalCount);
         
         for HertzCount=1:NumberEEGColumns
             CellOutEEG1SWS  {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = SWSEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
             CellOutEEG1Wake {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = WakeEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
             CellOutEEG1REMS {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = REMSEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
-            CellOutEEG2SWS  {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = SWSEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
-            CellOutEEG2Wake {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = WakeEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
-            CellOutEEG2REMS {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = REMSEEG1Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
+            CellOutEEG2SWS  {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = SWSEEG2Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
+            CellOutEEG2Wake {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = WakeEEG2Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
+            CellOutEEG2REMS {FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount} = REMSEEG2Average(FileCounter,(IntervalCount-1)*NumberEEGColumns+HertzCount);
         end
     end
     
