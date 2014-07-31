@@ -18,6 +18,7 @@ try
     end
 end
 
+
 NumIntervals=floor(length(statearray)/AnalysisInterval);
 IntervalStart=1:AnalysisInterval:(AnalysisInterval*NumIntervals);
 IntervalStop=AnalysisInterval:AnalysisInterval:(AnalysisInterval*NumIntervals);
