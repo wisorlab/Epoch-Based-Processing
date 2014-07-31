@@ -3,4 +3,4 @@
 	url = https://github.com/jonbrennecke/matlab-utils
 [submodule "Timed_Intervals/export/etc/matlab-utils"]
 	path = Timed_Intervals/export/etc/matlab-utils
-	url = https://github.com/jonbrennecke/matlab-utils
+	url = https://github.com/jonbrennecke/matlab-utils 
