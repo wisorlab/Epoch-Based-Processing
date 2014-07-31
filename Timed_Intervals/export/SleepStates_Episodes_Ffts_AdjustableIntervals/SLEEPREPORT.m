@@ -149,7 +149,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
       %here, we identify and count epochs of each state.
         
         SWSEpochs=find(logical(State=='S'));
-        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epoch_length_in_seconds;
+        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epochs_per_minute;
         if SWSMinutes(FileCounter,BinReader)>0
             SWSEEG1FFT=EEG1fft(SWSEpochs(:),:);
             SWSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(SWSEEG1FFT);
@@ -165,7 +165,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         WakeEpochs=find(logical(State=='W' | State=='X'));
-        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epoch_length_in_seconds;
+        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute;
         if WakeMinutes(FileCounter,BinReader)>0
             WakeEEG1FFT=EEG1fft(WakeEpochs(:),:);
             WakeEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(WakeEEG1FFT);
@@ -177,7 +177,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         REMSEpochs=find(logical(State=='R' | State=='P'));
-        REMSMinutes(FileCounter,BinReader)=numel(REMSEpochs)/epoch_length_in_seconds;
+        REMSMinutes(FileCounter,BinReader)=numel(REMSEpochs)/epochs_per_minute;
         if REMSMinutes(FileCounter,BinReader)>0
             REMSEEG1FFT=EEG1fft(REMSEpochs(:),:);
             REMSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(REMSEEG1FFT);
