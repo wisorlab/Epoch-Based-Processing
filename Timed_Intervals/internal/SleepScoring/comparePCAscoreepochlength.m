@@ -53,7 +53,7 @@ end
 
 
 
-% call classify_usingPCA.m for each file 
+% call classify_usingPCA.m for each file (and restrict each file to only 8640 epochs starting at 10AM)
 for i=1:length(two_sec_files)
 	two_sec_files(i).name
 	[predicted_score,kappa2sec(i),global_agreement2sec(i),wake_agreement2sec(i),SWS_agreement2sec(i),REM_agreement2sec(i)] ...
