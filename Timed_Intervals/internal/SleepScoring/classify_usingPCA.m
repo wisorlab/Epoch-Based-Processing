@@ -1,27 +1,35 @@
-function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal,already_scored_by_human)
+function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal,already_scored_by_human,restrict,writefile)
 	% Usage: [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal)
 	%
 	%
-	% This funtion uses a Principal Component Analysis approach to classify the sleep state of each epoch of the file filename. 
+	% This function uses a Principal Component Analysis approach to classify the sleep state of each epoch of the file filename. 
 	% The approach is based on Gilmour et al 2010, but instead of visually drawing lines separating states, this function 
 	% calls classify.m to to draw curves around the respective regions. 
 	%
-	% As of 7.23.14 this function reads in an already-scored .txt file and takes a subset of the file as training data. 
-	% I will update it to read in a partially-scored file for the training 
-	%
+	% 
 	%
 	% Inputs:
 	%        filename:      name of the .txt file. This can either be partially-scored or fully scored. 
 	%        signal:        'EEG1' or 'EEG2'.  Which signal to use.
 	%        already_scored_by_human: a boolean, 1 if this file has been fully scored already by a person, 0 if it 
 	%                                 has only had a subset scored by a person as training for the learning algorithm 
-	%                                 and the rest of the epochs left blank.
+	%                                 and the rest of the epochs left blank.  This determines how unscored epochs are 
+	%                                 handled. Sometimes in a fully-scored file blank epochs are considered wake, whereas 
+	%                                 in a partially-scored file we think of blank epochs as the ones that need to be
+	%                                 filled in by the learning algorithm.
+	%        restrict:      1 if you want to restrict the dataset to only 8640 epochs, 0 if you don't. I needed this 
+	%                       to compare 8640 epochs of 2sec epoch data to 8640 epochs of 10sec epoch data in comparePCAscoreepochlength.m
+	%        writefile:     1 if you want to generate a new .txt file, 0 if you don't
 	%
-	% As of now, this reads in a fully-scored .txt file and only keeps a random 5% of the data. 
-	% Modify it to read in a partially-scored .txt file 
-	% TO DO: should this write to the excel file (or a new name excel file) so a user could just call 
-	% this function on a partially-scored .txt file and end up with a fully-scored .txt file?
+	%
 
+
+if nargin==3
+	restrict=0; writefile=0;
+end
+if nargin==4
+	writefile=0;
+end
 
 
 	% -- First import the .txt file
@@ -29,7 +37,21 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	addpath ..  %where importdatafile.m lives
 	[data,textdata]=importdatafile(filename);
 	TimeStampMatrix = create_TimeStampMatrix_from_textdata(textdata);
-	size(data)
+	
+
+% throw away all the data except for 8640 epochs if restrict is set to 1
+if restrict
+	% addpath ../../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/  % where DateTime is located
+	% DT1=DateTime(textdata{1,1})
+	tenAMlocs = find(TimeStampMatrix(4,:)==10 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %10:00, 10:00AM
+	data = data(tenAMlocs(1):tenAMlocs(1)+8640,:);
+	textdata = textdata(tenAMlocs(1):tenAMlocs(1)+8640,:);
+end
+size(data)
+size(textdata)
+pause
+
+
 
     % Set up the sleep state as a variable
 	SleepState=zeros(size(data,1),1);
@@ -120,13 +142,18 @@ end
 
 % Smoothing
 for i=1:7
-	FeatureSmoothed(:,i)=medianfiltervectorized(Feature(:,i),2);
+	Feature(:,i)=medianfiltervectorized(Feature(:,i),2);
 end
 
 % Compute the Principal Components
 scalefactor = max(max(Feature))-min(min(Feature));
 [Coeff,PCAvectors,latent,tsquared,explained]=pca((2*(Feature-max(max(Feature))))./scalefactor+1);
 explained
+
+
+% Determine if the file has been fully scored or not.
+% If it has been fully scored keep only a portion of the scored .txt file
+% and re-score the whole thing using PCA.
 
 if already_scored_by_human
 	% --- use the data from 10AM to 2PM as training data
@@ -147,9 +174,7 @@ else
 	scored_rows=(SleepState<=2);    % 0-2=wake/SWS/REM, 8=not scored
 end
 
-% % Determine if the file has been fully scored or not.
-% % If it has been fully scored keep only a portion of the scored .txt file
-% % and re-score the whole thing using PCA.
+% 
 % % If it has only been partially scored (less than 90%) the rows marked with 8 are unscored.
 % percent_of_rows_not_scored = length(find(SleepState==8))/length(SleepState);
 
@@ -193,5 +218,6 @@ predicted_score = predicted_sleep_state;
 
 % export a new excel file where the column of sleep state has been overwritten with the computer-scored
 % sleep states
-write_scored_file(filename,predicted_score);
-
+if writefile
+	write_scored_file(filename,predicted_score);
+end

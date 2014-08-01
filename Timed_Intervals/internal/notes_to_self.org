@@ -1433,3 +1433,21 @@ git push origin master
 
 
 * Friday, August 1, 2014
+I'm running PCASCOREBATCHMODE on the BA files that have been re-scored in 2-second epochs.  The statistics are not very good, especially kappa. 
+One thing to try:  Since Will focused in on the 10AM-2PM timeframe when he rescored the files into two second epochs I'm using that 
+as training data, but I'm keeping all the other data in there too.  One thing to try would be to set all the other epochs to unscored and 
+see if that helps.  
+
+Notes from talk with Jonathan:  To compare the computer-trained data to human data use both the 10-second and 2-second epoch files.
+Do 8440 epochs in both 10sec and 2sec epochs and compare computer to human.  This way we are taking the epoch length out of the equation. 
+
+I think I finally understand:  I will compare 8640 human-scored epochs to 8640 computer-scored epochs in the 10-second epoch case
+and the same thing for 2-second epochs (8640 human-scored epochs vs 8640 computer-scored epochs).  I'll compute the kappa for the 
+human-scored vs computer-scored on these 8640 epochs.  So for the computer-scored I'm using 100% of the data as training data.  
+Then do a random 5%, 10%, 20% ect. and make a plot of kappa vs % of dataset used as training for the computer scoring.  8640 epochs 
+is 24 hours if the epoch length is 10 seconds.  If epoch length is 2 seconds it's about 5 hours.  
+
+I started coding this up in comparePCAscoreepochlength.m.  Will says that he is updating the files on glitch so re-copy them into
+my 2SecondEpochs directory. Keep thinking about a way to make transparent plots in matlab.  patch may be one way to do it. 
+I may be able to just replace calls to gscatter with patch.  
+
