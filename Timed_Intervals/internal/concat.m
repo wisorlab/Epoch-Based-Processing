@@ -31,11 +31,18 @@ for i=1:length(files)
     if i==2 
     	% calculate the time difference between the two files (in seconds)
     	% and interpolate times between the two
-    	tlast = regexp(lines{1,1}{1,1}{j},'(\d+/\d+/\d+)','match');
+    	
+        tlast = regexp(lines{1,1}{1,1}{j},'(\d+/\d+/\d+)','match');
         tstamp1 = regexp(lines{1,1}{1,1}{j},'(\d+):(\d+):(\d+)','tokens');
         tstamp2 = regexp(lines{1,2}{1,1}{3},'(\d+):(\d+):(\d+)','tokens');
+        tstampprevious = regexp(lines{1,1}{1,1}{j-1},'(\d+):(\d+):(\d+)','tokens');
         tsec = [str2num([tstamp1{1,1}{1};tstamp2{1,1}{1}])*60^2,str2num([tstamp1{1,1}{2};tstamp2{1,1}{2}])*60,str2num([tstamp1{1,1}{3};tstamp2{1,1}{3}])];
-        tdelta = sum(tsec(2,:)-tsec(1,:)); % time delta in seconds
+        tdelta = sum(tsec(2,:)-tsec(1,:)); % time gap that needs to be filled in (in seconds)
+
+        % compute the epoch length 
+        dt = str2num([tstampprevious{1,1}{3};tstamp1{1,1}{3}]);
+        epoch_length = dt(2)-dt(1); % time gap that needs to be filled in (in seconds)
+        
 
     if tdelta > 300
 	disp(['WARNING: There is a gap of ' num2str(tdelta/60) ' minutes between the two files.'])        
@@ -44,9 +51,9 @@ for i=1:length(files)
 
 
         % create duplicate rows bridging the gap between the files
-        for k=1:floor(tdelta/10)
+        for k=1:floor(tdelta/epoch_length)
         	% convert tdelta (seconds) back into sec, min, hour
-        	t = sum(tsec(1,:),2) + 10*k;
+        	t = sum(tsec(1,:),2) + epoch_length*k;
         	s = mod(t,60); m = floor(mod(t-s,60^2)/60); h = floor((t-s-m)/60^2);
 
 

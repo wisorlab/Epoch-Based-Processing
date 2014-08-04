@@ -1,4 +1,4 @@
-function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal,already_scored_by_human,restrict,writefile)
+function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal,already_scored_by_human,restrict,percent_training,writefile)
 	% Usage: [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,REM_agreement]=classify_usingPCA(filename,signal)
 	%
 	%
@@ -10,27 +10,37 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	%
 	% Inputs:
 	%        filename:      name of the .txt file. This can either be partially-scored or fully scored. 
+	%
 	%        signal:        'EEG1' or 'EEG2'.  Which signal to use.
+	%
 	%        already_scored_by_human: a boolean, 1 if this file has been fully scored already by a person, 0 if it 
 	%                                 has only had a subset scored by a person as training for the learning algorithm 
 	%                                 and the rest of the epochs left blank.  This determines how unscored epochs are 
 	%                                 handled. Sometimes in a fully-scored file blank epochs are considered wake, whereas 
 	%                                 in a partially-scored file we think of blank epochs as the ones that need to be
 	%                                 filled in by the learning algorithm.
-	%        restrict:      1 if you want to restrict the dataset to only 8640 epochs, 0 if you don't. I needed this 
-	%                       to compare 8640 epochs of 2sec epoch data to 8640 epochs of 10sec epoch data in comparePCAscoreepochlength.m
+	%
+	%        restrict:                1 if you want to restrict the dataset to only 8640 epochs, 0 if you don't. I needed this 
+	%                                 to compare 8640 epochs of 2sec epoch data to 8640 epochs of 10sec epoch data in comparePCAscoreepochlength.m
+	%
+	%        percent_training:        if you are restricting the data to only 8640 epochs, use this percent of the 8640 epochs to 
+	%                                 train the algorithm (0<percent_training<=1).  The code chooses a random subset of the 8640 epochs.
+	%                                 Default is 1 (use all of the training data).
+	%
 	%        writefile:     1 if you want to generate a new .txt file, 0 if you don't
 	%
 	%
 
 
 if nargin==3
-	restrict=0; writefile=0;
+	restrict=0; percent_training=1; writefile=0;
 end
 if nargin==4
+	percent_training=1; writefile=0;
+end
+if nargin==5
 	writefile=0;
 end
-
 
 	% -- First import the .txt file
 	% data has columns: lactate, EEG1_0.5-1Hz, EEG1_1-2Hz etc.
@@ -41,15 +51,11 @@ end
 
 % throw away all the data except for 8640 epochs if restrict is set to 1
 if restrict
-	% addpath ../../../../../../Brennecke/matlab-pipeline/Matlab/etc/matlab-utils/  % where DateTime is located
-	% DT1=DateTime(textdata{1,1})
 	tenAMlocs = find(TimeStampMatrix(4,:)==10 & TimeStampMatrix(5,:)==0 & TimeStampMatrix(6,:)==0); %10:00, 10:00AM
 	data = data(tenAMlocs(1):tenAMlocs(1)+8640,:);
 	textdata = textdata(tenAMlocs(1):tenAMlocs(1)+8640,:);
 end
-size(data)
-size(textdata)
-pause
+
 
 
 
@@ -171,7 +177,12 @@ if already_scored_by_human
 	%percent_scored = 5;             % this is case where file has been scored.  we're just re-scoring it using a random 5% for training.
 	%scored_rows = datasample(1:length(PCAvectors),round((percent_scored/100)*length(PCAvectors)),'Replace',false);
 else
-	scored_rows=(SleepState<=2);    % 0-2=wake/SWS/REM, 8=not scored
+	scored_rows = (SleepState<=2);    % 0-2=wake/SWS/REM, 8=not scored
+	
+	scored_rows = datasample(scored_rows,round(percent_training*length(scored_rows)),'Replace',false); 
+	% while length(find(SleepState(scored_rows)==2))==0
+	% 	scored_rows = datasample(scored_rows,round(percent_training*length(scored_rows)),'Replace',false); 
+	% end
 end
 
 % 
@@ -187,8 +198,8 @@ end
 % end
 
 % Do quadratic discriminant analysis to classify each epoch into wake, SWS, or REM using the PCA vectors
-predicted_sleep_state = classify(PCAvectors(:,1:3),PCAvectors(scored_rows,1:3),SleepState(scored_rows),'diaglinear');  % if you use diaglinear or diagQuadratic it's a Naive Bayes
-
+[predicted_sleep_state,err] = classify(PCAvectors(:,1:3),PCAvectors(scored_rows,1:3),SleepState(scored_rows),'diaglinear');  % if you use diaglinear or diagQuadratic it's a Naive Bayes
+err 
 
 
 

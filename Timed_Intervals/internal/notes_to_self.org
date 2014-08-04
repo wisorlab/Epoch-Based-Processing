@@ -1439,7 +1439,7 @@ as training data, but I'm keeping all the other data in there too.  One thing to
 see if that helps.  
 
 Notes from talk with Jonathan:  To compare the computer-trained data to human data use both the 10-second and 2-second epoch files.
-Do 8440 epochs in both 10sec and 2sec epochs and compare computer to human.  This way we are taking the epoch length out of the equation. 
+Do 8640 epochs in both 10sec and 2sec epochs and compare computer to human.  This way we are taking the epoch length out of the equation. 
 
 I think I finally understand:  I will compare 8640 human-scored epochs to 8640 computer-scored epochs in the 10-second epoch case
 and the same thing for 2-second epochs (8640 human-scored epochs vs 8640 computer-scored epochs).  I'll compute the kappa for the 
@@ -1450,4 +1450,21 @@ is 24 hours if the epoch length is 10 seconds.  If epoch length is 2 seconds it'
 I started coding this up in comparePCAscoreepochlength.m.  Will says that he is updating the files on glitch so re-copy them into
 my 2SecondEpochs directory. Keep thinking about a way to make transparent plots in matlab.  patch may be one way to do it. 
 I may be able to just replace calls to gscatter with patch.  
+
+* Monday, August 4, 2014
+Keep looking at scatterhist.m and other ways to do transparency.  Perhaps in plotly. In plotyly it is done under traces then style. 
+It looks good.  I think I can name the file when I call the command in matlab that makes a plotly graph.  There is an argument that 
+is for name.  
+
+comparePCAscoreepochlength.m seems to be running.  The kappa values and agreement values are not great, but I'm still working on it. 
+
+I'm computing kappa and agreement statistics using 5%, 10%....90% 100% of the 8640 epochs as training data.  The problem is that when 
+using only 5% of the scored epochs as training data I sometimes miss REM altogether.  Therefore the learning algorithm doesn't classify 
+anything as REM.  Modify my approach so I am assured of getting at least some of each stage.  My attempt at a quick fix didn't work. 
+For now just leave it in there as a 0.  If you're only using a random 5% of the data, you may not get any REM.  Should I do 5% 
+from each category to train the algorithm?  
+
+To get the kappa values higher: I could try doing something like what autoscore does.  I do have data in 1 Hz bins so I could use that 
+along with EMG as my feature vectors.  Just try all the columns of data including EMG.  It's not that different from what autoscore.m 
+does.    I saved the kappa figure as an eps (or pdf) on my laptop.  
 

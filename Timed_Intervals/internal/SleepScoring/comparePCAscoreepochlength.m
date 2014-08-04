@@ -1,7 +1,8 @@
 function [wake_agreement2sec,SWS_agreement2sec,REM_agreement2sec,global_agreement2sec,kappa2sec, ...
 	      wake_agreement10sec,SWS_agreement10sec,REM_agreement10sec,global_agreement10sec,kappa10sec] = comparePCAscoreepochlength(signal,twosecdirectory,tensecdirectory)
 
-% usage: comparePCAscoreepochlength(signal,directory)
+% usage: [wake_agreement2sec,SWS_agreement2sec,REM_agreement2sec,global_agreement2sec,kappa2sec, ...
+%	      wake_agreement10sec,SWS_agreement10sec,REM_agreement10sec,global_agreement10sec,kappa10sec] = comparePCAscoreepochlength(signal,twosecdirectory,tensecdirectory)
 %
 %
 % This function calls classify_usingPCA.m on each .txt file in the directory given as the 
@@ -15,8 +16,8 @@ function [wake_agreement2sec,SWS_agreement2sec,REM_agreement2sec,global_agreemen
 %
 % This script first reads in the files than removes all of the data except 
 % the 8640 epochs starting at the first instance of 10 AM.  
-
-
+%
+%
 %A boxplot is made summarizing these statistics for all files in this directory.
 %
 % INPUTS:
@@ -25,7 +26,7 @@ function [wake_agreement2sec,SWS_agreement2sec,REM_agreement2sec,global_agreemen
 % tensecdirectory: where the txt files are kept that are scored in 10 sec epochs (don't forget the final \)
 %
 % TO DO: 
-% Make the return arguments cell arrays so I don't have some many different things returned. 
+% Make the return arguments cell arrays or structs so I don't have some many different things returned. 
 % I could have one cell array for wake agreement. It would have a vector in each entry that contains
 % the wake agreement percentage for each dataset, etc. 
 
@@ -57,14 +58,14 @@ end
 for i=1:length(two_sec_files)
 	two_sec_files(i).name
 	[predicted_score,kappa2sec(i),global_agreement2sec(i),wake_agreement2sec(i),SWS_agreement2sec(i),REM_agreement2sec(i)] ...
-	     =classify_usingPCA(strcat(directory,two_sec_files(i).name),signal,0,1,0);
+	     =classify_usingPCA(strcat(twosecdirectory,two_sec_files(i).name),signal,0,1,1,0);
 	clear predicted_score 
 end
 
 for i=1:length(ten_sec_files)
 	ten_sec_files(i).name
 	[predicted_score,kappa10sec(i),global_agreement10sec(i),wake_agreement10sec(i),SWS_agreement10sec(i),REM_agreement10sec(i)] ...
-	     =classify_usingPCA(strcat(directory,ten_sec_files(i).name),signal,0,1,0);
+	     =classify_usingPCA(strcat(tensecdirectory,ten_sec_files(i).name),signal,0,1,1,0);
 	clear predicted_score 
 end
 
@@ -77,4 +78,30 @@ boxplot([wake_agreement2sec',SWS_agreement2sec',REM_agreement2sec',global_agreem
 	'plotstyle','compact','boxstyle','filled','colors','rb');
 ax=gca();
 set(ax,'YGrid','on')
-title(directory)
+title({twosecdirectory,tensecdirectory})
+
+
+% Now make a second plot of kappa vs the percentage of training data used
+training = [0.05 0.1 0.2 0.4 0.5 0.6 0.7 0.8 0.9 0.95 1]
+for j=1:length(training)
+	for i=1:length(two_sec_files)
+		two_sec_files(i).name
+		[predicted_score,kappa2sec(i,j),global_agreement2sec(i,j),wake_agreement2sec(i,j),SWS_agreement2sec(i,j),REM_agreement2sec(i,j)] ...
+		=classify_usingPCA(strcat(twosecdirectory,two_sec_files(i).name),signal,0,1,training(j),0);
+		clear predicted_score 
+	end
+
+	for i=1:length(ten_sec_files)
+		ten_sec_files(i).name
+		[predicted_score,kappa10sec(i,j),global_agreement10sec(i),wake_agreement10sec(i),SWS_agreement10sec(i),REM_agreement10sec(i)] ...
+		=classify_usingPCA(strcat(tensecdirectory,ten_sec_files(i).name),signal,0,1,training(j),0);
+		clear predicted_score 
+	end
+end
+
+
+figure
+errorbar(training,mean(kappa2sec,1),std(kappa2sec,1)./size(kappa2sec,1))
+hold on
+errorbar(training,mean(kappa10sec,1),std(kappa10sec,1)./size(kappa10sec,1),'r')
+hold off
