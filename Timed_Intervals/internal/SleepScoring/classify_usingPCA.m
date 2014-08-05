@@ -107,9 +107,9 @@ end
 	   % 	end
 	   % end
 
-% Handle artifacts 
+% Handle artefacts 
   if length(find(SleepState(:,1)==5)) > 0
-    disp('I found some artefacts')
+    disp(['I found ', num2str(length(find(SleepState(:,1)==5))) ' epochs marked as artefact'])
     SleepState = handle_artefacts(SleepState);     % After this step there are no more epochs scored as 5
   end 
 
@@ -198,7 +198,7 @@ end
 % end
 
 % Do quadratic discriminant analysis to classify each epoch into wake, SWS, or REM using the PCA vectors
-[predicted_sleep_state,err] = classify(PCAvectors(:,1:3),PCAvectors(scored_rows,1:3),SleepState(scored_rows),'diaglinear');  % if you use diaglinear or diagQuadratic it's a Naive Bayes
+[predicted_sleep_state,err] = classify(PCAvectors(:,1:3),PCAvectors(scored_rows,1:3),SleepState(scored_rows),'diaglinear','empirical');  % Naive Bayes
 err 
 
 

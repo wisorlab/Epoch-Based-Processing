@@ -1468,3 +1468,17 @@ To get the kappa values higher: I could try doing something like what autoscore 
 along with EMG as my feature vectors.  Just try all the columns of data including EMG.  It's not that different from what autoscore.m 
 does.    I saved the kappa figure as an eps (or pdf) on my laptop.  
 
+* Tuesday, August 5, 2014
+I sent Jon and Will an auto-scored .txt file so they can convert it to an edf and compare the EEG and EMG signals to the 
+state scoring that the algorithm came up with.  
+
+BIG thing now: I need to settle on an autoscoring procedure.  Are we OK with the kappa values that I'm currently getting?  If so, 
+we can move forward with everything else: sleep reports, kappa statistics on how much of the file needs to be scored by hand
+as training, running my SWA and lactate models with data scored at 2-second epochs. 
+
+BA and BL global agreement are 90% when I use 10AM-2PM to train the algorithm to score the entire dataset.  Kappa is above
+0.8 for both strains.  
+
+I re-ran comparePCAscoreepochlength.m using the 'empirical' option on classify.m.  Kappa values are slightly larger. Same pattern
+I updated comparePCAscoreepochlength.m to include all the agreement parameters on the errorbar plot.  Run it for BA and BL.  
+

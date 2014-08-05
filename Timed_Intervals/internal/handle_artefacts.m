@@ -41,21 +41,24 @@ end
 % Non-edge cases
 %for i=2:size(runs_matrix,1)-1
 for i=iterations	
-	if VarsWithArtefacts(runs_matrix(i,1)-1,1) == VarsWithArtefacts(runs_matrix(i,2)+1,1)
+	if VarsWithArtefacts(runs_matrix(i,1)-1,1) == VarsWithArtefacts(runs_matrix(i,2)+1,1)   % if state is the same just before and just after artefact
 		%runs_matrix(i,1)
 		state = VarsWithArtefacts(runs_matrix(i,1)-1,1);
 		CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),1) = state;
 	%CleanedUpVars(runs_matrix(i,1)-3:runs_matrix(i,2)+3,1)
 	%pause
+	elseif VarsWithArtefacts(runs_matrix(i,1)-1,1) == 0 | VarsWithArtefacts(runs_matrix(i,2)+1,1) == 0 % if either state just before or just after is wake, call artefact wake
+		CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),1) = 0;
 	else
-		 mode_window = [runs_matrix(i,1)-5:runs_matrix(i,1)-1 runs_matrix(i,2)+1:runs_matrix(i,2)+5];
+		 mode_window = [runs_matrix(i,1)-5:runs_matrix(i,1)-1 runs_matrix(i,2)+1:runs_matrix(i,2)+5]; % if neither state just before or just after is wake, use the mode 
 		 locs = find((VarsWithArtefacts(mode_window,1))~=5);  % find all epochs within 5 each way that are not also 5
 		 state = mode(VarsWithArtefacts(mode_window(locs),1));
 		 
-		%state = mode(VarsWithArtefacts([runs_matrix(i,1)-6:runs_matrix(i,1)-1 runs_matrix(i,2)+1 runs_matrix(i,2)+6],1));
+		
 		CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),1) = state; %if state is not the same immediately before and after, just use the most common state 
 	end
-	% average all of EEG and EMG data
+	
+	% to fill in the EEG and EMG data during the artefact, take the average all of EEG and EMG data just before and just after the artefact 
 	CleanedUpVars(runs_matrix(i,1):runs_matrix(i,2),2:end) = repmat(mean(VarsWithArtefacts([runs_matrix(i,1)-1 runs_matrix(i,2)+1],2:end),1),runs_matrix(i,2)-runs_matrix(i,1)+1,1);
 end
 
