@@ -5,7 +5,7 @@ clear  %clears all pre-existing variables from the workspace so they do not impa
 prompt = { 'This program reports sleep states W,N,R as a percent of each analysis interval and FFTs in equivalent intervals.  How many epochs (10-sec or 2-sec) do you wish to include in each analysis interval? ' };
 BinString = inputdlg(prompt,'Input',1,{'360'});
 BinName=['% ' BinString  '-Epoch Interval'];
-IntervalDuration = str2double( BinString{1,1} );
+IntervalDuration = str2double( BinString{1,1} );    % number of epochs in one bin?
 
 % look for 'matlab-utils' in the matlab folder
 % addpath ../../../Matlab/etc/matlab-utils/;
@@ -84,7 +84,8 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
 
     
     for k = 1:length(sheetnames2)
-        xl2.setCells( sheets2{k}, [2,1],cellstr( num2str( (1:length(sheetnames2)+1)', [sheetnames2{k} '-%d']))');
+        %xl2.setCells( sheets2{k}, [2,1],cellstr( num2str( (1:length(sheetnames2)+1)', [sheetnames2{k} '-%d']))');
+        xl2.setCells(sheets2{k},[2,1],cellstr( num2str( (1:maxIntervals)', [sheetnames2{k} '-%d']))','FFEE00','true');
         sheet = xl2.Sheets.Item( sheetnames2{k} );
         xl2.setCells( sheet, [1,FileCounter+1], [files{FileCounter}, num2cell(eval([ sheetnames2{k} '(FileCounter,:)']))]);
     end
@@ -215,72 +216,72 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     
     %Concatenate Cell arrays line by line for each animal
     
-    OutputPctSWS  (FileCounter+1,2:1+length(CellOutPctSWS(FileCounter,:))) = CellOutPctSWS(FileCounter,:);
-    OutputPctWake (FileCounter+1,2:1+length(CellOutPctWake(FileCounter,:))) = CellOutPctWake(FileCounter,:);
-    OutputPctREMS (FileCounter+1,2:1+length(CellOutPctREMS(FileCounter,:))) = CellOutPctREMS(FileCounter,:);
-    OutputEEG1SWS (FileCounter+1,2:1+length(CellOutEEG1SWS(FileCounter,:))) = CellOutEEG1SWS(FileCounter,:);
+    OutputPctSWS  (FileCounter+1,2:1+length(CellOutPctSWS(FileCounter,:)))   = CellOutPctSWS(FileCounter,:);
+    OutputPctWake (FileCounter+1,2:1+length(CellOutPctWake(FileCounter,:)))  = CellOutPctWake(FileCounter,:);
+    OutputPctREMS (FileCounter+1,2:1+length(CellOutPctREMS(FileCounter,:)))  = CellOutPctREMS(FileCounter,:);
+    OutputEEG1SWS (FileCounter+1,2:1+length(CellOutEEG1SWS(FileCounter,:)))  = CellOutEEG1SWS(FileCounter,:);
     OutputEEG1Wake(FileCounter+1,2:1+length(CellOutEEG1Wake(FileCounter,:))) = CellOutEEG1Wake(FileCounter,:);
     OutputEEG1REMS(FileCounter+1,2:1+length(CellOutEEG1REMS(FileCounter,:))) = CellOutEEG1REMS(FileCounter,:);
-    OutputEEG2SWS (FileCounter+1,2:1+length(CellOutEEG2SWS(FileCounter,:))) = CellOutEEG2SWS(FileCounter,:);
+    OutputEEG2SWS (FileCounter+1,2:1+length(CellOutEEG2SWS(FileCounter,:)))  = CellOutEEG2SWS(FileCounter,:);
     OutputEEG2Wake(FileCounter+1,2:1+length(CellOutEEG2Wake(FileCounter,:))) = CellOutEEG2Wake(FileCounter,:);
     OutputEEG2REMS(FileCounter+1,2:1+length(CellOutEEG2REMS(FileCounter,:))) = CellOutEEG2REMS(FileCounter,:);
-    OutputSWA1    (FileCounter+1,2:1+length(CellOutSWA1(FileCounter,:))) = CellOutSWA1(FileCounter,:);
-    OutputSWA2    (FileCounter+1,2:1+length(CellOutSWA2(FileCounter,:))) = CellOutSWA2(FileCounter,:);
+    OutputSWA1    (FileCounter+1,2:1+length(CellOutSWA1(FileCounter,:)))     = CellOutSWA1(FileCounter,:);
+    OutputSWA2    (FileCounter+1,2:1+length(CellOutSWA2(FileCounter,:)))     = CellOutSWA2(FileCounter,:);
     
-    OutPutEmg(FileCounter+1,1) = files(FileCounter);
-    OutputSWA1(FileCounter+1,1) = files(FileCounter);
-    OutputSWA2(FileCounter+1,1) = files(FileCounter);
-    OutputEEG1SWS(FileCounter+1,1) = files(FileCounter);
+    OutPutEmg(FileCounter+1,1)      = files(FileCounter);
+    OutputSWA1(FileCounter+1,1)     = files(FileCounter);
+    OutputSWA2(FileCounter+1,1)     = files(FileCounter);
+    OutputEEG1SWS(FileCounter+1,1)  = files(FileCounter);
     OutputEEG1Wake(FileCounter+1,1) = files(FileCounter);
     OutputEEG1REMS(FileCounter+1,1) = files(FileCounter);
-    OutputEEG2SWS(FileCounter+1,1) = files(FileCounter);
+    OutputEEG2SWS(FileCounter+1,1)  = files(FileCounter);
     OutputEEG2Wake(FileCounter+1,1) = files(FileCounter);
     OutputEEG2REMS(FileCounter+1,1) = files(FileCounter);
-    OutputPctSWS(FileCounter+1,1) = files(FileCounter);
-    OutputPctWake(FileCounter+1,1) = files(FileCounter);
-    OutputPctREMS(FileCounter+1,1) = files(FileCounter);
+    OutputPctSWS(FileCounter+1,1)   = files(FileCounter);
+    OutputPctWake(FileCounter+1,1)  = files(FileCounter);
+    OutputPctREMS(FileCounter+1,1)  = files(FileCounter);
     
     
 end
 
 %label cell arrays
 
-TextNote{1} = 'File ID';
-OutputEmg(1,1) = TextNote(1);
-OutputEEG1SWS(1,1) = TextNote(1);
+TextNote{1}         = 'File ID';
+OutputEmg(1,1)      = TextNote(1);
+OutputEEG1SWS(1,1)  = TextNote(1);
 OutputEEG1Wake(1,1) = TextNote(1);
 OutputEEG1REMS(1,1) = TextNote(1);
-OutputEEG2SWS(1,1) = TextNote(1);
+OutputEEG2SWS(1,1)  = TextNote(1);
 OutputEEG2Wake(1,1) = TextNote(1);
 OutputEEG2REMS(1,1) = TextNote(1);
-OutputSWA1(1,1) = TextNote(1);
-OutputSWA2(1,1) = TextNote(1);
-OutputPctSWS(1,1) = TextNote(1);
-OutputPctWake(1,1) = TextNote(1);
-OutputPctREMS(1,1) = TextNote(1);
-OutputPctSWS(1,2:maxIntervals+1) = MakeLabel ('SWS Minutes',maxIntervals);
+OutputSWA1(1,1)     = TextNote(1);
+OutputSWA2(1,1)     = TextNote(1);
+OutputPctSWS(1,1)   = TextNote(1);
+OutputPctWake(1,1)  = TextNote(1);
+OutputPctREMS(1,1)  = TextNote(1);
+OutputPctSWS(1,2:maxIntervals+1)  = MakeLabel ('SWS Minutes',maxIntervals);
 OutputPctWake(1,2:maxIntervals+1) = MakeLabel ('Wake Minutes',maxIntervals);
 OutputPctREMS(1,2:maxIntervals+1) = MakeLabel ('REMS Minutes',maxIntervals);
-OutputEEG1SWS(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('SWS EEEG1',NumberEEGColumns,maxIntervals);
+OutputEEG1SWS(1,2:(maxIntervals*NumberEEGColumns)+1)  = MakeLabelHzBin ('SWS EEEG1',NumberEEGColumns,maxIntervals);
 OutputEEG1Wake(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('Wake EEG1',NumberEEGColumns,maxIntervals);
 OutputEEG1REMS(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('REMS EEG1',NumberEEGColumns,maxIntervals);
-OutputEEG2SWS(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('SWS EEG2',NumberEEGColumns,maxIntervals);
+OutputEEG2SWS(1,2:(maxIntervals*NumberEEGColumns)+1)  = MakeLabelHzBin ('SWS EEG2',NumberEEGColumns,maxIntervals);
 OutputEEG2Wake(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('Wake EEG2',NumberEEGColumns,maxIntervals);
 OutputEEG2REMS(1,2:(maxIntervals*NumberEEGColumns)+1) = MakeLabelHzBin ('REMS EEG2',NumberEEGColumns,maxIntervals);
 OutputSWA1(1,2:maxIntervals+1) = MakeLabel ('SWS SWA 1',maxIntervals);
 OutputSWA2(1,2:maxIntervals+1) = MakeLabel ('SWS SWA 2',maxIntervals);
-OutPutEmg(1,2:maxIntervals+1) = MakeLabel ('Emg',maxIntervals);
+OutPutEmg(1,2:maxIntervals+1)  = MakeLabel ('Emg',maxIntervals);
 
 %label output sheets
-sheets1 = xl.addSheets({ 'SWS_Minutes' });
-sheets2 = xl.addSheets({ 'REMS_Minutes' });
-sheets3 = xl.addSheets({ 'Wake_Minutes' });
-sheets4 = xl.addSheets({ 'EEG1 SWS FFT' });
-sheets5 = xl.addSheets({ 'EEG1 SWA' });
-sheets6= xl.addSheets({ 'EEG2 SWS FFT' });
-sheets7= xl.addSheets({ 'EEG2 SWA' });
-sheets8 = xl.addSheets({ 'EEG1 Wake FFT' });
-sheets9 = xl.addSheets({ 'EEG2 Wake FFT' });
+sheets1  = xl.addSheets({ 'SWS_Minutes' });
+sheets2  = xl.addSheets({ 'REMS_Minutes' });
+sheets3  = xl.addSheets({ 'Wake_Minutes' });
+sheets4  = xl.addSheets({ 'EEG1 SWS FFT' });
+sheets5  = xl.addSheets({ 'EEG1 SWA' });
+sheets6  = xl.addSheets({ 'EEG2 SWS FFT' });
+sheets7  = xl.addSheets({ 'EEG2 SWA' });
+sheets8  = xl.addSheets({ 'EEG1 Wake FFT' });
+sheets9  = xl.addSheets({ 'EEG2 Wake FFT' });
 sheets10 = xl.addSheets({ 'EEG1 REMS FFT' });
 sheets11 = xl.addSheets({ 'EEG2 REMS FFT' });
 

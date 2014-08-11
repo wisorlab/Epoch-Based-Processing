@@ -1479,6 +1479,41 @@ as training, running my SWA and lactate models with data scored at 2-second epoc
 BA and BL global agreement are 90% when I use 10AM-2PM to train the algorithm to score the entire dataset.  Kappa is above
 0.8 for both strains.  
 
-I re-ran comparePCAscoreepochlength.m using the 'empirical' option on classify.m.  Kappa values are slightly larger. Same pattern
+I re-ran comparePCAscoreepochlength.m using the 'empirical' option on classify.m.  Kappa values are slightly larger. Same pattern.
 I updated comparePCAscoreepochlength.m to include all the agreement parameters on the errorbar plot.  Run it for BA and BL.  
+
+* Wednesday, August 6, 2014
+I have plots for both BA and BL agreement statistics as a function of the 8640 training epochs used.  Each agreement 
+variable levels off after about 20% so we only need to use about 20% of the 8640 epochs as training data.  
+
+* Thursday, August 7, 2014
+Try the idea of using all the EEG and EMG data to do PCA?  
+To do today: run a sleep report of machine scored vs. human scored
+map out what can be done when.  
+
+SLEEPREPORT.m does not work on the BA compareto2sec files. I tried all of them.  I tried BA1214 individually, I tried 
+all the other files besides BA1214. 
+Choosing all .txt files and 15479 epochs didn't work either. 
+It worked for just BA120840 with 15479 epochs.  
+It worked with BA120840 and BA121140 using 15469 epochs.
+
+* Monday, August 11, 2014
+Run the SWA and lacate model on the data scored in 10-sec epochs and 2-sec epochs. 
+For now, generate autoscored .txt files for BA and BL in 10-second and 2-second epochs and 
+send them all through PROCESSLBATCHMODE.m.  
+
+Starting with BA 10-sec epochs in BA-long directory: I autoscored all the .txt files and ran PROCESSLBATCHMODE.m 
+on the original and autoscored files.  I'm storing the taui and taud data in comparingtimeconstants.mat.  Do 
+statistics on these to show that time constants did not change significantly between human vs machine scored. 
+I also did human and machine scored 10-sec epoch data for the BL files.  I saved a .xls file in the data directory
+for each.  
+
+For the 2 second epoch data for BA it seems like there aren't any SWS episodes longer than 5 minutes for the first 5 hours of the 
+experiment.   Compare these to the 10-second epoch simulations.  
+
+
+
+Also, there is new whisking data in D/Wclegern01/Lactate Whisker Stim/Sleep Report Files/ 
+so I can run my algorithm on those data too. 
+
 

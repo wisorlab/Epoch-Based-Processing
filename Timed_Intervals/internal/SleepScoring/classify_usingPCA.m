@@ -3,7 +3,7 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	%
 	%
 	% This function uses a Principal Component Analysis approach to classify the sleep state of each epoch of the file filename. 
-	% The approach is based on Gilmour et al 2010, but instead of visually drawing lines separating states, this function 
+	% The approach is based on Gilmour et al 2010, but instead of having the user visually draw lines separating states, this function 
 	% calls classify.m to to draw curves around the respective regions. 
 	%
 	% 

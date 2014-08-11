@@ -26,7 +26,7 @@ end
 
 for i=1:length(files)
 	files(i).name
-	[predicted_score,kappa(i),global_agreement(i),wake_agreement(i),SWS_agreement(i),REM_agreement(i)]=classify_usingPCA(strcat(directory,files(i).name),signal,1);
+	[predicted_score,kappa(i),global_agreement(i),wake_agreement(i),SWS_agreement(i),REM_agreement(i)]=classify_usingPCA(strcat(directory,files(i).name),signal,1,0,1,1);
 	
 clear predicted_score 
 end

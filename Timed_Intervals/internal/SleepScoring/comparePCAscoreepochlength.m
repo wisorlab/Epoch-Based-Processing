@@ -55,30 +55,30 @@ end
 
 
 % % call classify_usingPCA.m for each file (and restrict each file to only 8640 epochs starting at 10AM)
-% for i=1:length(two_sec_files)
-% 	two_sec_files(i).name
-% 	[predicted_score,kappa2sec(i),global_agreement2sec(i),wake_agreement2sec(i),SWS_agreement2sec(i),REM_agreement2sec(i)] ...
-% 	     =classify_usingPCA(strcat(twosecdirectory,two_sec_files(i).name),signal,0,1,1,0);
-% 	clear predicted_score 
-% end
+for i=1:length(two_sec_files)
+	two_sec_files(i).name
+	[predicted_score,kappa2sec(i),global_agreement2sec(i),wake_agreement2sec(i),SWS_agreement2sec(i),REM_agreement2sec(i)] ...
+	     =classify_usingPCA(strcat(twosecdirectory,two_sec_files(i).name),signal,0,1,1,0);
+	clear predicted_score 
+end
 
-% for i=1:length(ten_sec_files)
-% 	ten_sec_files(i).name
-% 	[predicted_score,kappa10sec(i),global_agreement10sec(i),wake_agreement10sec(i),SWS_agreement10sec(i),REM_agreement10sec(i)] ...
-% 	     =classify_usingPCA(strcat(tensecdirectory,ten_sec_files(i).name),signal,0,1,1,0);
-% 	clear predicted_score 
-% end
+for i=1:length(ten_sec_files)
+	ten_sec_files(i).name
+	[predicted_score,kappa10sec(i),global_agreement10sec(i),wake_agreement10sec(i),SWS_agreement10sec(i),REM_agreement10sec(i)] ...
+	     =classify_usingPCA(strcat(tensecdirectory,ten_sec_files(i).name),signal,0,1,1,0);
+	clear predicted_score 
+end
 
 
 
-% figure
-% boxplot([wake_agreement2sec',SWS_agreement2sec',REM_agreement2sec',global_agreement2sec',kappa2sec', ...
-% 	     wake_agreement10sec',SWS_agreement10sec',REM_agreement10sec',global_agreement10sec',kappa10sec'],'labels', ...
-% 	     {'Wake_2sec', 'SWS_2sec', 'REM_2sec', 'Overall_2sec', 'Kappa_2sec','Wake_10sec', 'SWS_10sec', 'REM_10sec', 'Overall_10sec', 'Kappa_10sec' }, ...
-% 	'plotstyle','compact','boxstyle','filled','colors','rb');
-% ax=gca();
-% set(ax,'YGrid','on')
-% title({twosecdirectory,tensecdirectory})
+figure
+boxplot([wake_agreement2sec',SWS_agreement2sec',REM_agreement2sec',global_agreement2sec',kappa2sec', ...
+	     wake_agreement10sec',SWS_agreement10sec',REM_agreement10sec',global_agreement10sec',kappa10sec'],'labels', ...
+	     {'Wake_2sec', 'SWS_2sec', 'REM_2sec', 'Overall_2sec', 'Kappa_2sec','Wake_10sec', 'SWS_10sec', 'REM_10sec', 'Overall_10sec', 'Kappa_10sec' }, ...
+	'plotstyle','compact','boxstyle','filled','colors','rb');
+ax=gca();
+set(ax,'YGrid','on')
+title({twosecdirectory,tensecdirectory})
 
 
 % Now make a second plot of kappa vs the percentage of training data used
@@ -119,3 +119,4 @@ title('BA')
 % Then call plotly something like this:
 %resp = fig2plotly(gcf,'name','Accuracy of PCA approach','strip',1)
 % resp.url gives the url to the plotted figure
+
