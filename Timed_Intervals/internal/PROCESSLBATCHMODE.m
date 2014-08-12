@@ -1,5 +1,5 @@
 function [signal_data,state_data,best_S,UppA,LowA,Timer,Taui,Taud]=PROCESSLBATCHMODE(directory,signal,algorithm)
-% USAGE: [best_S,Taui,Taud]=ProcessLBatchMode(directory,signal,algorithm)
+% USAGE: [best_S,Taui,Taud]=PROCESSLBATCHMODE(directory,signal,algorithm)
 %
 % INPUTS:
 % directory is where the data files are (include the entire directory. i.e. 'D:\mrempe\strain_study_data\BL\long_files\'
@@ -28,16 +28,6 @@ directory_plus_extension=strcat(directory,'*.txt');
 files = dir(directory_plus_extension);     % the dir function returns a cell array containing the name, date, bytes and date-as-number as a single array for each txt file in this directory.
 
 HowManyFiles = length(files) % Need to know the number of files to process.  This number is encoded as the variable "HowManyFiles". 
-
-% for FileCounter = 1:length(files)   %Runs the following set of commands for each file meeting criterion within the current directory.
-  
-%   InputFileList {FileCounter,1} = files (FileCounter).name;  %InputFileList is a Cell Array of Strings, meaning an array of strings that are not necessarily uniform in number of characters.
-%   InputFileList {FileCounter,2} = FileCounter; %Each row in InputFileList contains the name of one *.txt file followed by the row number associated with that file in InputFileList. 
-% end 
-				% the use of '{}' to signify array positions identifies this array as a cell array of strings
-%Here, InputFileList receives the names associated with each file in the directory that meets inclusion criteria.  (FileCounter,1) identifies a cell within InputFileList.  
-% '.name' indicates that we need to add the name to InputFileList at element (FileCounter,1).  So now we have a cell array of Strings, in which all input files are listed. 
-% For more information on batch processing, see: http://blogs.mathworks.com/steve/2006/06/06/batch-processing/#1
 
 
 % ---
@@ -71,9 +61,6 @@ second_second_time_stamp = str2num(textdata{2,1}(last_colon_loc+1))*10+str2num(t
 
 epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp minute_second_time_stamp second_second_time_stamp],[2014 2 28 hour_first_time_stamp minute_first_time_stamp second_first_time_stamp]);
 
-%epoch_length_in_seconds = (textdata{2,1}(last_colon_loc+1)*10+textdata{2,1}(last_colon_loc+2))-(textdata{1,1}(last_colon_loc+1)*10+textdata{1,1}(last_colon_loc+2))
-%epoch_length_in_seconds = (textdata{2,1}(19)*10+textdata{2,1}(20))-(textdata{1,1}(19)*10+textdata{1,1}(20)) 
-
 
   if strcmp(signal,'lactate')      % cut off data if using lactate sensor
     lactate_cutoff_time_hours=60;  % time in hours to cut off the lactate signal (lifetime of sensor)
@@ -93,8 +80,7 @@ epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp min
 
   missing_values=0;
   for i = 1: size(data,1)  
-    %i
-
+    
     if isempty(textdata{i,2})==1        % call unscored epochs wake
       missing_values=missing_values+1;
       PhysioVars(i,1)=0;  
@@ -123,9 +109,14 @@ epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp min
   else PhysioVars(:,2)=data(:,1);
   end
   
-  PhysioVars(:,3) = sum(data(:,3:5),2);   % as many rows as there are rows in the input file, EEG1 delta power (1-4Hz) 
-  PhysioVars(:,4) = sum(data(:,43:45),2); % as many rows as there are rows in the input file, EEG2 delta power (1-4Hz)
-  
+  size(data)
+  PhysioVars(:,3) = sum(data(:,3:5),2);     % as many rows as there are rows in the input file, EEG1 delta power (1-4Hz) 
+  if size(data,2) == 82
+    PhysioVars(:,4) = sum(data(:,43:45),2);   % EEG2 delta power (1-4Hz) if .txt file goes up to 40 Hz
+  elseif size(data,2) == 44
+    PhysioVars(:,4) = sum(data(:,24:26),2); % EEG2 delta power (1-4Hz) if .txt file goes up to 20 Hz
+  end
+
   d1smoothed = medianfiltervectorized(PhysioVars(:,3),2); 
   d2smoothed = medianfiltervectorized(PhysioVars(:,4),2);
   
@@ -167,7 +158,7 @@ epoch_length_in_seconds(FileCounter)=etime([2014 2 28 hour_second_time_stamp min
 
 
   % compute the length of the datafile in hours 
-  start_time = TimeStampMatrix{FileCounter}(:,locs_of_start_times(1));
+  start_time = TimeStampMatrix{FileCounter}(:,1);
   end_time   = TimeStampMatrix{FileCounter}(:,end);
 
   start_time(1:3) = [start_time(3); start_time(1); start_time(2)];

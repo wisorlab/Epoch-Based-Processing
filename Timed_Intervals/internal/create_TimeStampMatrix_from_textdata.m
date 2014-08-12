@@ -5,12 +5,16 @@ for i=1:length(textdata)
       TimeStampMatrix(:,i) = sscanf(textdata{i,1},'"%f/%f/%f,%f:%f:%f"');
     catch exception1
       try 
-	TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
+        TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f,%f:%f:%f');
       catch exception2 
         try   
           TimeStampMatrix(:,i) = sscanf(textdata{i,1},'%f/%f/%f %f:%f:%f');  
         catch exception3
+          try
+            TimeStampMatrix(:,i) = sscanf(textdata{1,1},'"""%f/%f/%f,%f:%f:%f"""');
+          catch exception4
+          end
         end  
       end
     end
-   end
+  end

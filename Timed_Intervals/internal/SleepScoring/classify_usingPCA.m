@@ -220,6 +220,27 @@ a = find(filename=='\');
 title(['Computer-scored data for file ', filename(a(end)+1:end)])
 legend('Wake','SWS','REMS')
 
+figure
+hold on 
+for i=1:length(PCAvectors(:,1))
+	if predicted_sleep_state(i)==0
+		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'r.')
+	end
+	if predicted_sleep_state(i)==1
+		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'b.')
+	end
+	if predicted_sleep_state(i)==2
+		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'.','MarkerColor',[1 .5 0])
+	end
+end
+hold off
+
+xlabel('PCA1')
+ylabel('PCA2')
+a = find(filename=='\');
+title(['Computer-scored data for file ', filename(a(end)+1:end)])
+legend('Wake','SWS','REMS')
+
 
 % Compute statistics about agreement 
 kappa = compute_kappa(SleepState,predicted_sleep_state);

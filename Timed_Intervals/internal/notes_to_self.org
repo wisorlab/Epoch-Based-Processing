@@ -84,7 +84,7 @@ This is exactly what happened.  I re-compiled octave-mod.el and now it finally w
 I have comments in matlab.  
 
 
-Thursday, July 25 2013:
+* Thursday, July 25 2013:
 I ran the code without nelder-mead and it worked and was giving me correct results,
 but much slower than w/o nelder-mead.  
 
@@ -1514,6 +1514,18 @@ experiment.   Compare these to the 10-second epoch simulations.
 
 
 Also, there is new whisking data in D/Wclegern01/Lactate Whisker Stim/Sleep Report Files/ 
-so I can run my algorithm on those data too. 
+so I can run my algorithm on those data too. Right now my code breaks on these data since 
+these files do not have the same number of columns as the other .txt files. Make importdata.m 
+and PROCESSLBATCHMODE.m more robust so I actually find the columns with the correct data rather 
+than doing something like data(:,43:45)
+
+Ask Will about BA1180.  All the EEG values seem to be orders of magnitude lower than other files. It looks like just the EEG1 signal 
+is bad.  EEG2 looks fine.   
 
 
+* Tuesday, August 12, 2014
+Use file BL-118140 for the side-by-side PCA plots of human vs computer scored.  Make a subplot figure in Matlab then modify it in 
+plotly to make the symbols smaller and transparent.  Use entire file or restricted?  
+
+Making Sleep Reports for Will, BA1211-2sec.txt does not work because the first 16200 epochs are not marked with a sleep state
+and this throws off importDSIlactateFftfile.m   Should we run sleep reports on just the 10AM-2PM window?  
