@@ -100,6 +100,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         IntervalStop=IntervalStart+IntervalDuration-1;
         State=char(textdata(IntervalStart:IntervalStop,2));
         
+
         %here we ask whether there is a column of lactate data as column 1 of data.
         %If so, we account for that column in extracting EEG and EMG data.
         %Else, we assume EEG1 data are the very first column of data on.
@@ -172,7 +173,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
             SWSEEG2Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=NaN;
         end
         
-        WakeEpochs=find(logical(State=='W' | State=='X'));
+        WakeEpochs=find(logical(State=='W' | State=='X' | State==' '));
         WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute;
         if WakeMinutes(FileCounter,BinReader)>0
             WakeEEG1FFT=EEG1fft(WakeEpochs(:),:);
@@ -197,7 +198,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
     end
-    
+    total_length = length(SWSEpochs)+length(WakeEpochs)+length(REMSEpochs)
     
 
     
@@ -293,7 +294,7 @@ sheets10 = xl.addSheets({ 'EEG1 REMS FFT' });
 sheets11 = xl.addSheets({ 'EEG2 REMS FFT' });
 
 %insert cell arrays into output sheets
-xl.setCells(  sheets1{1}, [1,1], [ OutputPctSWS ] );
+xl.setCells( sheets1{1}, [1,1], [ OutputPctSWS ] );
 xl.setCells( sheets2{1}, [1,1], [ OutputPctREMS ] );
 xl.setCells( sheets3{1}, [1,1], [ OutputPctWake ] );
 xl.setCells( sheets4{1}, [1,1], [ OutputEEG1SWS ] );

@@ -1528,4 +1528,19 @@ Use file BL-118140 for the side-by-side PCA plots of human vs computer scored.  
 plotly to make the symbols smaller and transparent.  Use entire file or restricted?  
 
 Making Sleep Reports for Will, BA1211-2sec.txt does not work because the first 16200 epochs are not marked with a sleep state
-and this throws off importDSIlactateFftfile.m   Should we run sleep reports on just the 10AM-2PM window?  
+and this throws off importDSIlactateFftfile.m   Should we run sleep reports on just the 10AM-2PM window?  I updated SleepReport.m 
+to use my importdatafile.m instead of importDSIlactateFftfile.m.  
+
+Notes from talk with Jonathan:  For all of the figures except the last two, use only the 8640 epochs like we talked about. Use 
+all the data (computer-scored) for the SWA and lactate simulation figures and we won't compare human to computer here just epoch 
+length.  For the sleep report figure we're not comparing between epoch lengths, just computer vs. human 
+
+* Wednesday, August 13, 2014
+Have Jon make (or at least help) the flow chart figure
+Have Will make (or at least help make) the panels or figure that compares the EEG/EMG
+
+one issue: SleepReport results are inconsistent. Running it on the human-scored and auto-scored for the same 
+file, if I add up the time spent in each of the three states, they don't add up to the same total time.  Look at this a litte. 
+If it's not obvious I can have Jon or Jonathan look at it later.   
+The variable State is the same size in both files so that's not the problem.  How it computes total time in each state 
+is very straightforward so I don't know why it's not working. 
