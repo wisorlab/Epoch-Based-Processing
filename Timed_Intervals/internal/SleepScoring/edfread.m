@@ -96,7 +96,7 @@ function [hdr, record] = edfread(fname, varargin)
 % ns * 80 ascii : ns * prefiltering (e.g. HP:0.1Hz LP:75Hz)
 % ns * 8 ascii : ns * nr of samples in each data record
 % ns * 32 ascii : ns * reserved
-
+%
 % DATA RECORD
 % nr of samples[1] * integer : first signal in the data record
 % nr of samples[2] * integer : second signal
