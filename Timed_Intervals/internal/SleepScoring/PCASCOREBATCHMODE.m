@@ -1,6 +1,6 @@
 function [wake_agreement,SWS_agreement,REM_agreement,global_agreement,kappa]=PCASCOREBATCHMODE(signal,directory)
 
-% usage: PCASCOREBATCHMODE(signal,directory)
+% usage: [wake_agreement,SWS_agreement,REM_agreement,global_agreement,kappa]=PCASCOREBATCHMODE(signal,directory)
 %
 % This function calls classify_usingPCA.m on each .txt file in the directory given as the 
 % second argument.  It uses principal component analysis (following Gilmour et al Neurosci Letters 2010) to 

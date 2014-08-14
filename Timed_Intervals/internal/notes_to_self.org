@@ -1537,10 +1537,36 @@ length.  For the sleep report figure we're not comparing between epoch lengths, 
 
 * Wednesday, August 13, 2014
 Have Jon make (or at least help) the flow chart figure
-Have Will make (or at least help make) the panels or figure that compares the EEG/EMG
+Have Will make (or at least help make) the panels or figure that compares the EEG/EMG/scoring between human and computer
 
 one issue: SleepReport results are inconsistent. Running it on the human-scored and auto-scored for the same 
 file, if I add up the time spent in each of the three states, they don't add up to the same total time.  Look at this a litte. 
 If it's not obvious I can have Jon or Jonathan look at it later.   
 The variable State is the same size in both files so that's not the problem.  How it computes total time in each state 
 is very straightforward so I don't know why it's not working. 
+FIXED: SLEEPREPORT.m wasn't counting epochs that were not scored.  I changed it so they are counted as wake and now 
+everthing adds up.  
+
+decision: make a subplot using scatter in matlab.  Then make it nice in Plotly.  Finally, add a third dimension in Illustrator, like
+Gilmour has.  Once I make one I can paste it on for both.  Plotly export to eps doesn't look good in Illustrator.  Pdf has much better 
+fonts, but the data points look grainy.  svg out of plotly seems to get the data points clear, but layout is all screwed up.  I ended up 
+sticking with pdf and just going for a high resolution. 
+
+I've saved a first draft of the side by side PCA figure in mrempe.  It's called SidebySidePCAfigure_together.pdf.  
+
+Re-running SleepReport.m for each of the human-scored .txt files.  I don't need to redo computer scored because they 
+have a score for each epoch.  Problem: the State vector is really an array.  Why does it have two columns? This messes up my code that 
+finds empty elements in the char array.  
+
+I need to organize my github stuff.  push changes today from todayscode4 and make sure I got everything. Copy Epoch-Based into another 
+directory and then checkout the github repo into mrempe and make sure everything is actually updated to the latest version.  
+
+* Thursday, August 14, 2014
+I decided to go with Authorea for the manuscript.  It will make it easier for all 4 of us to add to it. I copied the latest 
+text from my .tex file into the authorea manuscript.  
+
+SLEEPREPORT.m works fine for BA-121140 but breaks when running more than one at once.  I found the problem: I was using too many epochs. 
+It is important to use only as many epochs as the shortest .txt file in the group.  When I did this it worked fine. I also 
+re-ran it for the computer scored files for BA and they matched up perfectly so my improvements to SLEEPREPORT did not affect 
+the reports for the machine-learning datasets. 
+

@@ -64,6 +64,7 @@ sheets2  = xl2.addSheets( sheetnames2 );
 xl2.sourceInfo( mfilename('fullpath') );
 xl2.rmDefaultSheets();
 
+disp(['length(files): ' num2str(length(files))])
 
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.
     combinedStr = strcat(path,files{FileCounter});
@@ -80,6 +81,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     epochs_per_minute = 60/epoch_length_in_seconds;
 
     statechars=char(textdata(:,2));
+    statechars=statechars(:,1);  % statechars sometimes had 2 columns which threw everything off
      [WakeBoutCount(FileCounter,1:numberIntervals(FileCounter)),WakeBoutMean(FileCounter,1:numberIntervals(FileCounter)),SwsBoutCount(FileCounter,1:numberIntervals(FileCounter)),...
         SwsBoutMean(FileCounter,1:numberIntervals(FileCounter)),RemsBoutCount(FileCounter,1:numberIntervals(FileCounter)),RemsBoutMean(FileCounter,1:numberIntervals(FileCounter)),...
         BriefWakeCount(FileCounter,1:numberIntervals(FileCounter))]=DetectStateEpisodesIntervalMode(statechars,IntervalDuration,epoch_length_in_seconds);
@@ -99,7 +101,9 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         IntervalStart=(BinReader-1)*IntervalDuration+1;
         IntervalStop=IntervalStart+IntervalDuration-1;
         State=char(textdata(IntervalStart:IntervalStop,2));
-        
+        State=State(:,1);
+        disp('State is this size upon initializing')
+        size(State)
 
         %here we ask whether there is a column of lactate data as column 1 of data.
         %If so, we account for that column in extracting EEG and EMG data.
@@ -158,7 +162,9 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
       %here, we identify and count epochs of each state.
         
         SWSEpochs=find(logical(State=='S'));
-        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epochs_per_minute;
+        disp(['numel(SWSEpochs) is ' num2str(numel(SWSEpochs))])
+        disp(['FileCounter is ' num2str(FileCounter)])
+        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epochs_per_minute
         if SWSMinutes(FileCounter,BinReader)>0
             SWSEEG1FFT=EEG1fft(SWSEpochs(:),:);
             SWSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(SWSEEG1FFT);
@@ -174,7 +180,11 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         WakeEpochs=find(logical(State=='W' | State=='X' | State==' '));
-        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute;
+        size(State)
+        size(WakeEpochs)
+        size(EEG1fft)
+
+        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute
         if WakeMinutes(FileCounter,BinReader)>0
             WakeEEG1FFT=EEG1fft(WakeEpochs(:),:);
             WakeEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(WakeEEG1FFT);
@@ -205,6 +215,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
     %put data into cell arrays that will be placed in Excel Sheets.
     %the for loop is necessary because whole lines of numerical data cannot
     %be placed into a cell array chunk-wise.
+    disp(['FileCounter just before SWSMinutes(FileCounter : ' num2str(FileCounter)])
     for IntervalCount=1:numberIntervals
         CellOutPctSWS{FileCounter,IntervalCount}  = SWSMinutes(FileCounter,IntervalCount);
         CellOutPctWake{FileCounter,IntervalCount} = WakeMinutes(FileCounter,IntervalCount);
