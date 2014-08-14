@@ -5,6 +5,9 @@ function [predicted_score,kappa,global_agreement,wake_agreement,SWS_agreement,RE
 	% This function uses a Principal Component Analysis approach to classify the sleep state of each epoch of the file filename. 
 	% The approach is based on Gilmour et al 2010, but instead of having the user visually draw lines separating states, this function 
 	% calls classify.m to to draw curves around the respective regions. 
+	% 
+	% NOTE: this function requires data that contains frequencies up to 40 Hz since one of the features is the power in 
+	% the "high beta" band (30-40 Hz)
 	%
 	% 
 	%
@@ -89,23 +92,7 @@ end
 if already_scored_by_human
 	SleepState(find(SleepState==8))=0; %set unscored epochs to wake if the file has already been scored by a human
 end
-	   % % Set up the sleep state as a variable
-	   % SleepState=zeros(size(data,1),1);
-	   % for i = 1: size(data,1)               %0=Wake,1=SWS,2=REM, 5=artefact,8=not scored
-	   % 	if textdata{i,2}=='W' 
-	   % 		SleepState(i)=0;
-	   % 	elseif textdata{i,2}=='S'
-	   % 		SleepState(i)=1;
-	   % 	elseif textdata{i,2}=='P'
-	   % 		SleepState(i)=2;
-	   % 	elseif textdata{i,2}=='R'
-	   % 		SleepState(i)=2;
-	   % 	elseif textdata{i,2}=='X'
-	   % 		SleepState(i)=5;
-	  	% elseif isempty(textdata{i,2})==1
-	   % 		SleepState(i)=8;     %If a file is partially scored let the learning algorithm fill in the sleep state
-	   % 	end
-	   % end
+	  
 
 % Handle artefacts 
   if length(find(SleepState(:,1)==5)) > 0
@@ -135,15 +122,16 @@ end
 	   Feature(:,7) = sum(data(:,17:31),2)./Feature(:,1);
 	end 
 
-if strcmp(signal,'EEG2')  
-	Feature(:,1) = sum(data(:,43:45),2);	%delta
-	Feature(:,2) = sum(data(:,47:50),2);	%theta
-	Feature(:,3) = sum(data(:,52:61),2);	%low beta
-	Feature(:,4) = sum(data(:,72:81),2);	%high beta
-	Feature(:,5) = data(:,end);				%EMG
-	Feature(:,6) = Feature(:,2)./Feature(:,1);
-	Feature(:,7) = sum(data(:,57:71),2)./Feature(:,1);
-end
+
+	if strcmp(signal,'EEG2')  
+       Feature(:,1) = sum(data(:,43:45),2);	%delta
+	   Feature(:,2) = sum(data(:,47:50),2);	%theta
+	   Feature(:,3) = sum(data(:,52:61),2);	%low beta
+	   Feature(:,4) = sum(data(:,72:81),2);	%high beta
+	   Feature(:,5) = data(:,end);				%EMG
+	   Feature(:,6) = Feature(:,2)./Feature(:,1);
+	   Feature(:,7) = sum(data(:,57:71),2)./Feature(:,1);
+	end
 
 
 % Smoothing
@@ -205,41 +193,71 @@ err
 
 % Compare human-scored vs computer scored
 figure
+subplot(1,2,1)
 gscatter(PCAvectors(:,1),PCAvectors(:,2),SleepState,[1 0 0; 0 0 1; 1 .5 0],'osd');
-xlabel('PCA1')
-ylabel('PCA2')
+xlabel('PC1')
+ylabel('PC2')
 a = find(filename=='\');
 title(['Human-scored data for file ', filename(a(end)+1:end)])
 legend('Wake','SWS','REMS')
 
-figure
+subplot(1,2,2)
 gscatter(PCAvectors(:,1),PCAvectors(:,2),predicted_sleep_state,[1 0 0; 0 0 1; 1 .5 0],'osd');
-xlabel('PCA1')
-ylabel('PCA2')
+xlabel('PC1')
+ylabel('PC2')
 a = find(filename=='\');
 title(['Computer-scored data for file ', filename(a(end)+1:end)])
 legend('Wake','SWS','REMS')
 
-figure
-hold on 
-for i=1:length(PCAvectors(:,1))
-	if predicted_sleep_state(i)==0
-		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'r.')
-	end
-	if predicted_sleep_state(i)==1
-		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'b.')
-	end
-	if predicted_sleep_state(i)==2
-		plot3(PCAvectors(i,1),PCAvectors(i,2),PCEvectors(i,3),'.','MarkerColor',[1 .5 0])
-	end
-end
-hold off
+% figure(71)
+% hold on 
+% for i=1:length(PCAvectors(:,1))
+% 	if SleepState(i)==0
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'r.')
+% 	end
+% 	if SleepState(i)==1
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'b.')
+% 	end
+% 	if SleepState(i)==2
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'.','Color',[1 .5 0])
+% 	end
+% end
+% hold off
 
-xlabel('PCA1')
-ylabel('PCA2')
-a = find(filename=='\');
-title(['Computer-scored data for file ', filename(a(end)+1:end)])
-legend('Wake','SWS','REMS')
+% xlabel('PC1')
+% ylabel('PC2')
+% zlabel('PC3')
+% view(20,82)
+% a = find(filename=='\');
+% title(['Human-scored data for file ', filename(a(end)+1:end)])
+% legend('Wake','SWS','REMS')
+
+% figure(72)
+% hold on 
+% for i=1:length(PCAvectors(:,1))
+% 	if predicted_sleep_state(i)==0
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'r.')
+% 	end
+% 	if predicted_sleep_state(i)==1
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'b.')
+% 	end
+% 	if predicted_sleep_state(i)==2
+% 		plot3(PCAvectors(i,1),PCAvectors(i,2),PCAvectors(i,3),'.','Color',[1 .5 0])
+% 	end
+% end
+% hold off
+
+% xlabel('PC1')
+% ylabel('PC2')
+% zlabel('PC3')
+% view(20,82)
+% a = find(filename=='\');
+% title(['Computer-scored data for file ', filename(a(end)+1:end)])
+% legend('Wake','SWS','REMS')
+
+
+
+
 
 
 % Compute statistics about agreement 

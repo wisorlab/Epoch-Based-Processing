@@ -1570,3 +1570,7 @@ It is important to use only as many epochs as the shortest .txt file in the grou
 re-ran it for the computer scored files for BA and they matched up perfectly so my improvements to SLEEPREPORT did not affect 
 the reports for the machine-learning datasets. 
 
+change .m file names that are all caps to not all caps  TESTPCASCOREBATCHMODE.m and AUTOSCOREBATCHMODE.m so other people can know 
+which script is the main one in my directory. 
+
+
