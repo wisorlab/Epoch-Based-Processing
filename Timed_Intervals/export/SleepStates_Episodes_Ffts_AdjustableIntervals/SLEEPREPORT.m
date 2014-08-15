@@ -28,6 +28,19 @@ if ischar(files), files = {files}; end
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.
     combinedStr = strcat(path,files{FileCounter});
     [data,textdata]=importdatafile(files{FileCounter},path);
+    
+% ****** UNCOMMENT THESE LINES IF YOU WANT TO RESTRICT THE DATA TO 8640 EPOCHS STARTING AT 10AM
+%      % first find instances of 10:00:00 AM
+% index10 = strfind(textdata,'10:00:00');
+% index   = find(not(cellfun('isempty',index10)));
+% start_ind = index(1);
+% end_ind   = index(1)+8639;
+% data = data(start_ind:end_ind,:);
+% textdata = textdata(start_ind:end_ind,:);
+% *******************************************************************************************
+
+
+
     %importDSILactateFftfile(combinedStr);  %importfile is a function (stored as the file'importfile.m' that imports a DSI output text file to produce two matrices.
     % One matrix (textdata) holds the date/time stamp.  The other (data) holds the lactate and EEG data.
     %It is a major caveat that the headers from the txt file are retained in textdata but not in data, which means that data and textdata are not aligned with respect to epoch number
@@ -69,6 +82,20 @@ disp(['length(files): ' num2str(length(files))])
 for FileCounter=1:length(files)  %this loop imports the data files one-by-one and processes the data in them into output files.
     combinedStr = strcat(path,files{FileCounter});
     [data,textdata]=importdatafile(files{FileCounter},path);
+    
+
+% ****** UNCOMMENT THESE LINES IF YOU WANT TO RESTRICT THE DATA TO 8640 EPOCHS STARTING AT 10AM
+%      % first find instances of 10:00:00 AM
+% index10 = strfind(textdata,'10:00:00');
+% index   = find(not(cellfun('isempty',index10)));
+% start_ind = index(1);
+% end_ind   = index(1)+8639;
+% data = data(start_ind:end_ind,:);
+% textdata = textdata(start_ind:end_ind,:);
+% *******************************************************************************************
+
+
+
     %importDSILactateFftfile(combinedStr);  %importfile is a function (stored as the file'importfile.m' that imports a DSI output text file to produce two matrices.
     % One matrix (textdata) holds the date/time stamp.  The other (data) holds the lactate and EEG data.
     %It is a major caveat that the headers from the txt file are retained in textdata but not in data, which means that data and textdata are not aligned with respect to epoch number
@@ -102,8 +129,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         IntervalStop=IntervalStart+IntervalDuration-1;
         State=char(textdata(IntervalStart:IntervalStop,2));
         State=State(:,1);
-        disp('State is this size upon initializing')
-        size(State)
+        
 
         %here we ask whether there is a column of lactate data as column 1 of data.
         %If so, we account for that column in extracting EEG and EMG data.
@@ -162,9 +188,7 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
       %here, we identify and count epochs of each state.
         
         SWSEpochs=find(logical(State=='S'));
-        disp(['numel(SWSEpochs) is ' num2str(numel(SWSEpochs))])
-        disp(['FileCounter is ' num2str(FileCounter)])
-        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epochs_per_minute
+        SWSMinutes(FileCounter,BinReader)=numel(SWSEpochs)/epochs_per_minute;
         if SWSMinutes(FileCounter,BinReader)>0
             SWSEEG1FFT=EEG1fft(SWSEpochs(:),:);
             SWSEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(SWSEEG1FFT);
@@ -180,11 +204,9 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
         WakeEpochs=find(logical(State=='W' | State=='X' | State==' '));
-        size(State)
-        size(WakeEpochs)
-        size(EEG1fft)
+       
 
-        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute
+        WakeMinutes(FileCounter,BinReader)=numel(WakeEpochs)/epochs_per_minute;
         if WakeMinutes(FileCounter,BinReader)>0
             WakeEEG1FFT=EEG1fft(WakeEpochs(:),:);
             WakeEEG1Average(FileCounter,(BinReader-1)*20+1:(BinReader-1)*20+20)=mean(WakeEEG1FFT);
@@ -208,14 +230,13 @@ for FileCounter=1:length(files)  %this loop imports the data files one-by-one an
         end
         
     end
-    total_length = length(SWSEpochs)+length(WakeEpochs)+length(REMSEpochs)
+    total_length = length(SWSEpochs)+length(WakeEpochs)+length(REMSEpochs);
     
 
     
     %put data into cell arrays that will be placed in Excel Sheets.
     %the for loop is necessary because whole lines of numerical data cannot
     %be placed into a cell array chunk-wise.
-    disp(['FileCounter just before SWSMinutes(FileCounter : ' num2str(FileCounter)])
     for IntervalCount=1:numberIntervals
         CellOutPctSWS{FileCounter,IntervalCount}  = SWSMinutes(FileCounter,IntervalCount);
         CellOutPctWake{FileCounter,IntervalCount} = WakeMinutes(FileCounter,IntervalCount);

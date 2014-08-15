@@ -14,7 +14,7 @@ function [wake_agreement2sec,SWS_agreement2sec,REM_agreement2sec,global_agreemen
 % only 8640 epochs of data.  This corresponds to 24 hours of data in a 10-second 
 % epoch file and almost 5 hours of data in a 2-second epoch file. 
 %
-% This script first reads in the files than removes all of the data except 
+% This script first reads in the files then removes all of the data except 
 % the 8640 epochs starting at the first instance of 10 AM.  
 %
 %

@@ -190,6 +190,12 @@ end
 err 
 
 
+% Or do a random forest
+% B=TreeBagger(500,PCAvectors(scored_rows,1:3),SleepState(scored_rows));  %build 50 bagged decision trees
+% bag_predicted_sleep_state = predict(B,PCAvectors(:,1:3));
+% predicted_sleep_state = cell2mat(bag_predicted_sleep_state);
+% predicted_sleep_state = str2num(predicted_sleep_state);
+
 
 % Compare human-scored vs computer scored
 figure

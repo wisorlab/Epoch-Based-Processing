@@ -1554,23 +1554,37 @@ sticking with pdf and just going for a high resolution.
 
 I've saved a first draft of the side by side PCA figure in mrempe.  It's called SidebySidePCAfigure_together.pdf.  
 
-Re-running SleepReport.m for each of the human-scored .txt files.  I don't need to redo computer scored because they 
+[X] Re-running SleepReport.m for each of the human-scored .txt files.  I don't need to redo computer scored because they 
 have a score for each epoch.  Problem: the State vector is really an array.  Why does it have two columns? This messes up my code that 
 finds empty elements in the char array.  
 
-I need to organize my github stuff.  push changes today from todayscode4 and make sure I got everything. Copy Epoch-Based into another 
-directory and then checkout the github repo into mrempe and make sure everything is actually updated to the latest version.  
+[X] I need to organize my github stuff.  push changes today from todayscode4 and make sure I got everything. Copy Epoch-Based into another 
+directory and then checkout the github repo into mrempe and make sure everything is actually updated to the latest version. 
+Everything is in mrempe\Epoch-Based-Processing now.  
 
 * Thursday, August 14, 2014
 I decided to go with Authorea for the manuscript.  It will make it easier for all 4 of us to add to it. I copied the latest 
 text from my .tex file into the authorea manuscript.  
 
-SLEEPREPORT.m works fine for BA-121140 but breaks when running more than one at once.  I found the problem: I was using too many epochs. 
+SLEEPREPORT.m works fine for BA-121140 but breaks when running more than one at once.  FIXED: I found the problem: I was using too many epochs. 
 It is important to use only as many epochs as the shortest .txt file in the group.  When I did this it worked fine. I also 
 re-ran it for the computer scored files for BA and they matched up perfectly so my improvements to SLEEPREPORT did not affect 
 the reports for the machine-learning datasets. 
 
-change .m file names that are all caps to not all caps  TESTPCASCOREBATCHMODE.m and AUTOSCOREBATCHMODE.m so other people can know 
+[X] change .m file names that are all caps to not all caps  TESTPCASCOREBATCHMODE.m and AUTOSCOREBATCHMODE.m so other people can know 
 which script is the main one in my directory. 
+
+* Friday, August 15, 2014
+Run the Sleep Report Statistics for 8640 epochs (starting at 10 AM) for the following:
+BA 10sec human  (saved in strain_study_data\BA\compareto2sec with 10sec_8640epochs_human_scored in file names)
+BA 10sec autoscored (saved in strain_study_data\BA\compareto2sec\autoscored with 8640epochs_machinescored in file names)
+BA 2sec  human   (saved in strain_study_data\2SecondEpochs\BA with 2sec_8640epochs_human_scored in the file names)
+BA 2sec  autoscored (saved in strain_study_data\2SecondEpochs\BA\autoscored with 2sec_8640epochs_human_scored in the file names))
+BL 10sec human (saved in strain_study_data\BL\compareto2sec\ with 10sec_8640epochs_human_scored in file names)
+BL 10sec autoscored (saved in strain_study_data\BL\compareto2sec\autoscored with 10sec_8640epochs_machine_scored in file names)
+BL 2sec  human (saved in strain_study_data\2SecondEpochs\BL\ with BL2sec8640epochs_human_scored in file name)
+BL 2sec  autoscored  (saved in strain_study_data\2SecondEpochs\BL\autoscore with BL2sec8640epochs_machine_scored in file name)
+
+
 
 
