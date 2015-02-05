@@ -10,6 +10,7 @@ if fid == -1
 end
 
 try
+    
     %Header
     idCode = strtrim(fread(fid,8,'*char')');
     
